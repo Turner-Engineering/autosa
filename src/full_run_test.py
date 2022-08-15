@@ -19,8 +19,8 @@ def recordBand(inst, folder, filename, dur=5):
     # SAVE
     csvFilename = f"{folder}/{filename}.csv"
     pngFilename = f"{folder}/{filename}.png"
-    inst.write(f":MMEM:STOR:TRAC:DATA ALL, '{csvFilename}'")
-    inst.write(f":MMEM:STOR:SCR '{pngFilename}'")
+    inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csvFilename}"')
+    inst.write(f':MMEM:STOR:SCR "{pngFilename}"')
     return
 
 
