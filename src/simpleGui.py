@@ -1,10 +1,15 @@
 import PySimpleGUI as sg
-from full_run_test import main
+from full_run_test import recordMonopoleBands
 
-layout = [[sg.Text("Begin B1 - B7 Sweeps")], [sg.Button("Run")]]
+layout = [
+    [sg.Text("Begin B1 - B7 Sweeps")],
+    [sg.Text("Location:"), sg.Input(key="-LOCATION-")],
+    [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-")],
+    [sg.Button("Run")],
+]
 
 # Create the window
-window = sg.Window("Demo", layout, margins=(100, 50))
+window = sg.Window("Autosa by Tenco", layout, margins=(100, 50))
 
 # Create an event loop
 while True:
@@ -12,7 +17,9 @@ while True:
     # End program if user closes window or
     # presses the OK button
     if event == "Run":
-        main()
+        locationName = values["-LOCATION-"]
+        lastRunIndex = int(values["-LAST INDEX-"])
+        recordMonopoleBands(locationName, lastRunIndex)
     if event == sg.WIN_CLOSED:
         break
 
