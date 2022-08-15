@@ -41,7 +41,7 @@ def setCoupling(inst, coupling):
     # print(inst.query(f":INP:COUP?"))
 
 
-def getRunFilename(runIndex, bandName, locationName, notes=""):
+def getRunFilename(runIndex, bandName, siteName, notes=""):
     runNumber = "%02d" % runIndex
     d = datetime.datetime.now()
     month = str(int(d.strftime("%m")))
@@ -49,13 +49,13 @@ def getRunFilename(runIndex, bandName, locationName, notes=""):
     runId = f"{month}{date}-{runNumber}"
 
     if notes == "":
-        filename = f"{runId} {locationName} {bandName}"
+        filename = f"{runId} {siteName} {bandName}"
     else:
-        filename = f"{runId} {locationName} {notes} {bandName}"
+        filename = f"{runId} {siteName} {notes} {bandName}"
     return filename
 
 
-def recordMonopoleBands(locationName, lastRunIndex):
+def recordMonopoleBands(siteName, lastRunIndex):
     for i, key in enumerate(bands):
         bandName = key
         runIndex = i + 1 + lastRunIndex
@@ -63,7 +63,7 @@ def recordMonopoleBands(locationName, lastRunIndex):
 
         stateFilename = bands[key]["stateFilename"]
         corrFilename = bands[key]["corrFilename"]
-        runFilename = getRunFilename(runIndex, bandName, locationName)
+        runFilename = getRunFilename(runIndex, bandName, siteName)
 
         recallState(inst, stateFilename)
         recallCorr(inst, corrFilename)
@@ -74,6 +74,6 @@ def recordMonopoleBands(locationName, lastRunIndex):
 
 def main():
     time.sleep(5)
-    locationName = "Philadelphia"
+    siteName = "Philadelphia"
     lastRunIndex = 0
-    recordMonopoleBands(locationName, lastRunIndex)
+    recordMonopoleBands(siteName, lastRunIndex)

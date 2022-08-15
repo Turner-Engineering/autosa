@@ -3,7 +3,7 @@ from full_run_test import recordMonopoleBands
 
 layout = [
     [sg.Text("Begin B1 - B7 Sweeps")],
-    [sg.Text("Location:"), sg.Input(key="-LOCATION-")],
+    [sg.Text("Site Name:"), sg.Input(key="-site-")],
     [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-")],
     [sg.Button("Run")],
 ]
@@ -17,9 +17,9 @@ while True:
     # End program if user closes window or
     # presses the OK button
     if event == "Run":
-        locationName = values["-LOCATION-"]
+        siteName = values["-site-"]
         lastRunIndex = int(values["-LAST INDEX-"])
-        recordMonopoleBands(locationName, lastRunIndex)
+        recordMonopoleBands(siteName, lastRunIndex)
     if event == sg.WIN_CLOSED:
         break
 
