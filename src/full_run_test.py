@@ -72,7 +72,8 @@ def recordMonopoleBands(locationName, lastRunIndex):
         recordBand(inst, "D:/Users/Instrument/Desktop/Temba Tests", runFilename, 1)
 
 
-time.sleep(5)
-locationName = "Philadelphia"
-lastRunIndex = 0
-recordMonopoleBands(locationName, lastRunIndex)
+def main():
+    time.sleep(5)
+    locationName = "Philadelphia"
+    lastRunIndex = 0
+    recordMonopoleBands(locationName, lastRunIndex)
