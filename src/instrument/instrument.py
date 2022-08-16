@@ -68,8 +68,7 @@ def recordMonopoleBands(siteName, lastRunIndex):
         recallState(inst, stateFilename)
         recallCorr(inst, corrFilename)
         setCoupling(inst, coupling)
-        time.sleep(2)
-        recordBand(inst, "D:/Users/Instrument/Desktop/Temba Tests", runFilename, 1)
+        recordBand(inst, "D:/Users/Instrument/Desktop/Temba Tests", runFilename, 2)
 
 
 def main():

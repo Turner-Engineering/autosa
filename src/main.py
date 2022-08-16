@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-from full_run_test import recordMonopoleBands
+from instrument.instrument import recordMonopoleBands
 
 layout = [
     [sg.Text("Begin B1 - B7 Sweeps")],
