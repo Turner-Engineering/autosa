@@ -3,8 +3,8 @@ from instrument.instrument import recordMonopoleBands
 
 layout = [
     [sg.Text("Begin B1 - B7 Sweeps")],
-    [sg.Text("Site Name:"), sg.Input(key="-site-")],
-    [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-")],
+    [sg.Text("Site Name:"), sg.Input(key="-site-", default_text="Philly")],
+    [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-", default_text="0")],
     [sg.Button("Run")],
 ]
 
