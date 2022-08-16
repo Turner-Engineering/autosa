@@ -1,3 +1,6 @@
 .venv
 .python-version
 *.pyc
+.vscode
+install/build
+install/*.spec
