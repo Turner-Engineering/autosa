@@ -1,9 +1,15 @@
 import PySimpleGUI as sg
-from instrument.instrument import recordMonopoleBands
+import pyvisa
+
+from instrument.instrument import recordMonopoleBands, getInstResource
+
+rm = pyvisa.ResourceManager()
+resources = rm.list_resources()
+
 
 layout = [
     [sg.Text("Begin B1 - B7 Sweeps")],
-    [sg.Text("Site Name:"), sg.Input(key="-site-", default_text="Philly")],
+    [sg.Text("Site Name:"), sg.Input(key="-SITE-", default_text="Philly")],
     [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-", default_text="0")],
     [sg.Button("Run")],
 ]
@@ -17,9 +23,10 @@ while True:
     # End program if user closes window or
     # presses the OK button
     if event == "Run":
-        siteName = values["-site-"]
+        siteName = values["-SITE-"]
         lastRunIndex = int(values["-LAST INDEX-"])
-        recordMonopoleBands(siteName, lastRunIndex)
+        resource = getInstResource(resources)
+        recordMonopoleBands(resource, siteName, lastRunIndex)
     if event == sg.WIN_CLOSED:
         break
 

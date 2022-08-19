@@ -3,10 +3,17 @@ import time
 from bandsData import bands
 import pyvisa
 
-rm = pyvisa.ResourceManager()
 
-address = "USB0::0x2A8D::0x1B0B::MY57110397::INSTR"
-inst = rm.open_resource(address)
+def getInstResource(resources):
+    usbResources = [r for r in resources if "USB" in r]
+    instrUsbResources = [r for r in usbResources if "::INSTR" in r]
+    return instrUsbResources[0]
+
+
+def getInst(instResource):
+    rm = pyvisa.ResourceManager()
+    inst = rm.open_resource(instResource)
+    return inst
 
 
 def recordBand(inst, folder, filename, dur=5):
@@ -55,7 +62,8 @@ def getRunFilename(runIndex, bandName, siteName, notes=""):
     return filename
 
 
-def recordMonopoleBands(siteName, lastRunIndex):
+def recordMonopoleBands(resource, siteName, lastRunIndex):
+    inst = getInst(resource)
     for i, key in enumerate(bands):
         bandName = key
         runIndex = i + 1 + lastRunIndex
