@@ -5,13 +5,12 @@ installFolder = "install/"
 buildFolder = "install/build"
 distFolder = "install/dist"
 programName = "Autosa"
-mainPythonFile = "src/main.py"
+pythonFilePath = "src/main.py"
+# iconPath = "tenco-favicon-192x192.ico"
 
 PyInstaller.__main__.run(
     [
-        mainPythonFile,
-        "--onefile",
-        "--windowed",
+        pythonFilePath,
         "--workpath",
         buildFolder,
         "--distpath",
@@ -20,5 +19,10 @@ PyInstaller.__main__.run(
         installFolder,
         "--name",
         programName,
+        # "--icon",
+        # iconPath,
+        "--onefile",
+        "--windowed",
+        "--clean"
     ]
 )
