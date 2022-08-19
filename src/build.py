@@ -1,18 +1,24 @@
 import PyInstaller.__main__
 
 
+installFolder = "install/"
+buildFolder = "install/build"
+distFolder = "install/dist"
+programName = "Autosa"
+mainPythonFile = "src/main.py"
+
 PyInstaller.__main__.run(
     [
-        "src/main.py",
+        mainPythonFile,
         "--onefile",
         "--windowed",
         "--workpath",
-        "install/build",
+        buildFolder,
         "--distpath",
-        "install/dist",
+        distFolder,
         "--specpath",
-        "install/",
+        installFolder,
         "--name",
-        "Autosa",
+        programName,
     ]
 )
