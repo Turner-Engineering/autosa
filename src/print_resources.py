@@ -1,4 +1,4 @@
 import pyvisa
 
-resources = pyvisa.ResourceManager("@py")
+resources = pyvisa.ResourceManager()
 print(resources.list_resources())
