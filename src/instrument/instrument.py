@@ -69,10 +69,3 @@ def recordMonopoleBands(siteName, lastRunIndex):
         recallCorr(inst, corrFilename)
         setCoupling(inst, coupling)
         recordBand(inst, "D:/Users/Instrument/Desktop/Temba Tests", runFilename, 2)
-
-
-def main():
-    time.sleep(5)
-    siteName = "Philadelphia"
-    lastRunIndex = 0
-    recordMonopoleBands(siteName, lastRunIndex)
