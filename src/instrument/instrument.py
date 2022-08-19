@@ -31,15 +31,13 @@ def recordBand(inst, folder, filename, dur=5):
     return
 
 
-def recallState(inst, filename):
-    folder = "D:/Users/Instrument/Desktop/Tenco State Files 8-05-2022"
-    inst.write(f":MMEM:LOAD:STAT '{folder}/{filename}'")
+def recallState(inst, stateFolder, filename):
+    inst.write(f":MMEM:LOAD:STAT '{stateFolder}/{filename}'")
     return
 
 
-def recallCorr(inst, filename):
-    folder = "D:/Users/Instrument/Desktop/Tenco Exa Amp Corr"
-    inst.write(f":MMEM:LOAD:CORR 1,'{folder}/{filename}'")
+def recallCorr(inst, corrFolder, filename):
+    inst.write(f":MMEM:LOAD:CORR 1,'{corrFolder}/{filename}'")
     return
 
 
@@ -62,7 +60,8 @@ def getRunFilename(runIndex, bandName, siteName, notes=""):
     return filename
 
 
-def recordMonopoleBands(resource, siteName, lastRunIndex):
+def recordBands(resource, siteName, lastRunIndex, stateFolder, corrFolder, outFolder):
+
     inst = getInst(resource)
     for i, key in enumerate(bands):
         bandName = key
@@ -73,7 +72,7 @@ def recordMonopoleBands(resource, siteName, lastRunIndex):
         corrFilename = bands[key]["corrFilename"]
         runFilename = getRunFilename(runIndex, bandName, siteName)
 
-        recallState(inst, stateFilename)
-        recallCorr(inst, corrFilename)
+        recallState(inst, stateFolder, stateFilename)
+        recallCorr(inst, corrFolder, corrFilename)
         setCoupling(inst, coupling)
-        recordBand(inst, "D:/Users/Instrument/Desktop/Temba Tests", runFilename, 2)
+        recordBand(inst, outFolder, runFilename, 2)
