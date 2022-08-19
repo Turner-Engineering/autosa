@@ -60,10 +60,11 @@ def getRunFilename(runIndex, bandName, siteName, notes=""):
     return filename
 
 
-def recordBands(resource, siteName, lastRunIndex, stateFolder, corrFolder, outFolder):
-
+def recordBands(
+    resource, siteName, lastRunIndex, stateFolder, corrFolder, outFolder, bandKeys
+):
     inst = getInst(resource)
-    for i, key in enumerate(bands):
+    for i, key in enumerate(bandKeys):
         bandName = key
         runIndex = i + 1 + lastRunIndex
         coupling = bands[key]["coupling"]

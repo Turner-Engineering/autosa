@@ -11,9 +11,18 @@ outFolder = "D:/Users/Instrument/Desktop/Test Data"
 rm = pyvisa.ResourceManager()
 resources = rm.list_resources()
 
-
+bandRangeMonopole = "B0 - B4 (monopole)"
+bandRangeBilogical = "B5 - B7 (bilogical)"
 layout = [
-    [sg.Text("Begin B1 - B7 Sweeps")],
+    [
+        sg.Text("Make sure to check all the fields below before starting the run"),
+    ],
+    [
+        sg.Text("Band Range"),
+        sg.OptionMenu(
+            key="-BAND RANGE-", values=[bandRangeMonopole, bandRangeBilogical]
+        ),
+    ],
     [
         sg.Text("Site Name:"),
         sg.Input(
@@ -54,9 +63,23 @@ while True:
         corrFolder = values["-CORR FOLDER-"]
         outFolder = values["-OUT FOLDER-"]
 
+        bandKeys = (
+            ["B0", "B1", "B2", "B3", "B4"]
+            if values["-BAND RANGE-"] == bandRangeMonopole
+            else ["B5", "B6", "B7"]
+            if values["-BAND RANGE-"] == bandRangeBilogical
+            else ""
+        )
+
         resource = getInstResource(resources)
         recordBands(
-            resource, siteName, lastRunIndex, stateFolder, corrFolder, outFolder
+            resource,
+            siteName,
+            lastRunIndex,
+            stateFolder,
+            corrFolder,
+            outFolder,
+            bandKeys,
         )
     if event == sg.WIN_CLOSED:
         break
