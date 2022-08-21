@@ -9,12 +9,27 @@ corrFolder = "D:/Users/Instrument/Desktop/Tenco Exa Amp Corr"
 outFolder = "D:/Users/Instrument/Desktop/Test Data"
 
 rm = pyvisa.ResourceManager()
-resources = rm.list_resources()
 
 bandRangeMonopole = "B0 - B4 (monopole)"
 bandRangeBilogical = "B5 - B7 (bilogical)"
 
+instFound = False
+instResource = ""
+instFoundText = "Instrument Found ✔️"
+instNotFoundText = "Instrument Not Found ❌"
+
 layout = [
+    [
+        sg.Text("Instrument Found:"),
+        sg.Text(
+            instFoundText if instFound else instNotFoundText,
+            key="-INSTRUMENT FOUND-",
+        ),
+    ],
+    [
+        sg.Text("Instrument Resource:"),
+        sg.Text(instResource, key="-INSTRUMENT RESOURCE-", size=(60)),
+    ],
     [
         sg.Text(
             "Make sure to check all the fields below before starting the run", size=(60)
@@ -63,11 +78,24 @@ window = sg.Window(
     auto_size_text=False,
 )
 
-# Create an event loop
+
+def updateInstFound():
+    resources = rm.list_resources()
+    instResource = getInstResource(resources)
+    instFound = True if instResource != "" else False
+    window["-INSTRUMENT FOUND-"].update(
+        instFoundText if instFound else instNotFoundText,
+    )
+    window["-INSTRUMENT RESOURCE-"].update(instResource)
+    return instFound
+
+
 while True:
-    event, values = window.read()
-    # End program if user closes window or
-    # presses the OK button
+    timeout = 2000 if instFound else 200
+    event, values = window.read(timeout=timeout)
+    print(instFound)
+    # without timeout, code pauses here and waits for event
+    instFound = updateInstFound()
     if event == "Run Sweeps":
         siteName = values["-SITE-"]
         lastRunIndex = int(values["-LAST INDEX-"])
@@ -86,6 +114,7 @@ while True:
             else ""
         )
 
+        resources = rm.list_resources()
         resource = getInstResource(resources)
         recordBands(
             resource,

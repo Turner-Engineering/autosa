@@ -7,8 +7,9 @@ from instrument.fileTransfer import saveFileToController
 
 def getInstResource(resources):
     usbResources = [r for r in resources if "USB" in r]
-    instrUsbResources = [r for r in usbResources if "::INSTR" in r]
-    return instrUsbResources[0]
+    instUsbResources = [r for r in usbResources if "::INSTR" in r]
+    instResource = "" if len(instUsbResources) == 0 else instUsbResources[0]
+    return instResource
 
 
 def getInst(instResource):
