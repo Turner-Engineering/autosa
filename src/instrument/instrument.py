@@ -18,11 +18,11 @@ def getInst(instResource):
     return inst
 
 
-def recordBand(inst, folder, filename, controllerOutFolder, dur=5):
+def recordBand(inst, folder, filename, controllerOutFolder, sweepDur=5):
     # RECORD
     inst.write(":INIT:REST")
     inst.write(":INIT:CONT ON")
-    time.sleep(dur)
+    time.sleep(sweepDur)
     inst.write(":INIT:CONT OFF")
 
     # SAVE
@@ -74,6 +74,7 @@ def recordBands(
     outFolder,
     bandKeys,
     controllerOutFolder,
+    sweepDur,
 ):
     inst = getInst(resource)
     for i, key in enumerate(bandKeys):
@@ -94,5 +95,5 @@ def recordBands(
             outFolder,
             runFilename,
             controllerOutFolder,
-            2,
+            sweepDur,
         )

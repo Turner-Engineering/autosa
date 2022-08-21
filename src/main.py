@@ -36,6 +36,10 @@ layout = [
         ),
     ],
     [
+        sg.Text("Sweep Duration (s):"),
+        sg.Input(key="-SWEEP DUR-", default_text="5"),
+    ],
+    [
         sg.Text("Band Range:"),
         sg.OptionMenu(
             key="-BAND RANGE-", values=[bandRangeMonopole, bandRangeBilogical]
@@ -93,7 +97,6 @@ def updateInstFound():
 while True:
     timeout = 2000 if instFound else 200
     event, values = window.read(timeout=timeout)
-    print(instFound)
     # without timeout, code pauses here and waits for event
     instFound = updateInstFound()
     if event == "Run Sweeps":
@@ -105,6 +108,7 @@ while True:
         corrFolder = values["-CORR FOLDER-"]
         outFolder = values["-OUT FOLDER-"]
         controllerOutFolder = values["-LOCAL OUT FOLDER-"]
+        sweepDur = int(values["-SWEEP DUR-"])
 
         bandKeys = (
             ["B0", "B1", "B2", "B3", "B4"]
@@ -125,6 +129,7 @@ while True:
             outFolder,
             bandKeys,
             controllerOutFolder,
+            sweepDur,
         )
     if event == sg.WIN_CLOSED:
         break
