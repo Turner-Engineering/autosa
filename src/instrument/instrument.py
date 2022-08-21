@@ -2,7 +2,7 @@ import datetime
 import time
 from bandsData import bands
 import pyvisa
-from instrument.imgTransfer import saveImageToController
+from instrument.fileTransfer import saveFileToController
 
 
 def getInstResource(resources):
@@ -30,8 +30,8 @@ def recordBand(inst, folder, filename, controllerOutFolder, dur=5):
     inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csvFilename}"')
     inst.write(f':MMEM:STOR:SCR "{pngFilename}"')
 
-    saveImageToController(inst, pngFilename, controllerOutFolder)
-    saveImageToController(inst, csvFilename, controllerOutFolder)
+    saveFileToController(inst, pngFilename, controllerOutFolder)
+    saveFileToController(inst, csvFilename, controllerOutFolder)
     return
 
 
