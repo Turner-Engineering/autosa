@@ -75,9 +75,13 @@ def recordBands(
     bandKeys,
     controllerOutFolder,
     sweepDur,
+    window,
 ):
     inst = getInst(resource)
+    barMax = len(bandKeys)
+    pbar = window["-PROGRESS-"]
     for i, key in enumerate(bandKeys):
+        pbar.update_bar(i + 1, barMax)
         bandName = key
         runIndex = i + 1 + lastRunIndex
         coupling = bands[key]["coupling"]
@@ -97,3 +101,4 @@ def recordBands(
             controllerOutFolder,
             sweepDur,
         )
+    pbar.update_bar(0, barMax)

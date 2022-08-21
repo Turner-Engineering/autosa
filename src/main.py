@@ -71,6 +71,7 @@ layout = [
     ],
     [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-", default_text="0")],
     [sg.Button("Run Sweeps")],
+    [sg.ProgressBar(1, orientation="h", size=(60, 20), key="-PROGRESS-")],
 ]
 
 # Create the window
@@ -130,6 +131,7 @@ while True:
             bandKeys,
             controllerOutFolder,
             sweepDur,
+            window,
         )
     if event == sg.WIN_CLOSED:
         break
