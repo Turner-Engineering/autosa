@@ -13,12 +13,15 @@ resources = rm.list_resources()
 
 bandRangeMonopole = "B0 - B4 (monopole)"
 bandRangeBilogical = "B5 - B7 (bilogical)"
+
 layout = [
     [
-        sg.Text("Make sure to check all the fields below before starting the run"),
+        sg.Text(
+            "Make sure to check all the fields below before starting the run", size=(60)
+        ),
     ],
     [
-        sg.Text("Band Range"),
+        sg.Text("Band Range:"),
         sg.OptionMenu(
             key="-BAND RANGE-", values=[bandRangeMonopole, bandRangeBilogical]
         ),
@@ -52,7 +55,13 @@ layout = [
 ]
 
 # Create the window
-window = sg.Window("Autosa by Tenco", layout, margins=(20, 20))
+window = sg.Window(
+    "Autosa by Tenco",
+    layout,
+    margins=(20, 20),
+    default_element_size=(20, 1),
+    auto_size_text=False,
+)
 
 # Create an event loop
 while True:
