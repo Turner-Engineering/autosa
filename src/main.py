@@ -4,6 +4,8 @@ import pyvisa
 from instrument.instrument import recordBands, getInstResource
 
 
+sg.theme("GrayGrayGray")
+
 stateFolder = "D:/Users/Instrument/Desktop/Tenco State Files 8-05-2022"
 corrFolder = "D:/Users/Instrument/Desktop/Tenco Exa Amp Corr"
 outFolder = "D:/Users/Instrument/Desktop/Test Data"
@@ -84,7 +86,7 @@ window = sg.Window(
 )
 
 
-def updateInstFound():
+def updateInstFound(window):
     resources = rm.list_resources()
     instResource = getInstResource(resources)
     instFound = True if instResource != "" else False
@@ -99,7 +101,7 @@ while True:
     timeout = 2000 if instFound else 200
     event, values = window.read(timeout=timeout)
     # without timeout, code pauses here and waits for event
-    instFound = updateInstFound()
+    instFound = updateInstFound(window)
     if event == "Run Sweeps":
         siteName = values["-SITE-"]
         lastRunIndex = int(values["-LAST INDEX-"])
@@ -109,7 +111,7 @@ while True:
         corrFolder = values["-CORR FOLDER-"]
         outFolder = values["-OUT FOLDER-"]
         controllerOutFolder = values["-LOCAL OUT FOLDER-"]
-        sweepDur = int(values["-SWEEP DUR-"])
+        sweepDur = float(values["-SWEEP DUR-"])
 
         bandKeys = (
             ["B0", "B1", "B2", "B3", "B4"]
