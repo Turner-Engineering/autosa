@@ -32,22 +32,27 @@ layout = [
     ],
     [
         sg.Text("States Folder:"),
-        sg.Input(key="-STATE FOLDER-", default_text=stateFolder, size=(90)),
+        sg.Input(key="-STATE FOLDER-", default_text=stateFolder, size=(60)),
     ],
     [
         sg.Text("Corrections Folder:"),
-        sg.Input(key="-CORR FOLDER-", default_text=corrFolder, size=(90)),
+        sg.Input(key="-CORR FOLDER-", default_text=corrFolder, size=(60)),
     ],
     [
-        sg.Text("Output Folder:"),
-        sg.Input(key="-OUT FOLDER-", default_text=outFolder, size=(90)),
+        sg.Text("Instrument Output Folder:"),
+        sg.Input(key="-OUT FOLDER-", default_text=outFolder, size=(60)),
+    ],
+    [
+        sg.Text("Select local data folder"),
+        sg.In(size=(60), enable_events=True, key="-LOCAL OUT FOLDER-"),
+        sg.FolderBrowse(),
     ],
     [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-", default_text="0")],
     [sg.Button("Run Sweeps")],
 ]
 
 # Create the window
-window = sg.Window("Autosa by Tenco", layout, margins=(100, 50))
+window = sg.Window("Autosa by Tenco", layout, margins=(20, 20))
 
 # Create an event loop
 while True:
@@ -62,6 +67,7 @@ while True:
         stateFolder = values["-STATE FOLDER-"]
         corrFolder = values["-CORR FOLDER-"]
         outFolder = values["-OUT FOLDER-"]
+        controllerOutFolder = values["-LOCAL OUT FOLDER-"]
 
         bandKeys = (
             ["B0", "B1", "B2", "B3", "B4"]
@@ -80,6 +86,7 @@ while True:
             corrFolder,
             outFolder,
             bandKeys,
+            controllerOutFolder,
         )
     if event == sg.WIN_CLOSED:
         break

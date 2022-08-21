@@ -2,6 +2,7 @@ import datetime
 import time
 from bandsData import bands
 import pyvisa
+from instrument.imgTransfer import saveImageToController
 
 
 def getInstResource(resources):
@@ -16,7 +17,7 @@ def getInst(instResource):
     return inst
 
 
-def recordBand(inst, folder, filename, dur=5):
+def recordBand(inst, folder, filename, controllerOutFolder, dur=5):
     # RECORD
     inst.write(":INIT:REST")
     inst.write(":INIT:CONT ON")
@@ -28,6 +29,9 @@ def recordBand(inst, folder, filename, dur=5):
     pngFilename = f"{folder}/{filename}.png"
     inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csvFilename}"')
     inst.write(f':MMEM:STOR:SCR "{pngFilename}"')
+
+    saveImageToController(inst, pngFilename, controllerOutFolder)
+    saveImageToController(inst, csvFilename, controllerOutFolder)
     return
 
 
@@ -61,7 +65,14 @@ def getRunFilename(runIndex, bandName, siteName, notes=""):
 
 
 def recordBands(
-    resource, siteName, lastRunIndex, stateFolder, corrFolder, outFolder, bandKeys
+    resource,
+    siteName,
+    lastRunIndex,
+    stateFolder,
+    corrFolder,
+    outFolder,
+    bandKeys,
+    controllerOutFolder,
 ):
     inst = getInst(resource)
     for i, key in enumerate(bandKeys):
@@ -76,4 +87,11 @@ def recordBands(
         recallState(inst, stateFolder, stateFilename)
         recallCorr(inst, corrFolder, corrFilename)
         setCoupling(inst, coupling)
-        recordBand(inst, outFolder, runFilename, 2)
+
+        recordBand(
+            inst,
+            outFolder,
+            runFilename,
+            controllerOutFolder,
+            2,
+        )
