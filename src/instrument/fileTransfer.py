@@ -21,7 +21,7 @@ def binblock_raw(data_in):
     return data_in[offset : offset + datalen]
 
 
-def saveFileToController(inst, imgPath, outFolder):
+def saveFileToLocal(inst, imgPath, outFolder):
     # Read the contents of the screen image
     imgPath = imgPath.replace("/", "\\")
     outFolder = outFolder.replace("/", "\\")

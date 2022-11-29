@@ -2,7 +2,7 @@ import datetime
 import time
 from bandsData import bands
 import pyvisa
-from instrument.fileTransfer import saveFileToController
+from instrument.fileTransfer import saveFileToLocal
 
 
 def getInstResource(resourceManager):
@@ -19,7 +19,7 @@ def getInst(instResource):
     return inst
 
 
-def recordBand(inst, folder, filename, controllerOutFolder, sweepDur=5):
+def recordBand(inst, folder, filename, localOutFolder, sweepDur=5):
     # RECORD
     inst.write(":INIT:REST")
     inst.write(":INIT:CONT ON")
@@ -32,8 +32,8 @@ def recordBand(inst, folder, filename, controllerOutFolder, sweepDur=5):
     inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csvFilename}"')
     inst.write(f':MMEM:STOR:SCR "{pngFilename}"')
 
-    saveFileToController(inst, pngFilename, controllerOutFolder)
-    saveFileToController(inst, csvFilename, controllerOutFolder)
+    saveFileToLocal(inst, pngFilename, localOutFolder)
+    saveFileToLocal(inst, csvFilename, localOutFolder)
     return
 
 
@@ -74,7 +74,7 @@ def recordBands(
     corrFolder,
     outFolder,
     bandKeys,
-    controllerOutFolder,
+    localOutFolder,
     sweepDur,
     window,
 ):
@@ -99,7 +99,7 @@ def recordBands(
             inst,
             outFolder,
             runFilename,
-            controllerOutFolder,
+            localOutFolder,
             sweepDur,
         )
     pbar.update_bar(0, barMax)
