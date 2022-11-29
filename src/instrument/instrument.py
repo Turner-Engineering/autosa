@@ -13,6 +13,10 @@ def getInstResource(resourceManager):
     return instResource
 
 
+def getInstFound(instResource):
+    return True if instResource != "" else False
+
+
 def getInst(instResource):
     rm = pyvisa.ResourceManager()
     inst = rm.open_resource(instResource)
@@ -70,11 +74,8 @@ def recordBands(
     resource,
     siteName,
     lastRunIndex,
-    stateFolder,
-    corrFolder,
-    outFolder,
+    folders,
     bandKeys,
-    localOutFolder,
     sweepDur,
     window,
 ):
@@ -91,10 +92,12 @@ def recordBands(
         corrFilename = bands[key]["corrFilename"]
         runFilename = getRunFilename(runIndex, bandName, siteName)
 
-        recallState(inst, stateFolder, stateFilename)
-        recallCorr(inst, corrFolder, corrFilename)
+        recallState(inst, folders["stateFolder"], stateFilename)
+        recallCorr(inst, folders["corrFolder"], corrFilename)
         setCoupling(inst, coupling)
 
+        outFolder = folders["outFolder"]
+        localOutFolder = folders["localOutFolder"]
         recordBand(
             inst,
             outFolder,
