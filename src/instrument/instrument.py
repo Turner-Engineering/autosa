@@ -79,6 +79,16 @@ def recordBands(
     sweepDur,
     window,
 ):
+    print("")
+    print("recordBands()")
+    print("resource:", resource)
+    print("siteName:", siteName)
+    print("lastRunIndex:", lastRunIndex)
+    print("folders:", folders)
+    print("bandKeys:", bandKeys)
+    print("sweepDur:", sweepDur)
+    print("window:", window)
+
     inst = getInst(resource)
     barMax = len(bandKeys)
     pbar = window["-PROGRESS-"]
