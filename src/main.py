@@ -86,13 +86,16 @@ window = sg.Window(
 )
 
 
-def updateInstFound(instResource):
-    instFound = True if instResource != "" else False
+def getInstFound(instResource):
+    return True if instResource != "" else False
+
+
+def updateInstFound(instFound, instResource):
     window["-INSTRUMENT FOUND-"].update(
         instFoundText if instFound else instNotFoundText,
     )
     window["-INSTRUMENT RESOURCE-"].update(instResource)
-    return instFound
+    return
 
 
 while True:
@@ -100,7 +103,8 @@ while True:
     event, values = window.read(timeout=timeout)
     # without timeout, code pauses here and waits for event
     instResource = getInstResource(rm)
-    instFound = updateInstFound(instResource)
+    instFound = getInstFound(instResource)
+    updateInstFound(instFound, instResource)
     if event == "Run Sweeps":
         siteName = values["-SITE-"]
         lastRunIndex = int(values["-LAST INDEX-"])
