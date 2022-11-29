@@ -56,17 +56,18 @@ def setCoupling(inst, coupling):
     # print(inst.query(f":INP:COUP?"))
 
 
-def getRunFilename(runIndex, bandName, siteName, notes=""):
+def getRunId(runIndex):
     runNumber = "%02d" % runIndex
     d = datetime.datetime.now()
     month = str(int(d.strftime("%m")))
     date = d.strftime("%d")
     runId = f"{month}{date}-{runNumber}"
+    return runId
 
-    if notes == "":
-        filename = f"{runId} {siteName} {bandName}"
-    else:
-        filename = f"{runId} {siteName} {notes} {bandName}"
+
+def getRunFilename(runIndex, bandName, notes):
+    runId = getRunId(runIndex)
+    filename = f"{runId} {notes} {bandName}"
     return filename
 
 
