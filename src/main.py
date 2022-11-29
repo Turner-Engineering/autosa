@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 import pyvisa
 
-from instrument.instrument import recordBands, getInstResource, getInstFound
+from instrument.instrument import recordBandsDebug, getInstResource, getInstFound
 from ui.mainWindow import updateMainWindow, getMainWindow
 from ui.settingsWindow import launchSettingsWindow
 
@@ -17,6 +17,8 @@ def getFolders(values):
 
 def main():
     sg.theme("BlueMono")
+    # default location for this file is Users/<username>/AppData/Local/PySimpleGUI/settings/
+    sg.user_settings_filename("autosa.json")
     rm = pyvisa.ResourceManager()
 
     instResource = getInstResource(rm)
@@ -48,7 +50,7 @@ def main():
                 else ""
             )
 
-            recordBands(
+            recordBandsDebug(
                 instResource,
                 siteName,
                 lastRunIndex,

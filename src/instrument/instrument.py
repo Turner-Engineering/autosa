@@ -80,15 +80,6 @@ def recordBands(
     sweepDur,
     window,
 ):
-    print("")
-    print("recordBands()")
-    print("resource:", resource)
-    print("siteName:", siteName)
-    print("lastRunIndex:", lastRunIndex)
-    print("folders:", folders)
-    print("bandKeys:", bandKeys)
-    print("sweepDur:", sweepDur)
-    print("window:", window)
 
     inst = getInst(resource)
     barMax = len(bandKeys)
@@ -115,5 +106,41 @@ def recordBands(
             runFilename,
             localOutFolder,
             sweepDur,
+        )
+    pbar.update_bar(0, barMax)
+
+
+def writeTxtFile(filename, text):
+    with open(filename, "w") as f:
+        f.write(text)
+    return
+
+
+def recordBandsDebug(
+    resource, siteName, lastRunIndex, folders, bandKeys, sweepDur, window
+):
+    print("")
+    print("recordBands()")
+    print("resource:", resource)
+    print("siteName:", siteName)
+    print("lastRunIndex:", lastRunIndex)
+    print("folders:", folders)
+    print("bandKeys:", bandKeys)
+    print("sweepDur:", sweepDur)
+    print("window:", window)
+    # inst = getInst(resource)
+    barMax = len(bandKeys)
+    pbar = window["-PROGRESS-"]
+    for i, key in enumerate(bandKeys):
+        pbar.update_bar(i + 1, barMax)
+        bandName = key
+        runIndex = i + 1 + lastRunIndex
+        runFilename = getRunFilename(runIndex, bandName, siteName)
+
+        localOutFolder = folders["localOutFolder"]
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        writeTxtFile(
+            f"{localOutFolder}/{runFilename}.txt",
+            f"{timestamp} {runFilename}",
         )
     pbar.update_bar(0, barMax)
