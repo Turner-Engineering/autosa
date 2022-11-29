@@ -1,6 +1,15 @@
 # Autosa
 
-Autosa is Tenco software used to automate data acquisition using a signal analyzer (AUTOmated Signal Analysis or AUTOmatic Signal Analyzer). This can be pronounced as "Auto Ess Ay" or "au'tosa" (I prefer this one)
+Autosa is Tenco software used to automate data acquisition using a signal analyzer (AUTOmated Signal Analysis or AUTOmatic Signal Analyzer). The name is read as a single word with a stress on the second syllable.
+
+# Installation
+
+1. Install NI-VISA. This allows Autosa to communicate with the instrument.
+2. Download the `install/dist/Autosa.exe` file from this repository and run
+
+# Guiding Principles
+
+This software is written to be as "plug-and-play" as possible. The more set up steps are required to use the software, the less likely it is to be used. This is why it comes packaged as an `.exe` file that just needs to be downloaded and double clicked. In this vein, all user interfaces should be as self-explanatory as possible.
 
 # Development
 
@@ -17,8 +26,3 @@ The build is done by executing the `build.py` file. The output executable (`.exe
 
 - pyvisa
 - pysimplegui
-
-# Installation
-
-1. Install NI-VISA. This allows Autosa to communicate with the instrument.
-2. Download `installation/dist/Autosa.exe` and run
