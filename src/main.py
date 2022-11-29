@@ -3,30 +3,26 @@ import pyvisa
 
 from instrument.instrument import recordBands, getInstResource, getInstFound
 from ui.mainWindow import updateMainWindow, getMainWindow
+from ui.settingsWindow import launchSettingsWindow
 
 
 def getFolders(values):
     folders = {}
-    folders["stateFolder"] = values["-STATE FOLDER-"]
-    folders["corrFolder"] = values["-CORR FOLDER-"]
-    folders["outFolder"] = values["-OUT FOLDER-"]
-    folders["localOutFolder"] = values["-LOCAL OUT FOLDER-"]
+    folders["stateFolder"] = sg.user_settings_get_entry("-STATE FOLDER-")
+    folders["corrFolder"] = sg.user_settings_get_entry("-CORR FOLDER-")
+    folders["outFolder"] = sg.user_settings_get_entry("-OUT FOLDER-")
+    folders["localOutFolder"] = sg.user_settings_get_entry("-LOCAL OUT FOLDER-")
     return folders
 
 
 def main():
-    sg.theme("GrayGrayGray")
+    sg.theme("BlueMono")
     rm = pyvisa.ResourceManager()
-
-    bandRangeMonopole = "B0 - B4 (monopole)"
-    bandRangeBilogical = "B5 - B7 (bilogical)"
 
     instResource = getInstResource(rm)
     instFound = getInstFound(instResource)
 
-    mainWindow = getMainWindow(
-        instFound, instResource, bandRangeMonopole, bandRangeBilogical
-    )
+    mainWindow = getMainWindow(instFound, instResource)
 
     while True:
         timeout = 2000 if instFound else 200
@@ -46,9 +42,9 @@ def main():
 
             bandKeys = (
                 ["B0", "B1", "B2", "B3", "B4"]
-                if values["-BAND RANGE-"] == bandRangeMonopole
+                if values["-BAND RANGE-"] == "B0 - B4 (monopole)"
                 else ["B5", "B6", "B7"]
-                if values["-BAND RANGE-"] == bandRangeBilogical
+                if values["-BAND RANGE-"] == "B5 - B7 (bilogical)"
                 else ""
             )
 
@@ -61,7 +57,12 @@ def main():
                 sweepDur,
                 mainWindow,
             )
-        if event == sg.WIN_CLOSED:
+        elif event == "Settings":
+            settingsChanged = launchSettingsWindow()
+            if settingsChanged:
+                mainWindow.close()
+                mainWindow = getMainWindow(instFound, instResource)
+        elif event == sg.WIN_CLOSED:
             break
 
     mainWindow.close()

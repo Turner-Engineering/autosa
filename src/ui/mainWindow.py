@@ -8,13 +8,7 @@ instNotFoundText = "Instrument Not Found ❌"
 def getMainLayout(
     instFound,
     instResource,
-    bandRangeMonopole,
-    bandRangeBilogical,
 ):
-
-    defaultStateFolder = "D:/Users/Instrument/Desktop/Tenco State Files 8-05-2022"
-    defaultCorrFolder = "D:/Users/Instrument/Desktop/Tenco Exa Amp Corr"
-    defaultOutFolder = "D:/Users/Instrument/Desktop/Test Data"
 
     section1 = [
         [
@@ -44,7 +38,7 @@ def getMainLayout(
         [
             sg.Text("Band Range:"),
             sg.OptionMenu(
-                key="-BAND RANGE-", values=[bandRangeMonopole, bandRangeBilogical]
+                key="-BAND RANGE-", values=["B0 - B4 (monopole)", "B5 - B7 (bilogical)"]
             ),
         ],
         [
@@ -56,26 +50,6 @@ def getMainLayout(
         ],
     ]
 
-    section3 = [
-        [
-            sg.Text("States Folder:"),
-            sg.Input(key="-STATE FOLDER-", default_text=defaultStateFolder, size=(60)),
-        ],
-        [
-            sg.Text("Corrections Folder:"),
-            sg.Input(key="-CORR FOLDER-", default_text=defaultCorrFolder, size=(60)),
-        ],
-        [
-            sg.Text("Instrument Output Folder:"),
-            sg.Input(key="-OUT FOLDER-", default_text=defaultOutFolder, size=(60)),
-        ],
-        [
-            sg.Text("Local Output Folder"),
-            sg.In(size=(60), enable_events=True, key="-LOCAL OUT FOLDER-"),
-            sg.FolderBrowse(),
-        ],
-    ]
-
     section4 = [
         [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-", default_text="0")],
         [sg.Button("Run Sweeps")],
@@ -83,27 +57,25 @@ def getMainLayout(
     ]
 
     return [
+        [sg.B("Settings")],
         *section1,
         [sg.HorizontalSeparator()],
         *section2,
-        [sg.HorizontalSeparator()],
-        *section3,
         [sg.HorizontalSeparator()],
         section4,
     ]
 
 
 def updateMainWindow(window, instFound, instResource):
+
     output = instFoundText if instFound else instNotFoundText
     window["-INSTRUMENT FOUND-"].update(output)
     window["-INSTRUMENT RESOURCE-"].update(instResource)
     return
 
 
-def getMainWindow(instFound, instResource, bandRangeMonopole, bandRangeBilogical):
-    layout = getMainLayout(
-        instFound, instResource, bandRangeMonopole, bandRangeBilogical
-    )
+def getMainWindow(instFound, instResource):
+    layout = getMainLayout(instFound, instResource)
 
     # Create the window
     window = sg.Window(
