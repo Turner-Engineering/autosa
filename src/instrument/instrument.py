@@ -5,7 +5,8 @@ import pyvisa
 from instrument.fileTransfer import saveFileToController
 
 
-def getInstResource(resources):
+def getInstResource(resourceManager):
+    resources = resourceManager.list_resources()
     usbResources = [r for r in resources if "USB" in r]
     instUsbResources = [r for r in usbResources if "::INSTR" in r]
     instResource = "" if len(instUsbResources) == 0 else instUsbResources[0]
