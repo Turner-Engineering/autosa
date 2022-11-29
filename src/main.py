@@ -38,7 +38,7 @@ def main():
             # OTHER VARS
             siteName = values["-SITE-"]
             lastRunIndex = int(values["-LAST INDEX-"])
-            sweepDur = float(values["-SWEEP DUR-"])
+            sweepDur = float(sg.user_settings_get_entry("-SWEEP DUR-"))
 
             bandKeys = (
                 ["B0", "B1", "B2", "B3", "B4"]

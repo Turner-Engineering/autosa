@@ -32,10 +32,6 @@ def getMainLayout(
 
     section2 = [
         [
-            sg.Text("Sweep Duration (s):"),
-            sg.Input(key="-SWEEP DUR-", default_text="5"),
-        ],
-        [
             sg.Text("Band Range:"),
             sg.OptionMenu(
                 key="-BAND RANGE-", values=["B0 - B4 (monopole)", "B5 - B7 (bilogical)"]
