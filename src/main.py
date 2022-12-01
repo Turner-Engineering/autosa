@@ -16,7 +16,7 @@ def getFolders(values):
 
 
 def main():
-    sg.theme("BlueMono")
+    sg.theme("SystemDefaultForReal")
     # default location for this file is Users/<username>/AppData/Local/PySimpleGUI/settings/
     sg.user_settings_filename("autosa.json")
     rm = pyvisa.ResourceManager()
