@@ -31,13 +31,13 @@ def recordBand(inst, folder, filename, localOutFolder, sweepDur=5):
     inst.write(":INIT:CONT OFF")
 
     # SAVE
-    csvFilename = f"{folder}/{filename}.csv"
-    pngFilename = f"{folder}/{filename}.png"
-    inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csvFilename}"')
-    inst.write(f':MMEM:STOR:SCR "{pngFilename}"')
+    csvPath = f"{folder}/{filename}.csv"
+    pngPath = f"{folder}/{filename}.png"
+    inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csvPath}"')
+    inst.write(f':MMEM:STOR:SCR "{pngPath}"')
 
-    saveFileToLocal(inst, pngFilename, localOutFolder)
-    saveFileToLocal(inst, csvFilename, localOutFolder)
+    saveFileToLocal(inst, pngPath, localOutFolder)
+    saveFileToLocal(inst, csvPath, localOutFolder)
     return
 
 

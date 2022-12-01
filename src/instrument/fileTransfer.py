@@ -21,19 +21,19 @@ def binblock_raw(data_in):
     return data_in[offset : offset + datalen]
 
 
-def saveFileToLocal(inst, imgPath, outFolder):
+def saveFileToLocal(inst, filePath, outFolder):
     # Read the contents of the screen image
-    imgPath = imgPath.replace("/", "\\")
+    filePath = filePath.replace("/", "\\")
     outFolder = outFolder.replace("/", "\\")
-    inst.write(f':MMEM:DATA? "{imgPath}"')
+    inst.write(f':MMEM:DATA? "{filePath}"')
 
-    my_image = inst.read_raw()
+    rawData = inst.read_raw()
 
     # Interpret Header and Return Raw DATA
-    my_image = binblock_raw((my_image))
+    rawData = binblock_raw(rawData)
     # Save Screen Image to File
 
-    outFilename = imgPath.split("\\")[-1]
+    outFilename = filePath.split("\\")[-1]
     target = open(outFolder + "\\" + outFilename, "wb")
-    target.write(my_image)
+    target.write(rawData)
     target.close()
