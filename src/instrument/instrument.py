@@ -84,7 +84,9 @@ def recordBands(
     inst = getInst(resource)
     barMax = len(bandKeys)
     pbar = window["-PROGRESS-"]
+    pbar.update_bar(barMax / 50, barMax)
     for i, key in enumerate(bandKeys):
+        time.sleep(sweepDur)
         pbar.update_bar(i + 1, barMax)
         bandName = key
         runIndex = i + 1 + lastRunIndex
@@ -107,6 +109,7 @@ def recordBands(
             localOutFolder,
             sweepDur,
         )
+    time.sleep(1)
     pbar.update_bar(0, barMax)
 
 
@@ -131,7 +134,9 @@ def recordBandsDebug(
     # inst = getInst(resource)
     barMax = len(bandKeys)
     pbar = window["-PROGRESS-"]
+    pbar.update_bar(barMax / 50, barMax)
     for i, key in enumerate(bandKeys):
+        time.sleep(sweepDur)
         pbar.update_bar(i + 1, barMax)
         bandName = key
         runIndex = i + 1 + lastRunIndex
@@ -143,4 +148,5 @@ def recordBandsDebug(
             f"{localOutFolder}/{runFilename}.txt",
             f"{timestamp} {runFilename}",
         )
+    time.sleep(1)
     pbar.update_bar(0, barMax)
