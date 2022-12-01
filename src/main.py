@@ -6,13 +6,21 @@ from ui.mainWindow import updateMainWindow, getMainWindow
 from ui.settingsWindow import launchSettingsWindow
 
 
-def getFolders(values):
+def getFolders():
     folders = {}
     folders["stateFolder"] = sg.user_settings_get_entry("-STATE FOLDER-")
     folders["corrFolder"] = sg.user_settings_get_entry("-CORR FOLDER-")
     folders["outFolder"] = sg.user_settings_get_entry("-OUT FOLDER-")
     folders["localOutFolder"] = sg.user_settings_get_entry("-LOCAL OUT FOLDER-")
     return folders
+
+
+def validateInput(values):
+    if values["-BAND RANGE-"] == "":
+        return False
+    if values["-SITE-"] == "":
+        return False
+    return True
 
 
 def main():
@@ -33,9 +41,25 @@ def main():
         instResource = getInstResource(rm)
         instFound = getInstFound(instResource)
         updateMainWindow(mainWindow, instFound, instResource)
-        if event == "Run Sweeps":
+
+        if event == "Settings":
+            settingsChanged = launchSettingsWindow()
+            if settingsChanged:
+                mainWindow.close()
+                mainWindow = getMainWindow(instFound, instResource)
+        elif event == sg.WIN_CLOSED:
+            break
+
+        inputValid = validateInput(values)
+        if not inputValid:
+            mainWindow["-RUN-"].update(disabled=True)
+            continue
+        else:
+            mainWindow["-RUN-"].update(disabled=False)
+
+        if event == "-RUN-":
             # FOLDERS
-            folders = getFolders(values)
+            folders = getFolders()
 
             # OTHER VARS
             siteName = values["-SITE-"]
@@ -59,13 +83,6 @@ def main():
                 sweepDur,
                 mainWindow,
             )
-        elif event == "Settings":
-            settingsChanged = launchSettingsWindow()
-            if settingsChanged:
-                mainWindow.close()
-                mainWindow = getMainWindow(instFound, instResource)
-        elif event == sg.WIN_CLOSED:
-            break
 
     mainWindow.close()
 

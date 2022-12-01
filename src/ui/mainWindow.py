@@ -34,7 +34,9 @@ def getMainLayout(
         [
             sg.Text("Band Range:"),
             sg.OptionMenu(
-                key="-BAND RANGE-", values=["B0 - B4 (monopole)", "B5 - B7 (bilogical)"]
+                key="-BAND RANGE-",
+                values=["B0 - B4 (monopole)", "B5 - B7 (bilogical)"],
+                background_color="white",
             ),
         ],
         [
@@ -48,7 +50,7 @@ def getMainLayout(
 
     section4 = [
         [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-", default_text="0")],
-        [sg.Button("Run Sweeps")],
+        [sg.Button("Run Sweeps", disabled=False, key="-RUN-")],
         [sg.ProgressBar(1, orientation="h", size=(60, 20), key="-PROGRESS-")],
     ]
 
