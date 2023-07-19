@@ -23,6 +23,11 @@ rm = pyvisa.ResourceManager()
 print(rm.list_resources())
 ```
 
+- Tested with USB-A to USB-A, it does not work
+
 ### Autosa Testing
 
 - Okay, I can see the instrument is detected when I run `main.py`, but nothing happens on the EXA. I know one likely reason is that the EXA does not have any of the configuration files on it that we had last time for testing. Hmm. I'm going to try and see if I can run in debug mode to see exactly what's going on.
+- By the way, I have the 50 ohm resistor connected to the EXA
+- PROGRESS! Was able to get the EXA to respond to commands! The response was "I can't find those files they don't exist" but that's a start.
+- Need to make the program handle case where NI-VISA is not installed and case where instrument is not detected
