@@ -7,21 +7,21 @@ from bands_data import bands
 from instrument.file_transfer import save_file_to_local
 
 
-def get_inst_resource(resource_manager):
-    resources = resource_manager.list_resources()
-    usb_resource = [r for r in resources if "USB" in r]
-    inst_usb_resources = [r for r in usb_resource if "::INSTR" in r]
-    inst_resource = "" if len(inst_usb_resources) == 0 else inst_usb_resources[0]
-    return inst_resource
+def get_resource_name(resource_manager):
+    resource_names = resource_manager.list_resources()
+    resource_names = [r for r in resource_names if "USB" in r]
+    resource_names = [r for r in resource_names if "::INSTR" in r]
+    resource_name = "" if len(resource_names) == 0 else resource_names[0]
+    return resource_name
 
 
-def get_inst_found(inst_resource):
-    return True if inst_resource != "" else False
+def get_inst_found(resource_name):
+    return True if resource_name != "" else False
 
 
-def get_inst(inst_resource):
+def get_inst(resource_name):
     rm = pyvisa.ResourceManager()
-    inst = rm.open_resource(inst_resource)
+    inst = rm.open_resource(resource_name)
     return inst
 
 
