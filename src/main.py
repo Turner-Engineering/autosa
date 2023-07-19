@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 import pyvisa
 
-from instrument.instrument import getInstFound, getInstResource, recordBandsDebug
+from instrument.instrument import getInstFound, getInstResource, recordBands
 from ui.mainWindow import getMainWindow, updateMainWindow
 from ui.settingsWindow import launchSettingsWindow
 
@@ -74,7 +74,7 @@ def main():
                 else ""
             )
 
-            recordBandsDebug(
+            recordBands(
                 instResource,
                 siteName,
                 lastRunIndex,
@@ -83,7 +83,6 @@ def main():
                 sweepDur,
                 mainWindow,
             )
-
     mainWindow.close()
 
 
