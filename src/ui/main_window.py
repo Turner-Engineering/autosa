@@ -59,7 +59,7 @@ def get_defuault_layout(resource_name):
 def get_inst_not_found_layout():
     steps = [
         "1. Make sure the instrument is plugged in to power and turned on",
-        "2. Make sure the instrument is connected to this computer via USB-B (instrument) to USB-A (computer) cable",
+        "2. Make sure the instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable",
         "3. Ask for help",
     ]
 
@@ -72,7 +72,7 @@ def get_inst_not_found_layout():
                 font=("Helvetica", 16, "bold"),
             )
         ],
-        [sg.Text("Troubleshooting steps:", size=(40, 1))],
+        [sg.Text("Steps to fix:", size=(40, 1))],
         *[[sg.Text(step, size=(80, 1))] for step in steps],
     ]
 
