@@ -1,6 +1,5 @@
 import PyInstaller.__main__
 
-
 install_folder = "install/"
 build_folder = "install/build"
 dist_folder = "install/dist"
