@@ -3,33 +3,33 @@ import time
 
 import pyvisa
 
-from bandsData import bands
-from instrument.fileTransfer import saveFileToLocal
+from bands_data import bands
+from instrument.file_transfer import save_file_to_local
 
 
-def getInstResource(resourceManager):
-    resources = resourceManager.list_resources()
-    usbResources = [r for r in resources if "USB" in r]
-    instUsbResources = [r for r in usbResources if "::INSTR" in r]
-    instResource = "" if len(instUsbResources) == 0 else instUsbResources[0]
-    return instResource
+def get_inst_resource(resource_manager):
+    resources = resource_manager.list_resources()
+    usb_resource = [r for r in resources if "USB" in r]
+    inst_usb_resources = [r for r in usb_resource if "::INSTR" in r]
+    inst_resource = "" if len(inst_usb_resources) == 0 else inst_usb_resources[0]
+    return inst_resource
 
 
-def getInstFound(instResource):
-    return True if instResource != "" else False
+def get_inst_found(inst_resource):
+    return True if inst_resource != "" else False
 
 
-def getInst(instResource):
+def get_inst(inst_resource):
     rm = pyvisa.ResourceManager()
-    inst = rm.open_resource(instResource)
+    inst = rm.open_resource(inst_resource)
     return inst
 
 
-def recordBand(inst, folder, filename, localOutFolder, sweepDur=5):
+def record_band(inst, folder, filename, local_out_folder, sweep_dur=5):
     # RECORD
     inst.write(":INIT:REST")
     inst.write(":INIT:CONT ON")
-    time.sleep(sweepDur)
+    time.sleep(sweep_dur)
     inst.write(":INIT:CONT OFF")
 
     # SAVE
@@ -38,117 +38,116 @@ def recordBand(inst, folder, filename, localOutFolder, sweepDur=5):
     inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csvPath}"')
     inst.write(f':MMEM:STOR:SCR "{pngPath}"')
 
-    saveFileToLocal(inst, pngPath, localOutFolder)
-    saveFileToLocal(inst, csvPath, localOutFolder)
+    save_file_to_local(inst, pngPath, local_out_folder)
+    save_file_to_local(inst, csvPath, local_out_folder)
     return
 
 
-def recallState(inst, stateFolder, filename):
-    inst.write(f":MMEM:LOAD:STAT '{stateFolder}/{filename}'")
+def recall_state(inst, state_folder, filename):
+    inst.write(f":MMEM:LOAD:STAT '{state_folder}/{filename}'")
     return
 
 
-def recallCorr(inst, corrFolder, filename):
-    inst.write(f":MMEM:LOAD:CORR 1,'{corrFolder}/{filename}'")
+def recall_corr(inst, corr_folder, filename):
+    inst.write(f":MMEM:LOAD:CORR 1,'{corr_folder}/{filename}'")
     return
 
 
-def setCoupling(inst, coupling):
+def set_coupling(inst, coupling):
     inst.write(f":INP:COUP {coupling}")
     # print(inst.query(f":INP:COUP?"))
 
 
-def getRunId(runIndex):
-    runNumber = "%02d" % runIndex
+def get_run_id(run_index):
+    run_number = "%02d" % run_index
     d = datetime.datetime.now()
     month = str(int(d.strftime("%m")))
     date = d.strftime("%d")
-    runId = f"{month}{date}-{runNumber}"
-    return runId
+    run_id = f"{month}{date}-{run_number}"
+    return run_id
 
 
-def getRunFilename(runIndex, bandName, notes):
-    runId = getRunId(runIndex)
-    filename = f"{runId} {notes} {bandName}"
+def get_run_filename(run_index, band_name, notes):
+    run_id = get_run_id(run_index)
+    filename = f"{run_id} {notes} {band_name}"
     return filename
 
 
-def recordBands(
+def record_bands(
     resource,
-    siteName,
-    lastRunIndex,
+    site_name,
+    last_run_index,
     folders,
-    bandKeys,
-    sweepDur,
+    band_keys,
+    sweep_dur,
     window,
 ):
-
-    inst = getInst(resource)
-    barMax = len(bandKeys)
+    inst = get_inst(resource)
+    bar_max = len(band_keys)
     pbar = window["-PROGRESS-"]
-    pbar.update_bar(barMax / 50, barMax)
-    for i, key in enumerate(bandKeys):
-        time.sleep(sweepDur)
-        pbar.update_bar(i + 1, barMax)
-        bandName = key
-        runIndex = i + 1 + lastRunIndex
+    pbar.update_bar(bar_max / 50, bar_max)
+    for i, key in enumerate(band_keys):
+        time.sleep(sweep_dur)
+        pbar.update_bar(i + 1, bar_max)
+        bannd_name = key
+        run_index = i + 1 + last_run_index
         coupling = bands[key]["coupling"]
 
-        stateFilename = bands[key]["stateFilename"]
-        corrFilename = bands[key]["corrFilename"]
-        runFilename = getRunFilename(runIndex, bandName, siteName)
+        state_filename = bands[key]["stateFilename"]
+        corr_filename = bands[key]["corrFilename"]
+        run_filename = get_run_filename(run_index, bannd_name, site_name)
 
-        recallState(inst, folders["stateFolder"], stateFilename)
-        recallCorr(inst, folders["corrFolder"], corrFilename)
-        setCoupling(inst, coupling)
+        recall_state(inst, folders["stateFolder"], state_filename)
+        recall_corr(inst, folders["corrFolder"], corr_filename)
+        set_coupling(inst, coupling)
 
-        outFolder = folders["outFolder"]
-        localOutFolder = folders["localOutFolder"]
-        recordBand(
+        out_folder = folders["outFolder"]
+        local_out_folder = folders["localOutFolder"]
+        record_band(
             inst,
-            outFolder,
-            runFilename,
-            localOutFolder,
-            sweepDur,
+            out_folder,
+            run_filename,
+            local_out_folder,
+            sweep_dur,
         )
     time.sleep(1)
-    pbar.update_bar(0, barMax)
+    pbar.update_bar(0, bar_max)
 
 
-def writeTxtFile(filename, text):
+def write_txt_file(filename, text):
     with open(filename, "w") as f:
         f.write(text)
     return
 
 
-def recordBandsDebug(
-    resource, siteName, lastRunIndex, folders, bandKeys, sweepDur, window
+def record_bands_debug(
+    resource, site_name, last_run_index, folders, band_keys, sweep_dur, window
 ):
     print("")
     print("recordBands()")
     print("resource:", resource)
-    print("siteName:", siteName)
-    print("lastRunIndex:", lastRunIndex)
+    print("site_name:", site_name)
+    print("last_run_index:", last_run_index)
     print("folders:", folders)
-    print("bandKeys:", bandKeys)
-    print("sweepDur:", sweepDur)
+    print("band_keys:", band_keys)
+    print("sweep_dur:", sweep_dur)
     print("window:", window)
     # inst = getInst(resource)
-    barMax = len(bandKeys)
+    bar_max = len(band_keys)
     pbar = window["-PROGRESS-"]
-    pbar.update_bar(barMax / 50, barMax)
-    for i, key in enumerate(bandKeys):
-        time.sleep(sweepDur)
-        pbar.update_bar(i + 1, barMax)
-        bandName = key
-        runIndex = i + 1 + lastRunIndex
-        runFilename = getRunFilename(runIndex, bandName, siteName)
+    pbar.update_bar(bar_max / 50, bar_max)
+    for i, key in enumerate(band_keys):
+        time.sleep(sweep_dur)
+        pbar.update_bar(i + 1, bar_max)
+        band_name = key
+        run_index = i + 1 + last_run_index
+        run_filename = get_run_filename(run_index, band_name, site_name)
 
-        localOutFolder = folders["localOutFolder"]
+        local_out_folder = folders["localOutFolder"]
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        writeTxtFile(
-            f"{localOutFolder}/{runFilename}.txt",
-            f"{timestamp} {runFilename}",
+        write_txt_file(
+            f"{local_out_folder}/{run_filename}.txt",
+            f"{timestamp} {run_filename}",
         )
     time.sleep(1)
-    pbar.update_bar(0, barMax)
+    pbar.update_bar(0, bar_max)

@@ -1,20 +1,20 @@
 import PySimpleGUI as sg
 
 
-def getFolderSetting(field):
-    defaultText = sg.user_settings_get_entry(field["key"], field["default"])
+def get_folder_setting(field):
+    detault_text = sg.user_settings_get_entry(field["key"], field["default"])
 
-    folderSetting = [
+    folder_setting = [
         sg.Text(field["label"] + ":"),
-        sg.Input(key=field["key"], default_text=defaultText, size=(60)),
+        sg.Input(key=field["key"], default_text=detault_text, size=(60)),
     ]
     if "browse" in field:
-        folderSetting.append(sg.FolderBrowse())
-    return folderSetting
+        folder_setting.append(sg.FolderBrowse())
+    return folder_setting
 
 
-def getFolderSettings():
-    folderFields = [
+def get_folder_settings():
+    folder_fields = [
         {
             "key": "-STATE FOLDER-",
             "label": "State Folder",
@@ -38,36 +38,36 @@ def getFolderSettings():
         },
     ]
 
-    folderSettings = [[sg.Text("Folders", font=("", 15))]]
-    for field in folderFields:
-        folderSetting = getFolderSetting(field)
-        folderSettings.append(folderSetting)
-    return folderSettings
+    folder_settings = [[sg.Text("Folders", font=("", 15))]]
+    for field in folder_fields:
+        folder_setting = get_folder_setting(field)
+        folder_settings.append(folder_setting)
+    return folder_settings
 
 
-def getOtherSettings():
-    sweepDurDefault = sg.user_settings_get_entry("-SWEEP DUR-", 5)
-    sweepDurDefault = sweepDurDefault
+def get_other_settings():
+    sweep_dur_default = sg.user_settings_get_entry("-SWEEP DUR-", 5)
+    sweep_dur_default = sweep_dur_default
     layout = [
         [sg.Text("Other", font=("", 15))],
         [
             sg.Text("Sweep Duration (s):"),
-            sg.Input(key="-SWEEP DUR-", default_text=sweepDurDefault),
+            sg.Input(key="-SWEEP DUR-", default_text=sweep_dur_default),
         ],
     ]
     return layout
 
 
-def getSettingsWindow():
-    folderSettings = getFolderSettings()
-    otherSettings = getOtherSettings()
+def get_settings_window():
+    folder_settings = get_folder_settings()
+    other_settings = get_other_settings()
 
     layout = [
         [sg.Text("Settings", font=("_ 25"))],
         [sg.HorizontalSeparator()],
-        folderSettings,
+        folder_settings,
         [sg.HorizontalSeparator()],
-        otherSettings,
+        other_settings,
         [sg.HorizontalSeparator()],
         [sg.Button("Save"), sg.Button("Cancel")],
     ]
@@ -78,7 +78,7 @@ def getSettingsWindow():
     return window
 
 
-def saveSettings(values):
+def save_settings(values):
     keys = [
         "-STATE FOLDER-",
         "-CORR FOLDER-",
@@ -90,19 +90,18 @@ def saveSettings(values):
         sg.user_settings_set_entry(key, values[key])
 
 
-def launchSettingsWindow():
-
-    window = getSettingsWindow()
-    settingsChanged = False
+def launch_settings_window():
+    window = get_settings_window()
+    settings_changed = False
     while True:
         event, values = window.read()
         if event in (sg.WIN_CLOSED, "Cancel"):
             break
         elif event == "Save":
-            saveSettings(values)
-            settingsChanged = True  # used as flag to update main window
+            save_settings(values)
+            settings_changed = True  # used as flag to update main window
             break
 
     window.close()
 
-    return settingsChanged
+    return settings_changed

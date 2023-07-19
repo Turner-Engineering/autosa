@@ -10,53 +10,52 @@ def binblock_raw(data_in):
     # This function interprets the header for a definite binary block
     # and returns the raw binary data for both definite and indefinite binary blocks
 
-    startpos = data_in.find("#")
-    if startpos < 0:
+    start_pos = data_in.find("#")
+    if start_pos < 0:
         raise IOError("No start of block found")
-    lenlen = int(data_in[startpos + 1 : startpos + 2])  # get the data length length
+    len_len = int(data_in[start_pos + 1 : start_pos + 2])  # get the data length length
 
     # If it's a definite length binary block
-    if lenlen > 0:
+    if len_len > 0:
         # Get the length from the header
-        offset = startpos + 2 + lenlen
-        datalen = int(data_in[startpos + 2 : startpos + 2 + lenlen])
+        offset = start_pos + 2 + len_len
+        data_len = int(data_in[start_pos + 2 : start_pos + 2 + len_len])
     else:
         # If it's an indefinite length binary block get the length from the transfer itself
-        offset = startpos + 2
-        datalen = len(data_in) - offset - 1
+        offset = start_pos + 2
+        data_len = len(data_in) - offset - 1
 
     # Extract the data out into a list.
-    return data_in[offset : offset + datalen]
+    return data_in[offset : offset + data_len]
 
 
 try:
-
     # Open Connection
     rm = visa.ResourceManager(
         "C:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\agvisa\\agbin\\visa32.dll"
     )
-    myinst = rm.open_resource("TCPIP0::156.140.157.6::inst0::INSTR")
+    my_inst = rm.open_resource("TCPIP0::156.140.157.6::inst0::INSTR")
 
     # Set Timeout - 10 seconds
-    myinst.timeout = 10000
+    my_inst.timeout = 10000
 
     # *RST / *IDN?
-    myinst.write("*CLS")
-    myinst.write("*IDN?")
+    my_inst.write("*CLS")
+    my_inst.write("*IDN?")
     # print myinst.read()
 
-    myinst.write("*OPC?")
-    print("Reset Complete: " + myinst.read())
+    my_inst.write("*OPC?")
+    print("Reset Complete: " + my_inst.read())
 
     # Store the screen image to file
-    myinst.write(":MMEM:STOR:SCR 'D:\\PICTURE.PNG'")
-    myinst.write("*OPC?")
-    complete = myinst.read()
+    my_inst.write(":MMEM:STOR:SCR 'D:\\PICTURE.PNG'")
+    my_inst.write("*OPC?")
+    complete = my_inst.read()
 
     # Read the contents of the screen image
-    myinst.write(":MMEM:DATA? 'D:\\PICTURE.PNG'")
+    my_inst.write(":MMEM:DATA? 'D:\\PICTURE.PNG'")
 
-    my_image = myinst.read_raw()
+    my_image = my_inst.read_raw()
     # Interpret Header and Return Raw DATA
     my_image = binblock_raw(my_image)
     # Save Screen Image to File
@@ -66,17 +65,17 @@ try:
 
     ## Query for Instrument Errors
     while True:
-        myinst.write(":SYSTem:ERRor?")
-        Result = myinst.read()
-        ErrorList = Result.split(",")
-        Error = ErrorList[0]
-        print("Error #: " + ErrorList[0])
-        print("Error Description: " + ErrorList[1])
-        if int(Error) == 0:
+        my_inst.write(":SYSTem:ERRor?")
+        result = my_inst.read()
+        error_list = result.split(",")
+        error = error_list[0]
+        print("Error #: " + error_list[0])
+        print("Error Description: " + error_list[1])
+        if int(error) == 0:
             break
 
     # Close Connection
-    myinst.close()
+    my_inst.close()
     print("close instrument connection")
 
 except IOError as err:

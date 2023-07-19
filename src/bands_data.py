@@ -1,3 +1,4 @@
+# This should really be a JSON file so that the intent is clearer.
 bands = {
     "B0": {
         "corrFilename": "Rod A 1 kHz.csv",

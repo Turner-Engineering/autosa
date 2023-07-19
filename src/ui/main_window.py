@@ -1,26 +1,25 @@
 import PySimpleGUI as sg
 
 
-instFoundText = "Instrument Found ✔️"
-instNotFoundText = "Instrument Not Found ❌"
+inst_found_text = "Instrument Found ✔️"
+inst_not_found_text = "Instrument Not Found ❌"
 
 
-def getMainLayout(
-    instFound,
-    instResource,
+def get_main_layout(
+    inst_found,
+    inst_resource,
 ):
-
     section1 = [
         [
             sg.Text("Instrument Found:"),
             sg.Text(
-                instFoundText if instFound else instNotFoundText,
+                inst_found_text if inst_found else inst_not_found_text,
                 key="-INSTRUMENT FOUND-",
             ),
         ],
         [
             sg.Text("Instrument Resource:"),
-            sg.Text(instResource, key="-INSTRUMENT RESOURCE-", size=(60)),
+            sg.Text(inst_resource, key="-INSTRUMENT RESOURCE-", size=(60)),
         ],
         [
             sg.Text(
@@ -64,16 +63,15 @@ def getMainLayout(
     ]
 
 
-def updateMainWindow(window, instFound, instResource):
-
-    output = instFoundText if instFound else instNotFoundText
+def update_main_window(window, inst_found, inst_resource):
+    output = inst_found_text if inst_found else inst_not_found_text
     window["-INSTRUMENT FOUND-"].update(output)
-    window["-INSTRUMENT RESOURCE-"].update(instResource)
+    window["-INSTRUMENT RESOURCE-"].update(inst_resource)
     return
 
 
-def getMainWindow(instFound, instResource):
-    layout = getMainLayout(instFound, instResource)
+def get_main_mindow(inst_found, inst_resource):
+    layout = get_main_layout(inst_found, inst_resource)
 
     # Create the window
     window = sg.Window(
