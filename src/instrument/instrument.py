@@ -1,7 +1,9 @@
 import datetime
 import time
-from bandsData import bands
+
 import pyvisa
+
+from bandsData import bands
 from instrument.fileTransfer import saveFileToLocal
 
 

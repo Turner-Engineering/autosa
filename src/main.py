@@ -1,8 +1,8 @@
 import PySimpleGUI as sg
 import pyvisa
 
-from instrument.instrument import recordBandsDebug, getInstResource, getInstFound
-from ui.mainWindow import updateMainWindow, getMainWindow
+from instrument.instrument import getInstFound, getInstResource, recordBandsDebug
+from ui.mainWindow import getMainWindow, updateMainWindow
 from ui.settingsWindow import launchSettingsWindow
 
 
