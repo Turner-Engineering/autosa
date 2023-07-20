@@ -60,7 +60,8 @@ def get_inst_not_found_layout():
     steps = [
         "1. Make sure the instrument is plugged in to power and turned on",
         "2. Make sure the instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable",
-        "3. Ask for help",
+        '3. Make sure the signal analyzer program is running on the device (may be called "LaunchXSA" on the desktop)',
+        "4. Ask for help",
     ]
 
     layout = [
@@ -103,7 +104,7 @@ def update_main_window(window, inst_found, resource_name):
     return
 
 
-def get_main_mindow(inst_found, resource_name):
+def get_main_mindow(inst_found, resource_name, finalize=False):
     layout = get_main_layout(inst_found, resource_name)
 
     # Create the window
@@ -113,6 +114,7 @@ def get_main_mindow(inst_found, resource_name):
         margins=(20, 20),
         default_element_size=(20, 1),
         auto_size_text=False,
+        finalize=finalize,
     )
 
     return window

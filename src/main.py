@@ -80,10 +80,10 @@ def main():
         update_main_window(main_window, inst_found, resource_name)
 
         if event == "Settings":
-            settings_changed = launch_settings_window()
+            settings_changed = launch_settings_window(resource_name)
             if settings_changed:
                 main_window.close()
-                main_window = get_main_mindow(inst_found, resource_name)
+                main_window = get_main_mindow(inst_found, resource_name, finalize=True)
         elif event == sg.WIN_CLOSED:
             break
 
