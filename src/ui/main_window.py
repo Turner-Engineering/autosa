@@ -103,7 +103,7 @@ def update_main_window(window, inst_found, resource_name, settings_error):
     settings_validity_text = (
         "✅ Settings Valid"
         if not settings_error
-        else f"❎ Settings Invalid. Please open settings and fix."
+        else f'❎ Settings Invalid. Please open settings and click "Save" to see error.'
     )
     settings_validity_color = "red" if settings_error else "green"
 
@@ -115,7 +115,7 @@ def update_main_window(window, inst_found, resource_name, settings_error):
     return
 
 
-def get_main_mindow(inst_found, resource_name, finalize=False):
+def get_main_mindow(inst_found, resource_name, settings_error):
     layout = get_main_layout(inst_found, resource_name)
 
     # Create the window
@@ -125,7 +125,8 @@ def get_main_mindow(inst_found, resource_name, finalize=False):
         margins=(20, 20),
         default_element_size=(20, 1),
         auto_size_text=False,
-        finalize=finalize,
+        finalize=True,
     )
+    update_main_window(window, inst_found, resource_name, settings_error)
 
     return window

@@ -131,7 +131,7 @@ def get_folder_setting(field):
 
     folder_setting = [
         sg.Text(field["label"] + ":"),
-        sg.Input(key=field["key"], default_text=detault_text, size=(60)),
+        sg.Input(key=field["key"], default_text=detault_text, size=60),
     ]
     if "browse" in field:
         folder_setting.append(sg.FolderBrowse())

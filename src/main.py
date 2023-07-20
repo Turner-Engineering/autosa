@@ -70,8 +70,7 @@ def main():
     inst_found = get_inst_found(resource_name)
     settings_error = validate_settings(resource_name)
 
-    main_window = get_main_mindow(inst_found, resource_name, finalize=True)
-    update_main_window(main_window, inst_found, resource_name, settings_error)
+    main_window = get_main_mindow(inst_found, resource_name, settings_error)
 
     while True:
         timeout = 1000 if inst_found else 200
@@ -85,8 +84,10 @@ def main():
         if event == "Settings":
             settings_changed = launch_settings_window(resource_name)
             if settings_changed:
-                main_window.close()
-                main_window = get_main_mindow(inst_found, resource_name, finalize=True)
+                settings_error = validate_settings(resource_name)
+                update_main_window(
+                    main_window, inst_found, resource_name, settings_error
+                )
         elif event == sg.WIN_CLOSED:
             break
 
