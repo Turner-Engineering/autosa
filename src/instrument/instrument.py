@@ -120,39 +120,6 @@ def write_txt_file(filename, text):
     return
 
 
-def record_bands_debug(
-    resource, site_name, last_run_index, folders, band_keys, sweep_dur, window
-):
-    print("")
-    print("recordBands()")
-    print("resource:", resource)
-    print("site_name:", site_name)
-    print("last_run_index:", last_run_index)
-    print("folders:", folders)
-    print("band_keys:", band_keys)
-    print("sweep_dur:", sweep_dur)
-    print("window:", window)
-    # inst = getInst(resource)
-    bar_max = len(band_keys)
-    pbar = window["-PROGRESS-"]
-    pbar.update_bar(bar_max / 50, bar_max)
-    for i, key in enumerate(band_keys):
-        time.sleep(sweep_dur)
-        pbar.update_bar(i + 1, bar_max)
-        band_name = key
-        run_index = i + 1 + last_run_index
-        run_filename = get_run_filename(run_index, band_name, site_name)
-
-        local_out_folder = folders["localOutFolder"]
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        write_txt_file(
-            f"{local_out_folder}/{run_filename}.txt",
-            f"{timestamp} {run_filename}",
-        )
-    time.sleep(1)
-    pbar.update_bar(0, bar_max)
-
-
 def get_inst_info(inst):
     resp = inst.query(":SYST:IDN?")
     manufacturer, model, _, _ = resp.split(",")
