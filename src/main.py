@@ -3,7 +3,7 @@ import pyvisa
 
 from instrument.instrument import get_inst_found, get_resource_name, record_bands
 from ui.main_window import get_main_mindow, update_main_window
-from ui.settings_window import launch_settings_window
+from ui.settings_window import launch_settings_window, validate_settings
 
 
 def handle_py_visa_error(e):
@@ -68,8 +68,10 @@ def main():
     resource_manager = pyvisa.ResourceManager()
     resource_name = get_resource_name(resource_manager)
     inst_found = get_inst_found(resource_name)
+    settings_error = validate_settings(resource_name)
 
-    main_window = get_main_mindow(inst_found, resource_name)
+    main_window = get_main_mindow(inst_found, resource_name, finalize=True)
+    update_main_window(main_window, inst_found, resource_name, settings_error)
 
     while True:
         timeout = 1000 if inst_found else 200
@@ -77,7 +79,8 @@ def main():
         # without timeout, code pauses here and waits for event
         resource_name = get_resource_name(resource_manager)
         inst_found = get_inst_found(resource_name)
-        update_main_window(main_window, inst_found, resource_name)
+        settings_error = validate_settings(resource_name)
+        update_main_window(main_window, inst_found, resource_name, settings_error)
 
         if event == "Settings":
             settings_changed = launch_settings_window(resource_name)

@@ -3,11 +3,13 @@ import PySimpleGUI as sg
 INST_FOUND_KEY = "-INST FOUND-"
 INST_NOT_FOUND_KEY = "-INST NOT FOUND-"
 RESOURCE_NAME_KEY = "-RESOURCE NAME-"
+SETTINGS_VALIDITY_KEY = "-SETTINGS VALIDITY-"
 
 
 def get_defuault_layout(resource_name):
     section1 = [
-        [sg.Text("Instrument Detected ✔️", text_color="green")],
+        [sg.Text("✅ Instrument Detected", text_color="green")],
+        [sg.Text("", text_color="green", key=SETTINGS_VALIDITY_KEY, size=60)],
         [
             sg.Text("Instrument Resource Name:"),
             sg.Text(resource_name, key=RESOURCE_NAME_KEY, size=60),
@@ -97,10 +99,19 @@ def get_main_layout(inst_found, resource_name):
     return [[sg.pin(default_col)], [sg.pin(inst_not_fount_col)]]
 
 
-def update_main_window(window, inst_found, resource_name):
+def update_main_window(window, inst_found, resource_name, settings_error):
+    settings_validity_text = (
+        "✅ Settings Valid"
+        if not settings_error
+        else f"❎ Settings Invalid. Please open settings and fix."
+    )
+    settings_validity_color = "red" if settings_error else "green"
+
     window[RESOURCE_NAME_KEY].update(resource_name)
     window[INST_FOUND_KEY].update(visible=inst_found)
     window[INST_NOT_FOUND_KEY].update(visible=not inst_found)
+    window[SETTINGS_VALIDITY_KEY].update(settings_validity_text)
+    window[SETTINGS_VALIDITY_KEY].update(text_color=settings_validity_color)
     return
 
 

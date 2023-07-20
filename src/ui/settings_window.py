@@ -1,8 +1,8 @@
 import PySimpleGUI as sg
 
-from instrument.instrument import get_inst
-from instrument.folders import get_folder_info
 from bands_data import bands
+from instrument.folders import get_folder_info
+from instrument.instrument import get_inst
 
 FOLDER_FIELDS = [
     {
@@ -29,6 +29,11 @@ FOLDER_FIELDS = [
         "default": "",
         "browse": True,
     },
+]
+
+# these are the keys used to address all settings
+SETTINGS_KEYS = [field["key"] for field in FOLDER_FIELDS if "key" in field] + [
+    "-SWEEP DUR-"
 ]
 
 
@@ -72,7 +77,7 @@ def validate_folders(inst, settings, folder_fields):
         error_message = ""
 
         if expect_exists and not exists:
-            return f'{folder_label} "{folder_path}" does not exist'
+            return f'{folder_label} "{folder_path}" does not exist on the instrument'
 
         if expect_not_empty and empty:
             return f'{folder_label} "{folder_path}" does is empty'
@@ -104,9 +109,15 @@ def validate_sweep_dur(settings):
     return error_message
 
 
-def validate_settings(inst, settings, folder_fields):
+def validate_settings(resource_name, settings=None):
+    inst = get_inst(resource_name)
+    if settings is None:
+        settings = {}
+        for key in SETTINGS_KEYS:
+            settings[key] = sg.user_settings_get_entry(key)
+
     # validate saved user settings
-    folders_error = validate_folders(inst, settings, folder_fields)
+    folders_error = validate_folders(inst, settings, FOLDER_FIELDS)
     if folders_error:
         return folders_error
     sweep_dur_error = validate_sweep_dur(settings)
@@ -169,19 +180,11 @@ def get_settings_window(folder_fields):
 
 
 def save_settings(values):
-    keys = [
-        "-STATE FOLDER-",
-        "-CORR FOLDER-",
-        "-OUT FOLDER-",
-        "-LOCAL OUT FOLDER-",
-        "-SWEEP DUR-",
-    ]
-    for key in keys:
+    for key in SETTINGS_KEYS:
         sg.user_settings_set_entry(key, values[key])
 
 
 def launch_settings_window(resource_name):
-    inst = get_inst(resource_name)
     window = get_settings_window(FOLDER_FIELDS)
     settings_changed = False
     while True:
@@ -190,7 +193,7 @@ def launch_settings_window(resource_name):
             break
         elif event == "Save":
             # save first so we can validate from the saved settings
-            settings_error_message = validate_settings(inst, values, FOLDER_FIELDS)
+            settings_error_message = validate_settings(resource_name, values)
             if settings_error_message:
                 sg.popup_error(settings_error_message, title="Settings Error")
             else:
