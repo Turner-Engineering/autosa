@@ -32,7 +32,8 @@ FOLDER_FIELDS = [
 
 # these are the keys used to address all settings
 SETTINGS_KEYS = [field["key"] for field in FOLDER_FIELDS if "key" in field] + [
-    "-SWEEP DUR-"
+    "-SWEEP DUR-",
+    "-SITE-",
 ]
 
 
@@ -108,6 +109,21 @@ def validate_sweep_dur(settings):
     return error_message
 
 
+def validate_site_name(settings):
+    site_name = settings["-SITE-"]
+    error_message = ""
+    if site_name == "":
+        error_message = "Site name cannot be empty"
+    # should be something that is valid to use as a filename
+    forbidden_chars = ["\\", "/", ":", "*", "?", '"', "<", ">", "|"]
+    for char in forbidden_chars:
+        if char in site_name:
+            error_message = f'Site name cannot contain the following characters: {", ".join(forbidden_chars)}'
+            break
+
+    return error_message
+
+
 def validate_settings(inst, settings=None):
     if settings is None:
         settings = {}
@@ -121,6 +137,9 @@ def validate_settings(inst, settings=None):
     sweep_dur_error = validate_sweep_dur(settings)
     if sweep_dur_error:
         return sweep_dur_error
+    site_name_error = validate_site_name(settings)
+    if site_name_error:
+        return site_name_error
     return ""
 
 
@@ -146,12 +165,16 @@ def get_folder_settings(folder_fields):
 
 def get_other_settings():
     sweep_dur_default = sg.user_settings_get_entry("-SWEEP DUR-", 5)
-    sweep_dur_default = sweep_dur_default
+    site_name_default = sg.user_settings_get_entry("-SITE-", "Philadelphia")
     layout = [
         [sg.Text("Other", font=("", 15))],
         [
             sg.Text("Sweep Duration (s):"),
             sg.Input(key="-SWEEP DUR-", default_text=sweep_dur_default),
+        ],
+        [
+            sg.Text("Site Name (for filename):"),
+            sg.Input(key="-SITE-", default_text=site_name_default),
         ],
     ]
     return layout

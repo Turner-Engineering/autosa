@@ -5,17 +5,56 @@ INST_NOT_FOUND_KEY = "-INST NOT FOUND-"
 SETTINGS_VALIDITY_KEY = "-SETTINGS VALIDITY-"
 INST_FOUND_INFO_KEY = "-INST INFO-"
 
+BUTTON_DETAILS = [
+    {"band": "B0", "freqs": "10 kHz - 160 kHz"},
+    {"band": "B1", "freqs": "150 kHz - 650 kHz"},
+    {"band": "B2", "freqs": "500 kHz - 3 MHz"},
+    {"band": "B3", "freqs": "2.5 MHz - 7.5 MHz"},
+    {"band": "B4", "freqs": "5 MHz - 30 MHz"},
+    {"band": "B5", "freqs": "25 MHz - 325 MHz"},
+    {"band": "B6", "freqs": "300 MHz - 1.3 GHz"},
+    {"band": "B7", "freqs": "1 GHz - 6 GHz"},
+]
+
+
+def get_single_band_section():
+    font = "Any 15"
+    button_color = ("white", "dark blue")
+
+    buttons = [
+        sg.Button(
+            b["band"],
+            key=f"-BUTTON {b['band']}-",
+            font=font,
+            button_color=button_color,
+            size=(15, 2),
+        )
+        for b in BUTTON_DETAILS
+    ]
+
+    # arrange section 4 such that there are two rows for 4 buttons
+    sectoion4 = [[sg.Text("Run a Band:")], buttons[0:4], buttons[4:8]]
+    return sectoion4
+
+
+def set_band_button_disabled(window, disabled):
+    disabled_color = ("white", "grey")
+    enabled_color = ("white", "dark blue")
+    button_color = disabled_color if disabled else enabled_color
+    for b in BUTTON_DETAILS:
+        window[f"-BUTTON {b['band']}-"].update(disabled=disabled)
+        window[f"-BUTTON {b['band']}-"].update(button_color=button_color)
+
 
 def get_defuault_layout():
     section1 = [
-        [sg.Text("", text_color="green", key=INST_FOUND_INFO_KEY, size=60)],
-        [sg.Text("", text_color="green", key=SETTINGS_VALIDITY_KEY, size=60)],
         [
             sg.Text(
-                "Make sure to check all the fields below before starting the run",
-                size=60,
+                "Make sure to check the settings before running sweeps!", expand_x=True
             )
         ],
+        [sg.Text("", text_color="green", key=INST_FOUND_INFO_KEY, expand_x=True)],
+        [sg.Text("", text_color="green", key=SETTINGS_VALIDITY_KEY, expand_x=True)],
     ]
 
     section2 = [
@@ -27,28 +66,30 @@ def get_defuault_layout():
                 background_color="white",
             ),
         ],
+        [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-", default_text="0")],
+        [sg.Button("Run Sweeps", disabled=True, key="-RUN-")],
         [
-            sg.Text("Site Name:"),
-            sg.Input(
-                key="-SITE-",
-                default_text="Philly",
-            ),
+            sg.ProgressBar(
+                1, orientation="h", size=(60, 20), key="-PROGRESS-", expand_x=True
+            )
         ],
     ]
 
-    section4 = [
-        [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-", default_text="0")],
-        [sg.Button("Run Sweeps", disabled=True, key="-RUN-")],
-        [sg.ProgressBar(1, orientation="h", size=(60, 20), key="-PROGRESS-")],
-    ]
+    sectoion3 = get_single_band_section()
 
     layout = [
-        [sg.B("Settings")],
+        [
+            sg.Text("Setup", font=("", 15)),
+            sg.Text("", expand_x=True),  # This will push the button to the right
+            sg.B("Settings", button_color=("black", "light gray"), size=(10, 2)),
+        ],
         *section1,
         [sg.HorizontalSeparator()],
+        [sg.Text("Multiple Bands", font=("", 15))],
         *section2,
         [sg.HorizontalSeparator()],
-        *section4,
+        [sg.Text("Individual Bands", font=("", 15))],
+        *sectoion3,
     ]
 
     return layout

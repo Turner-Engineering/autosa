@@ -74,7 +74,7 @@ def get_run_filename(run_index, band_name, notes):
     return filename
 
 
-def record_bands(
+def record_multiple_bands(
     inst,
     site_name,
     last_run_index,
@@ -117,6 +117,36 @@ def write_txt_file(filename, text):
     with open(filename, "w") as f:
         f.write(text)
     return
+
+
+def record_single_band(
+    inst,
+    site_name,
+    last_run_index,
+    folders,
+    band_key,
+    sweep_dur,
+):
+    run_index = last_run_index + 1
+    coupling = bands[band_key]["coupling"]
+
+    state_filename = bands[band_key]["stateFilename"]
+    corr_filename = bands[band_key]["corrFilename"]
+    run_filename = get_run_filename(run_index, band_key, site_name)
+
+    recall_state(inst, folders["stateFolder"], state_filename)
+    recall_corr(inst, folders["corrFolder"], corr_filename)
+    set_coupling(inst, coupling)
+
+    out_folder = folders["outFolder"]
+    local_out_folder = folders["localOutFolder"]
+    record_band(
+        inst,
+        out_folder,
+        run_filename,
+        local_out_folder,
+        sweep_dur,
+    )
 
 
 def get_inst_info(inst):

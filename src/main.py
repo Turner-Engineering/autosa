@@ -1,8 +1,13 @@
 import PySimpleGUI as sg
 import pyvisa
 
-from instrument.instrument import get_inst, record_bands, get_inst_info
-from ui.main_window import get_main_mindow, update_main_window
+from instrument.instrument import (
+    get_inst,
+    get_inst_info,
+    record_multiple_bands,
+    record_single_band,
+)
+from ui.main_window import get_main_mindow, update_main_window, set_band_button_disabled
 from ui.settings_window import launch_settings_window, validate_settings
 
 
@@ -47,10 +52,8 @@ def get_folders():
     return folders
 
 
-def validate_input(values):
+def validate_band_range(values):
     if values["-BAND RANGE-"] == "":
-        return False
-    if values["-SITE-"] == "":
         return False
     return True
 
@@ -86,23 +89,13 @@ def main():
         elif event == sg.WIN_CLOSED:
             break
 
-        if inst_found:
-            input_valid = validate_input(values)
-            if not input_valid:
-                main_window["-RUN-"].update(disabled=True)
-                continue
-            else:
-                main_window["-RUN-"].update(disabled=False)
+        site_name = sg.user_settings_get_entry("-SITE-")
+        last_run_index = int(values["-LAST INDEX-"])
+        sweep_dur = float(sg.user_settings_get_entry("-SWEEP DUR-"))
+        folders = get_folders()
 
+        main_window["-RUN-"].update(disabled=not validate_band_range(values))
         if event == "-RUN-":
-            # FOLDERS
-            folders = get_folders()
-
-            # OTHER VARS
-            site_name = values["-SITE-"]
-            last_run_index = int(values["-LAST INDEX-"])
-            sweep_dur = float(sg.user_settings_get_entry("-SWEEP DUR-"))
-
             band_keys = (
                 ["B0", "B1", "B2", "B3", "B4"]
                 if values["-BAND RANGE-"] == "B0 - B4 (monopole)"
@@ -111,7 +104,7 @@ def main():
                 else ""
             )
 
-            record_bands(
+            record_multiple_bands(
                 inst,
                 site_name,
                 last_run_index,
@@ -120,6 +113,15 @@ def main():
                 sweep_dur,
                 main_window,
             )
+
+        if "BUTTON" in event:
+            substring = event.split("-")[1]
+            band_key = substring.split(" ")[1]
+
+            record_single_band(
+                inst, site_name, last_run_index, folders, band_key, sweep_dur
+            )
+
     main_window.close()
 
 
