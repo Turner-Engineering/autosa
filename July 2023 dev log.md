@@ -31,3 +31,24 @@ print(rm.list_resources())
 - By the way, I have the 50 ohm resistor connected to the EXA
 - PROGRESS! Was able to get the EXA to respond to commands! The response was "I can't find those files they don't exist" but that's a start.
 - Need to make the program handle case where NI-VISA is not installed and case where instrument is not detected
+
+### Final Notes for the Day
+
+- I have to stop here today, was able to get Autosa to do several sanity checks before running
+  - check if NI-VISA is installed
+  - check that device is detected
+  - check that folders in settings exist and contain the right files
+- What I need to do now is finish off this last one by making it check the settings when you hit "Run" and not just when you save the settings (possible have it even run continously and display the errors in the window?)
+- Then I need to clean up and commit
+- After that, need to test that everything this far works as expected
+- Then we can get to new features
+
+## July 20 2023
+
+Carrying on...
+
+### Completing Settings Validation
+
+- Validated settings in main window
+- Now we need to be able to see the errors in the settings window before we even hit save
+- Cleaned up a few other things, now ready to do new features
