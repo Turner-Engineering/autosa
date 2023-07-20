@@ -86,16 +86,15 @@ def record_bands(
     bar_max = len(band_keys)
     pbar = window["-PROGRESS-"]
     pbar.update_bar(bar_max / 50, bar_max)
-    for i, key in enumerate(band_keys):
+    for i, band_key in enumerate(band_keys):
         time.sleep(sweep_dur)
         pbar.update_bar(i + 1, bar_max)
-        bannd_name = key
         run_index = i + 1 + last_run_index
-        coupling = bands[key]["coupling"]
+        coupling = bands[band_key]["coupling"]
 
-        state_filename = bands[key]["stateFilename"]
-        corr_filename = bands[key]["corrFilename"]
-        run_filename = get_run_filename(run_index, bannd_name, site_name)
+        state_filename = bands[band_key]["stateFilename"]
+        corr_filename = bands[band_key]["corrFilename"]
+        run_filename = get_run_filename(run_index, band_key, site_name)
 
         recall_state(inst, folders["stateFolder"], state_filename)
         recall_corr(inst, folders["corrFolder"], corr_filename)
