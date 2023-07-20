@@ -3,11 +3,12 @@ import PySimpleGUI as sg
 INST_FOUND_KEY = "-INST FOUND-"
 INST_NOT_FOUND_KEY = "-INST NOT FOUND-"
 SETTINGS_VALIDITY_KEY = "-SETTINGS VALIDITY-"
+INST_FOUND_INFO_KEY = "-INST INFO-"
 
 
 def get_defuault_layout():
     section1 = [
-        [sg.Text("✅ Instrument Detected", text_color="green")],
+        [sg.Text("", text_color="green", key=INST_FOUND_INFO_KEY, size=60)],
         [sg.Text("", text_color="green", key=SETTINGS_VALIDITY_KEY, size=60)],
         [
             sg.Text(
@@ -37,7 +38,7 @@ def get_defuault_layout():
 
     section4 = [
         [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-", default_text="0")],
-        [sg.Button("Run Sweeps", disabled=False, key="-RUN-")],
+        [sg.Button("Run Sweeps", disabled=True, key="-RUN-")],
         [sg.ProgressBar(1, orientation="h", size=(60, 20), key="-PROGRESS-")],
     ]
 
@@ -94,22 +95,24 @@ def get_main_layout(inst_found):
     return [[sg.pin(default_col)], [sg.pin(inst_not_fount_col)]]
 
 
-def update_main_window(window, inst_found, settings_error):
+def update_main_window(window, inst_found, inst_info, settings_error):
     settings_validity_text = (
         "✅ Settings Valid"
         if not settings_error
         else f'❎ Settings Invalid. Please open settings and click "Save" to see error.'
     )
     settings_validity_color = "red" if settings_error else "green"
+    inst_found_info_text = "✅ Instrument Detected - " + inst_info
 
     window[INST_FOUND_KEY].update(visible=inst_found)
     window[INST_NOT_FOUND_KEY].update(visible=not inst_found)
     window[SETTINGS_VALIDITY_KEY].update(settings_validity_text)
     window[SETTINGS_VALIDITY_KEY].update(text_color=settings_validity_color)
+    window[INST_FOUND_INFO_KEY].update(inst_found_info_text)
     return
 
 
-def get_main_mindow(inst_found, settings_error):
+def get_main_mindow(inst_found, inst_info, settings_error):
     layout = get_main_layout(inst_found)
 
     # Create the window
@@ -121,6 +124,6 @@ def get_main_mindow(inst_found, settings_error):
         auto_size_text=False,
         finalize=True,
     )
-    update_main_window(window, inst_found, settings_error)
+    update_main_window(window, inst_found, inst_info, settings_error)
 
     return window

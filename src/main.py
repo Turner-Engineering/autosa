@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 import pyvisa
 
-from instrument.instrument import get_inst, record_bands
+from instrument.instrument import get_inst, record_bands, get_inst_info
 from ui.main_window import get_main_mindow, update_main_window
 from ui.settings_window import launch_settings_window, validate_settings
 
@@ -66,23 +66,23 @@ def main():
         return
 
     inst, inst_found = get_inst()
-    settings_error = validate_settings(inst)
-
-    main_window = get_main_mindow(inst_found, settings_error)
+    main_window = get_main_mindow(inst_found, "", "")
 
     while True:
-        timeout = 1000 if inst_found else 200
+        timeout = 500 if inst_found else 200
         event, values = main_window.read(timeout=timeout)
         # without timeout, code pauses here and waits for event
         inst, inst_found = get_inst()
-        settings_error = validate_settings(inst)
-        update_main_window(main_window, inst_found, settings_error)
+        settings_error = validate_settings(inst) if inst_found else ""
+        inst_info = get_inst_info(inst) if inst_found else ""
+
+        update_main_window(main_window, inst_found, inst_info, settings_error)
 
         if event == "Settings":
             settings_changed = launch_settings_window(inst)
             if settings_changed:
                 settings_error = validate_settings(inst)
-                update_main_window(main_window, inst_found, settings_error)
+                update_main_window(main_window, inst_found, inst_info, settings_error)
         elif event == sg.WIN_CLOSED:
             break
 

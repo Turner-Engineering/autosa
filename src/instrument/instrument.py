@@ -151,3 +151,9 @@ def record_bands_debug(
         )
     time.sleep(1)
     pbar.update_bar(0, bar_max)
+
+
+def get_inst_info(inst):
+    resp = inst.query(":SYST:IDN?")
+    manufacturer, model, _, _ = resp.split(",")
+    return f"{manufacturer} - {model}"
