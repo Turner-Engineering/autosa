@@ -2,18 +2,13 @@ import PySimpleGUI as sg
 
 INST_FOUND_KEY = "-INST FOUND-"
 INST_NOT_FOUND_KEY = "-INST NOT FOUND-"
-RESOURCE_NAME_KEY = "-RESOURCE NAME-"
 SETTINGS_VALIDITY_KEY = "-SETTINGS VALIDITY-"
 
 
-def get_defuault_layout(resource_name):
+def get_defuault_layout():
     section1 = [
         [sg.Text("✅ Instrument Detected", text_color="green")],
         [sg.Text("", text_color="green", key=SETTINGS_VALIDITY_KEY, size=60)],
-        [
-            sg.Text("Instrument Resource Name:"),
-            sg.Text(resource_name, key=RESOURCE_NAME_KEY, size=60),
-        ],
         [
             sg.Text(
                 "Make sure to check all the fields below before starting the run",
@@ -82,10 +77,10 @@ def get_inst_not_found_layout():
     return layout
 
 
-def get_main_layout(inst_found, resource_name):
+def get_main_layout(inst_found):
     # only one of these will be visible at a time
     default_col = sg.Column(
-        get_defuault_layout(resource_name),
+        get_defuault_layout(),
         visible=inst_found,
         key=INST_FOUND_KEY,
     )
@@ -99,7 +94,7 @@ def get_main_layout(inst_found, resource_name):
     return [[sg.pin(default_col)], [sg.pin(inst_not_fount_col)]]
 
 
-def update_main_window(window, inst_found, resource_name, settings_error):
+def update_main_window(window, inst_found, settings_error):
     settings_validity_text = (
         "✅ Settings Valid"
         if not settings_error
@@ -107,7 +102,6 @@ def update_main_window(window, inst_found, resource_name, settings_error):
     )
     settings_validity_color = "red" if settings_error else "green"
 
-    window[RESOURCE_NAME_KEY].update(resource_name)
     window[INST_FOUND_KEY].update(visible=inst_found)
     window[INST_NOT_FOUND_KEY].update(visible=not inst_found)
     window[SETTINGS_VALIDITY_KEY].update(settings_validity_text)
@@ -115,8 +109,8 @@ def update_main_window(window, inst_found, resource_name, settings_error):
     return
 
 
-def get_main_mindow(inst_found, resource_name, settings_error):
-    layout = get_main_layout(inst_found, resource_name)
+def get_main_mindow(inst_found, settings_error):
+    layout = get_main_layout(inst_found)
 
     # Create the window
     window = sg.Window(
@@ -127,6 +121,6 @@ def get_main_mindow(inst_found, resource_name, settings_error):
         auto_size_text=False,
         finalize=True,
     )
-    update_main_window(window, inst_found, resource_name, settings_error)
+    update_main_window(window, inst_found, settings_error)
 
     return window

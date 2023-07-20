@@ -15,14 +15,15 @@ def get_resource_name(resource_manager):
     return resource_name
 
 
-def get_inst_found(resource_name):
-    return True if resource_name != "" else False
-
-
-def get_inst(resource_name):
-    rm = pyvisa.ResourceManager()
-    inst = rm.open_resource(resource_name)
-    return inst
+def get_inst():
+    resource_manager = pyvisa.ResourceManager()
+    resource_name = get_resource_name(resource_manager)
+    inst = None
+    if resource_name != "":
+        rm = pyvisa.ResourceManager()
+        inst = rm.open_resource(resource_name)
+    inst_found = inst is not None
+    return inst, inst_found
 
 
 def record_band(inst, folder, filename, local_out_folder, sweep_dur=5):
@@ -74,7 +75,7 @@ def get_run_filename(run_index, band_name, notes):
 
 
 def record_bands(
-    resource,
+    inst,
     site_name,
     last_run_index,
     folders,
@@ -82,7 +83,6 @@ def record_bands(
     sweep_dur,
     window,
 ):
-    inst = get_inst(resource)
     bar_max = len(band_keys)
     pbar = window["-PROGRESS-"]
     pbar.update_bar(bar_max / 50, bar_max)

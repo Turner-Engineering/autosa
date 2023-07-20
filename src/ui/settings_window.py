@@ -2,7 +2,6 @@ import PySimpleGUI as sg
 
 from bands_data import bands
 from instrument.folders import get_folder_info
-from instrument.instrument import get_inst
 
 FOLDER_FIELDS = [
     {
@@ -109,8 +108,7 @@ def validate_sweep_dur(settings):
     return error_message
 
 
-def validate_settings(resource_name, settings=None):
-    inst = get_inst(resource_name)
+def validate_settings(inst, settings=None):
     if settings is None:
         settings = {}
         for key in SETTINGS_KEYS:
@@ -184,7 +182,7 @@ def save_settings(values):
         sg.user_settings_set_entry(key, values[key])
 
 
-def launch_settings_window(resource_name):
+def launch_settings_window(inst):
     window = get_settings_window(FOLDER_FIELDS)
     settings_changed = False
     while True:
@@ -193,7 +191,7 @@ def launch_settings_window(resource_name):
             break
         elif event == "Save":
             # save first so we can validate from the saved settings
-            settings_error_message = validate_settings(resource_name, values)
+            settings_error_message = validate_settings(inst, values)
             if settings_error_message:
                 sg.popup_error(settings_error_message, title="Settings Error")
             else:
