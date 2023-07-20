@@ -26,7 +26,7 @@ def get_inst():
     return inst, inst_found
 
 
-def record_band(inst, folder, filename, local_out_folder, sweep_dur=5):
+def record_band(inst, inst_out_folder, filename, local_out_folder, sweep_dur=5):
     # RECORD
     inst.write(":INIT:REST")
     inst.write(":INIT:CONT ON")
@@ -34,8 +34,8 @@ def record_band(inst, folder, filename, local_out_folder, sweep_dur=5):
     inst.write(":INIT:CONT OFF")
 
     # SAVE
-    csv_path = f"{folder}/{filename}.csv"
-    png_path = f"{folder}/{filename}.png"
+    csv_path = f"{inst_out_folder}/{filename}.csv"
+    png_path = f"{inst_out_folder}/{filename}.png"
     inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csv_path}"')
     inst.write(f':MMEM:STOR:SCR "{png_path}"')
 
