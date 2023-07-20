@@ -58,6 +58,13 @@ def validate_band_range(values):
     return True
 
 
+def handle_settings_event(inst, inst_found, main_window, inst_info):
+    settings_changed = launch_settings_window(inst)
+    if settings_changed:
+        settings_error = validate_settings(inst)
+        update_main_window(main_window, inst_found, inst_info, settings_error)
+
+
 def main():
     sg.theme("SystemDefaultForReal")
     # default location for this file is Users/<username>/AppData/Local/PySimpleGUI/settings/
@@ -73,8 +80,10 @@ def main():
 
     while True:
         timeout = 500 if inst_found else 200
-        event, values = main_window.read(timeout=timeout)
+
         # without timeout, code pauses here and waits for event
+        event, values = main_window.read(timeout=timeout)
+
         inst, inst_found = get_inst()
         settings_error = validate_settings(inst) if inst_found else ""
         inst_info = get_inst_info(inst) if inst_found else ""
@@ -82,11 +91,8 @@ def main():
         update_main_window(main_window, inst_found, inst_info, settings_error)
 
         if event == "Settings":
-            settings_changed = launch_settings_window(inst)
-            if settings_changed:
-                settings_error = validate_settings(inst)
-                update_main_window(main_window, inst_found, inst_info, settings_error)
-        elif event == sg.WIN_CLOSED:
+            handle_settings_event(inst, inst_found, main_window, inst_info)
+        if event == sg.WIN_CLOSED:
             break
 
         site_name = sg.user_settings_get_entry("-SITE-")
