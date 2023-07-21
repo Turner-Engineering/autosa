@@ -17,20 +17,40 @@ BUTTON_DETAILS = [
 ]
 
 
+RUN_BUTTON_PROPS = {
+    "font": "Any 15",
+    "button_color": ("white", "dark blue"),
+    "size": (15, 2),
+}
+
+
 def get_section1():
     return [
-        [
-            sg.Text(
-                "Make sure to check the settings before running sweeps!", expand_x=True
-            )
-        ],
         [sg.Text("", text_color="green", key=INST_FOUND_INFO_KEY, expand_x=True)],
         [sg.Text("", text_color="green", key=SETTINGS_VALIDITY_KEY, expand_x=True)],
+        [
+            sg.Text(
+                "Make sure to check the settings before running anything!",
+                expand_x=True,
+            )
+        ],
     ]
 
 
 def get_multi_band_section():
     return [
+        [
+            sg.Text(
+                "Multi-Band mode allows you to run multiple bands in a row with no intervention.",
+                expand_x=True,
+            )
+        ],
+        [
+            sg.Text(
+                "State files, correction files, coupling, and file names are set automatically.",
+                expand_x=True,
+            )
+        ],
         [
             sg.Text("Band Range:"),
             sg.OptionMenu(
@@ -40,7 +60,14 @@ def get_multi_band_section():
                 default_value="B0 - B4 (monopole)",
             ),
         ],
-        [sg.Button("Run Sweeps", disabled=True, key="-RUN-")],
+        [
+            sg.Button(
+                "Run Sweeps",
+                disabled=True,
+                key="-RUN-",
+                **RUN_BUTTON_PROPS,
+            )
+        ],
         [
             sg.ProgressBar(
                 1, orientation="h", size=(60, 20), key="-PROGRESS-", expand_x=True
@@ -50,32 +77,35 @@ def get_multi_band_section():
 
 
 def get_single_band_section():
-    font = "Any 15"
-    button_color = ("white", "dark blue")
-
     buttons = [
         sg.Button(
             b["band"],
             key=f"-BUTTON {b['band']}-",
-            font=font,
-            button_color=button_color,
-            size=(15, 2),
+            **RUN_BUTTON_PROPS,
         )
         for b in BUTTON_DETAILS
     ]
 
     # arrange section 4 such that there are two rows for 4 buttons
-    section = [[sg.Text("Run a Band:")], buttons[0:4], buttons[4:8]]
+    section = [
+        [sg.Text("Single Band Mode lets you run one band at a time.", expand_x=True)],
+        [
+            sg.Text(
+                "State files, correction files, coupling, and file names are set automatically.",
+                expand_x=True,
+            )
+        ],
+        buttons[0:4],
+        buttons[4:8],
+    ]
     return section
 
 
-def get_section4():
+def get_custom_mode_section():
     button = sg.Button(
         "Record and Save",
         key="-RECORD AND SAVE-",
-        font="Any 15",
-        button_color=("white", "dark blue"),
-        size=(15, 2),
+        **RUN_BUTTON_PROPS,
     )
 
     # arrange section 4 such that there are two rows for 4 buttons
@@ -100,29 +130,30 @@ def get_section4():
 def get_defuault_layout():
     section1 = get_section1()
 
-    section2 = get_multi_band_section()
+    multi_band_section = get_multi_band_section()
 
-    section3 = get_single_band_section()
+    single_band_section = get_single_band_section()
 
-    section4 = get_section4()
+    custom_mode_section = get_custom_mode_section()
 
-    layout = [
+    setup_layout = [
         [
-            sg.Text("Setup", font=("", 15)),
+            sg.Text("Autosa by Tenco", font=("", 15)),
             sg.Text("", expand_x=True),  # This will push the button to the right
             sg.B("Settings", button_color=("black", "light gray"), size=(10, 2)),
         ],
         *section1,
-        [sg.HorizontalSeparator()],
-        [sg.Text("Multiple Bands", font=("", 15))],
-        *section2,
-        [sg.HorizontalSeparator()],
-        [sg.Text("Individual Bands", font=("", 15))],
-        *section3,
-        [sg.HorizontalSeparator()],
-        [sg.Text("Record and Save", font=("", 15))],
-        *section4,
     ]
+
+    tabs = [
+        sg.Tab("   Single Band Mode   ", single_band_section),
+        sg.Tab("   Multi Band Mode   ", multi_band_section),
+        sg.Tab("   Custom Mode   ", custom_mode_section),
+    ]
+
+    tab_group_layout = [[sg.TabGroup([tabs])]]
+
+    layout = setup_layout + tab_group_layout
 
     return layout
 
