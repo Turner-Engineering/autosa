@@ -61,6 +61,14 @@ def get_multi_band_section():
             ),
         ],
         [
+            sg.Text("Orientation:"),
+            sg.OptionMenu(
+                key="-ORIENTATION-",
+                values=[("Horizontal"), ("Vertical")],
+                default_value=("Horizontal"),
+            ),
+        ],
+        [
             sg.Button(
                 "Run Sweeps",
                 disabled=True,

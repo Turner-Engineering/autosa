@@ -88,14 +88,14 @@ def run_single_band(inst, settings, band_key):
     return error_message
 
 
-def run_multiple_bands(inst, settings, band_keys, window):
+def run_multiple_bands(inst, settings, band_keys, window, orientation):
     # PROGRESS BAR
     bar_max = len(band_keys)
     pbar = window["-PROGRESS-"]
     pbar.update_bar(bar_max / 50, bar_max)
 
     # CONFIRMATION
-    first_run_filename = get_run_filename(inst, settings, band_keys[0])
+    first_run_filename = get_run_filename(inst, settings, band_keys[0], orientation)
     num_runs = len(band_keys)
     part1 = f"Please confirm that you would like to run bands\n\n{band_keys[0]} to {band_keys[-1]} ({num_runs} runs total)\n\n"
     part2 = f'and that the first filename should be:\n\n"{first_run_filename}"\n (the rest will be numbered sequentially)'
@@ -109,7 +109,7 @@ def run_multiple_bands(inst, settings, band_keys, window):
     error_message = ""
     for i in range(len(band_keys)):
         band_key = band_keys[i]
-        run_filename = get_run_filename(inst, settings, band_key)
+        run_filename = get_run_filename(inst, settings, band_key, orientation)
 
         # PROGRESS BAR
         time.sleep(2)  #  not sure what this is for
@@ -169,11 +169,15 @@ def main():
                 else ""
             )
 
+            # orientation is lowercase first letter of the word
+            orientation = values["-ORIENTATION-"][0].lower()
+
             run_error_message = run_multiple_bands(
                 inst,
                 settings,
                 band_keys,
                 main_window,
+                orientation,
             )
 
         if "BUTTON" in event:

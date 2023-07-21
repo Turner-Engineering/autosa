@@ -93,11 +93,11 @@ def set_coupling(inst, coupling):
     # print(inst.query(f":INP:COUP?"))
 
 
-def get_run_filename(inst, settings, band_name):
+def get_run_filename(inst, settings, band_name, orientation=""):
     inst_out_folder = settings["-OUT FOLDER-"]
     notes = settings["-RUN NOTE-"]
     run_id = get_run_id(inst, inst_out_folder)
-    filename = f"{run_id} {notes} {band_name}"
+    filename = f"{run_id} {notes} {band_name}{orientation}"
     return filename
 
 
