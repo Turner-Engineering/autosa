@@ -98,4 +98,16 @@ We need to get the last run index:
 
 - Record Current Setup (this would just record for the sweep dur however the exa is set up, and will save items with the correct file name. So it basically skips the state and correction file loading steps)
 - Save Current Data (this would be the second half of the record_and_save function, it would just take a screenshot, and save the trace to the computer and instrument)
--
+
+### Orientation
+
+- Added an orientation dropdown to the multi-band menu
+- Just realized that the single band needs that too, probably just need to add three more buttons and have half labelled as v and the other as h. Only issues is then we don't have a nice grid of buttons. We would have 11 buttons.
+- I could section that out into monopole and bilogic then have the bilogic section be two rows of three buttons
+- I also really want to add the logo to the top left
+
+### Next Steps
+
+- next steps for tomorrow are to add the orientation to individual band running. Plan is to do it with three rows and two sections
+- section 1 is one row of 5 for monopole
+- Section 2 is two rows of 3 for bilogic, first row is h second is v
