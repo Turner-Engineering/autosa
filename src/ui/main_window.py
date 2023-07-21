@@ -64,6 +64,7 @@ def get_defuault_layout():
                 key="-BAND RANGE-",
                 values=["B0 - B4 (monopole)", "B5 - B7 (bilogical)"],
                 background_color="white",
+                default_value="B0 - B4 (monopole)",
             ),
         ],
         [sg.Button("Run Sweeps", disabled=True, key="-RUN-")],
