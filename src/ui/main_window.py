@@ -227,9 +227,10 @@ def update_main_window(window, inst_found, inst_info, settings_error):
 
     window[INST_FOUND_KEY].update(visible=inst_found)
     window[INST_NOT_FOUND_KEY].update(visible=not inst_found)
-    window[SETTINGS_VALIDITY_KEY].update(settings_validity_text)
-    window[SETTINGS_VALIDITY_KEY].update(text_color=settings_validity_color)
-    window[INST_FOUND_INFO_KEY].update(inst_found_info_text)
+    if inst_found:
+        window[SETTINGS_VALIDITY_KEY].update(settings_validity_text)
+        window[SETTINGS_VALIDITY_KEY].update(text_color=settings_validity_color)
+        window[INST_FOUND_INFO_KEY].update(inst_found_info_text)
     return
 
 
@@ -244,6 +245,7 @@ def get_main_mindow(inst_found, inst_info, settings_error):
         default_element_size=(20, 1),
         auto_size_text=False,
         finalize=True,
+        # icon="images/32x32.ico",
     )
     update_main_window(window, inst_found, inst_info, settings_error)
 
