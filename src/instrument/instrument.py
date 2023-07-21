@@ -5,6 +5,7 @@ import pyvisa
 
 from bands_data import bands
 from instrument.file_transfer import save_file_to_local
+from instrument.folders import get_folder_files
 
 
 def get_resource_name(resource_manager):
@@ -26,6 +27,29 @@ def get_inst():
     return inst, inst_found
 
 
+def get_error_message(folder_path, filename):
+    part1 = f'File "{filename}" already exists in instrument folder:'
+    part2 = f'"{folder_path}"'
+    part3 = "Please save this run with a different filename."
+    return "\n\n".join([part1, part2, part3])
+
+
+def validate_filename(inst, inst_out_folder, filename):
+    error_message = ""
+    # NOTE: these extensions are the ones used in the record_band function
+    # if the extensions in that function change, so should these
+    extensions = ["csv", "png"]
+    new_filenames = [f"{filename}.{ext}" for ext in extensions]
+    old_filenames = get_folder_files(inst, inst_out_folder)
+
+    # check if there are any conflicts, if so return an error message about the first one
+    intersection = set(new_filenames).intersection(old_filenames)
+    if len(intersection) > 0:
+        bad_filename = list(intersection)[0]
+        error_message = get_error_message(inst_out_folder, bad_filename)
+    return error_message
+
+
 def record_band(inst, inst_out_folder, filename, local_out_folder, sweep_dur=5):
     # RECORD
     inst.write(":INIT:REST")
@@ -39,6 +63,7 @@ def record_band(inst, inst_out_folder, filename, local_out_folder, sweep_dur=5):
     inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csv_path}"')
     inst.write(f':MMEM:STOR:SCR "{png_path}"')
 
+    # TRANSFER
     save_file_to_local(inst, png_path, local_out_folder)
     save_file_to_local(inst, csv_path, local_out_folder)
     return
@@ -86,31 +111,24 @@ def record_multiple_bands(
     bar_max = len(band_keys)
     pbar = window["-PROGRESS-"]
     pbar.update_bar(bar_max / 50, bar_max)
+    error_message = ""
     for i, band_key in enumerate(band_keys):
         time.sleep(sweep_dur)
         pbar.update_bar(i + 1, bar_max)
         run_index = i + 1 + last_run_index
-        coupling = bands[band_key]["coupling"]
-
-        state_filename = bands[band_key]["stateFilename"]
-        corr_filename = bands[band_key]["corrFilename"]
-        run_filename = get_run_filename(run_index, band_key, site_name)
-
-        recall_state(inst, folders["stateFolder"], state_filename)
-        recall_corr(inst, folders["corrFolder"], corr_filename)
-        set_coupling(inst, coupling)
-
-        out_folder = folders["outFolder"]
-        local_out_folder = folders["localOutFolder"]
-        record_band(
+        error_message = record_single_band(
             inst,
-            out_folder,
-            run_filename,
-            local_out_folder,
+            site_name,
+            run_index,
+            folders,
+            band_key,
             sweep_dur,
         )
+        if error_message != "":
+            break
     time.sleep(1)
     pbar.update_bar(0, bar_max)
+    return error_message
 
 
 def write_txt_file(filename, text):
@@ -122,12 +140,11 @@ def write_txt_file(filename, text):
 def record_single_band(
     inst,
     site_name,
-    last_run_index,
+    run_index,
     folders,
     band_key,
     sweep_dur,
 ):
-    run_index = last_run_index + 1
     coupling = bands[band_key]["coupling"]
 
     state_filename = bands[band_key]["stateFilename"]
@@ -138,15 +155,21 @@ def record_single_band(
     recall_corr(inst, folders["corrFolder"], corr_filename)
     set_coupling(inst, coupling)
 
-    out_folder = folders["outFolder"]
+    inst_out_folder = folders["outFolder"]
     local_out_folder = folders["localOutFolder"]
+
+    error_message = validate_filename(inst, inst_out_folder, run_filename)
+    if error_message != "":
+        return error_message
+
     record_band(
         inst,
-        out_folder,
+        inst_out_folder,
         run_filename,
         local_out_folder,
         sweep_dur,
     )
+    return error_message
 
 
 def get_inst_info(inst):

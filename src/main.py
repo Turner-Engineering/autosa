@@ -99,6 +99,7 @@ def main():
         last_run_index = int(values["-LAST INDEX-"])
         sweep_dur = float(sg.user_settings_get_entry("-SWEEP DUR-"))
         folders = get_folders()
+        run_error_message = ""
 
         main_window["-RUN-"].update(disabled=not validate_band_range(values))
         if event == "-RUN-":
@@ -110,7 +111,7 @@ def main():
                 else ""
             )
 
-            record_multiple_bands(
+            run_error_message = record_multiple_bands(
                 inst,
                 site_name,
                 last_run_index,
@@ -124,8 +125,14 @@ def main():
             substring = event.split("-")[1]
             band_key = substring.split(" ")[1]
 
-            record_single_band(
+            run_error_message = record_single_band(
                 inst, site_name, last_run_index, folders, band_key, sweep_dur
+            )
+
+        if run_error_message != "":
+            sg.popup_error(
+                run_error_message,
+                title="Error",
             )
 
     main_window.close()
