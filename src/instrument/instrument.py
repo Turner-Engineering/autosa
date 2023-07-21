@@ -60,9 +60,7 @@ def validate_filename(inst, inst_out_folder, filename):
     return error_message
 
 
-def record_band(inst, inst_out_folder, filename, local_out_folder, sweep_dur=5):
-    # this should be calle something else like record data?
-    # Need to differentiate between the version that does setup
+def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur=5):
     # and this version which just does the measurement and saving
     # RECORD
     inst.write(":INIT:REST")
@@ -75,8 +73,6 @@ def record_band(inst, inst_out_folder, filename, local_out_folder, sweep_dur=5):
     png_path = f"{inst_out_folder}/{filename}.png"
     inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csv_path}"')
     inst.write(f':MMEM:STOR:SCR "{png_path}"')
-
-    # TRANSFER
     save_file_to_local(inst, png_path, local_out_folder)
     save_file_to_local(inst, csv_path, local_out_folder)
     return
@@ -97,39 +93,12 @@ def set_coupling(inst, coupling):
     # print(inst.query(f":INP:COUP?"))
 
 
-def get_run_filename(inst, inst_out_folder, band_name, notes):
+def get_run_filename(inst, settings, band_name):
+    inst_out_folder = settings["-OUT FOLDER-"]
+    notes = settings["-SITE-"]
     run_id = get_run_id(inst, inst_out_folder)
     filename = f"{run_id} {notes} {band_name}"
     return filename
-
-
-def record_multiple_bands(
-    inst,
-    site_name,
-    folders,
-    band_keys,
-    sweep_dur,
-    window,
-):
-    bar_max = len(band_keys)
-    pbar = window["-PROGRESS-"]
-    pbar.update_bar(bar_max / 50, bar_max)
-    error_message = ""
-    for i, band_key in enumerate(band_keys):
-        time.sleep(sweep_dur)
-        pbar.update_bar(i + 1, bar_max)
-        error_message = record_single_band(
-            inst,
-            site_name,
-            folders,
-            band_key,
-            sweep_dur,
-        )
-        if error_message != "":
-            break
-    time.sleep(1)
-    pbar.update_bar(0, bar_max)
-    return error_message
 
 
 def write_txt_file(filename, text):
@@ -138,40 +107,34 @@ def write_txt_file(filename, text):
     return
 
 
-def record_single_band(
-    inst,
-    site_name,
-    folders,
-    band_key,
-    sweep_dur,
-):
-    coupling = bands[band_key]["coupling"]
-
-    state_filename = bands[band_key]["stateFilename"]
-    corr_filename = bands[band_key]["corrFilename"]
-    inst_out_folder = folders["outFolder"]
-    local_out_folder = folders["localOutFolder"]
-
-    run_filename = get_run_filename(inst, inst_out_folder, band_key, site_name)
-    error_message = validate_filename(inst, inst_out_folder, run_filename)
-    if error_message != "":
-        return error_message
-
-    recall_state(inst, folders["stateFolder"], state_filename)
-    recall_corr(inst, folders["corrFolder"], corr_filename)
-    set_coupling(inst, coupling)
-
-    record_band(
-        inst,
-        inst_out_folder,
-        run_filename,
-        local_out_folder,
-        sweep_dur,
-    )
-    return error_message
-
-
 def get_inst_info(inst):
     resp = inst.query(":SYST:IDN?")
     manufacturer, model, serial, _ = resp.split(",")
     return f"{manufacturer} - {model} - {serial}"
+
+
+def run_band(inst, settings, band_key, run_filename):
+    inst_out_folder = settings["-OUT FOLDER-"]
+    local_out_folder = settings["-LOCAL OUT FOLDER-"]
+    state_folder = settings["-STATE FOLDER-"]
+    corr_folder = settings["-CORR FOLDER-"]
+    sweep_dur = float(settings["-SWEEP DUR-"])
+
+    # READ BAND SETTINGS
+    coupling = bands[band_key]["coupling"]
+    state_filename = bands[band_key]["stateFilename"]
+    corr_filename = bands[band_key]["corrFilename"]
+
+    # GET THE FILENAME AND CHECK FOR CONFLICTS
+    error_message = validate_filename(inst, inst_out_folder, run_filename)
+    if error_message != "":
+        return error_message
+
+    # SET UP THE INSTRUMENT
+    recall_state(inst, state_folder, state_filename)
+    recall_corr(inst, corr_folder, corr_filename)
+    set_coupling(inst, coupling)
+
+    # RECORD AND SAVE
+    record_and_save(inst, inst_out_folder, run_filename, local_out_folder, sweep_dur)
+    return error_message

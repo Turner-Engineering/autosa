@@ -1,13 +1,10 @@
+import time
+
 import PySimpleGUI as sg
 import pyvisa
 
-from instrument.instrument import (
-    get_inst,
-    get_inst_info,
-    record_multiple_bands,
-    record_single_band,
-)
-from ui.main_window import get_main_mindow, update_main_window, set_band_button_disabled
+from instrument.instrument import get_inst, get_inst_info, get_run_filename, run_band
+from ui.main_window import get_main_mindow, update_main_window
 from ui.settings_window import launch_settings_window, validate_settings
 
 
@@ -43,15 +40,6 @@ def assert_ni_visa_installed(pyvisa):
         return False
 
 
-def get_folders():
-    folders = {}
-    folders["stateFolder"] = sg.user_settings_get_entry("-STATE FOLDER-")
-    folders["corrFolder"] = sg.user_settings_get_entry("-CORR FOLDER-")
-    folders["outFolder"] = sg.user_settings_get_entry("-OUT FOLDER-")
-    folders["localOutFolder"] = sg.user_settings_get_entry("-LOCAL OUT FOLDER-")
-    return folders
-
-
 def validate_band_range(values):
     if values["-BAND RANGE-"] == "":
         return False
@@ -63,6 +51,61 @@ def handle_settings_event(inst, inst_found, main_window, inst_info):
     if settings_changed:
         settings_error = validate_settings(inst)
         update_main_window(main_window, inst_found, inst_info, settings_error)
+
+
+def run_single_band(inst, settings, band_key):
+    # difference between this and run band is this one confirms the filename
+    # READ SETTINGS
+    run_filename = get_run_filename(inst, settings, band_key)
+
+    # CONFIRMATION
+    confirmation = sg.popup_ok_cancel(
+        f'Confirm run filename:\n\n"{run_filename}"',
+        title="Confirm Run",
+    )
+    if confirmation != "OK":
+        return ""
+
+    error_message = run_band(inst, settings, band_key, run_filename)
+    return error_message
+
+
+def run_multiple_bands(inst, settings, band_keys, window):
+    # PROGRESS BAR
+    bar_max = len(band_keys)
+    pbar = window["-PROGRESS-"]
+    pbar.update_bar(bar_max / 50, bar_max)
+
+    # CONFIRMATION
+    first_run_filename = get_run_filename(inst, settings, band_keys[0])
+    num_runs = len(band_keys)
+    part1 = f"Please confirm that you would like to run bands\n\n{band_keys[0]} to {band_keys[-1]} ({num_runs} runs total)\n\n"
+    part2 = f'and that the first filename should be:\n\n"{first_run_filename}"\n (the rest will be numbered sequentially)'
+    confirmation = sg.popup_ok_cancel(
+        part1 + part2,
+        title="Confirm Runs",
+    )
+    if confirmation != "OK":
+        return ""
+
+    error_message = ""
+    for i in range(len(band_keys)):
+        band_key = band_keys[i]
+        run_filename = get_run_filename(inst, settings, band_key)
+
+        # PROGRESS BAR
+        time.sleep(2)  #  not sure what this is for
+        pbar.update_bar(i + 1, bar_max)
+
+        run_band(inst, settings, band_key, run_filename)
+        if error_message != "":
+            break
+
+    # PROGRESS BAR
+    time.sleep(1)
+    pbar.update_bar(0, bar_max)
+
+    return error_message
 
 
 def main():
@@ -95,10 +138,8 @@ def main():
         if event == sg.WIN_CLOSED:
             break
 
-        site_name = sg.user_settings_get_entry("-SITE-")
-        sweep_dur = float(sg.user_settings_get_entry("-SWEEP DUR-"))
-        folders = get_folders()
         run_error_message = ""
+        settings = sg.user_settings()
 
         main_window["-RUN-"].update(disabled=not validate_band_range(values))
         if event == "-RUN-":
@@ -110,21 +151,20 @@ def main():
                 else ""
             )
 
-            run_error_message = record_multiple_bands(
+            run_error_message = run_multiple_bands(
                 inst,
-                site_name,
-                folders,
+                settings,
                 band_keys,
-                sweep_dur,
                 main_window,
             )
 
         if "BUTTON" in event:
-            substring = event.split("-")[1]
-            band_key = substring.split(" ")[1]
+            band_key = event.split("-")[1].split(" ")[1]
 
-            run_error_message = record_single_band(
-                inst, site_name, folders, band_key, sweep_dur
+            run_error_message = run_single_band(
+                inst,
+                settings,
+                band_key,
             )
 
         if run_error_message != "":
