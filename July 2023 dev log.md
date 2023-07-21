@@ -52,3 +52,50 @@ Carrying on...
 - Validated settings in main window
 - Now we need to be able to see the errors in the settings window before we even hit save
 - Cleaned up a few other things, now ready to do new features
+
+### Feature 1: Individual Bands
+
+We want a way to be able to run specific bands on command. The continous mode that is currently the only mode is good for surveys where timing doesn't matter much and we just have to get through all the bands. But for other tests, it is helpful to be able to run specific bands at specific times and to be able to repeat those runs.
+
+The simplest version of this, would just run an individual band with all the current settings by clicking a specific button. The main issue I forsee is file naming, how do we ensure that files are named correctly and don't overwrite each other? Do we force the user to name every run? Do we check the instrument for files that are already saved there? Do we just append a number to the end of the file name?
+
+Here is the plan for the MVP:
+
+1. Add a button for each band to the main window
+2. Make each button trigger that specific band using all the current settings
+3. Don't worry about file names
+
+#### 1.1 Rough Version
+
+I created the rough version and yeah it works pretty nice. I've decied that I am going to make the filenames auto-increment the numbers based on the files that are stored on the machine. One failure mode of this is if you delete the files on the instrument during a test, you may get name conflicts. That could be quite a serious issue so I think it will need to confirm every single filename to make certain that never happens.
+
+Before that though, I want to move the site name to settings, I think it makes more sense to have it there.
+
+Done!
+
+#### 1.2 File Naming
+
+Next step is handling the filename convention. Here's the No. 1 rule: **DO NOT LOSE DATA!**. It is better to have badly named files that are all present than to have files overwriting other files. So the first step should be throwing an error if the system tries to overwrite data. The next step is creating some kind of file naming function that reads the files in the output folder, figures out what the new file should be called, and creates the filename. Finally, we need to have user-input to confirm that the filenames are correct. So we need a dialog that pops up when the user tries to start a run that says "this is what I'm going to call the file, you like?", then the user can modify the filename if they want.
+
+- [x] throw error on overwrite attempt
+- [x] make filename creator
+- [x] confirm filename
+
+## July 21 2023
+
+Remember to reference the field guide!
+
+### File Name Creator
+
+We need to get the last run index:
+
+1. Load the filenames in the output folder on the instrument into a list
+2. Isolate the run ids from the filenames
+3. Determine which is the latest run id
+4. Extract the run index from the id
+
+### Other helpful buttons
+
+- Record Current Setup (this would just record for the sweep dur however the exa is set up, and will save items with the correct file name. So it basically skips the state and correction file loading steps)
+- Save Current Data (this would be the second half of the record_and_save function, it would just take a screenshot, and save the trace to the computer and instrument)
+-
