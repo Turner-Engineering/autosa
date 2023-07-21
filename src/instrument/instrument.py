@@ -95,7 +95,7 @@ def set_coupling(inst, coupling):
 
 def get_run_filename(inst, settings, band_name):
     inst_out_folder = settings["-OUT FOLDER-"]
-    notes = settings["-SITE-"]
+    notes = settings["-RUN NOTE-"]
     run_id = get_run_id(inst, inst_out_folder)
     filename = f"{run_id} {notes} {band_name}"
     return filename
