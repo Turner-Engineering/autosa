@@ -125,10 +125,7 @@ def validate_site_name(settings):
 
 
 def validate_settings(inst, settings=None):
-    if settings is None:
-        settings = {}
-        for key in SETTINGS_KEYS:
-            settings[key] = sg.user_settings_get_entry(key)
+    settings = sg.user_settings() if settings is None else settings
 
     # validate saved user settings
     folders_error = validate_folders(inst, settings, FOLDER_FIELDS)
