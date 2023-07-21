@@ -17,37 +17,8 @@ BUTTON_DETAILS = [
 ]
 
 
-def get_single_band_section():
-    font = "Any 15"
-    button_color = ("white", "dark blue")
-
-    buttons = [
-        sg.Button(
-            b["band"],
-            key=f"-BUTTON {b['band']}-",
-            font=font,
-            button_color=button_color,
-            size=(15, 2),
-        )
-        for b in BUTTON_DETAILS
-    ]
-
-    # arrange section 4 such that there are two rows for 4 buttons
-    sectoion4 = [[sg.Text("Run a Band:")], buttons[0:4], buttons[4:8]]
-    return sectoion4
-
-
-def set_band_button_disabled(window, disabled):
-    disabled_color = ("white", "grey")
-    enabled_color = ("white", "dark blue")
-    button_color = disabled_color if disabled else enabled_color
-    for b in BUTTON_DETAILS:
-        window[f"-BUTTON {b['band']}-"].update(disabled=disabled)
-        window[f"-BUTTON {b['band']}-"].update(button_color=button_color)
-
-
-def get_defuault_layout():
-    section1 = [
+def get_section1():
+    return [
         [
             sg.Text(
                 "Make sure to check the settings before running sweeps!", expand_x=True
@@ -57,7 +28,9 @@ def get_defuault_layout():
         [sg.Text("", text_color="green", key=SETTINGS_VALIDITY_KEY, expand_x=True)],
     ]
 
-    section2 = [
+
+def get_multi_band_section():
+    return [
         [
             sg.Text("Band Range:"),
             sg.OptionMenu(
@@ -75,7 +48,33 @@ def get_defuault_layout():
         ],
     ]
 
-    sectoion3 = get_single_band_section()
+
+def get_single_band_section():
+    font = "Any 15"
+    button_color = ("white", "dark blue")
+
+    buttons = [
+        sg.Button(
+            b["band"],
+            key=f"-BUTTON {b['band']}-",
+            font=font,
+            button_color=button_color,
+            size=(15, 2),
+        )
+        for b in BUTTON_DETAILS
+    ]
+
+    # arrange section 4 such that there are two rows for 4 buttons
+    section = [[sg.Text("Run a Band:")], buttons[0:4], buttons[4:8]]
+    return section
+
+
+def get_defuault_layout():
+    section1 = get_section1()
+
+    section2 = get_multi_band_section()
+
+    section3 = get_single_band_section()
 
     layout = [
         [
@@ -89,10 +88,19 @@ def get_defuault_layout():
         *section2,
         [sg.HorizontalSeparator()],
         [sg.Text("Individual Bands", font=("", 15))],
-        *sectoion3,
+        *section3,
     ]
 
     return layout
+
+
+def set_band_button_disabled(window, disabled):
+    disabled_color = ("white", "grey")
+    enabled_color = ("white", "dark blue")
+    button_color = disabled_color if disabled else enabled_color
+    for b in BUTTON_DETAILS:
+        window[f"-BUTTON {b['band']}-"].update(disabled=disabled)
+        window[f"-BUTTON {b['band']}-"].update(button_color=button_color)
 
 
 def get_inst_not_found_layout():
