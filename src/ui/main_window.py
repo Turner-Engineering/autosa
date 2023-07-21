@@ -69,12 +69,42 @@ def get_single_band_section():
     return section
 
 
+def get_section4():
+    button = sg.Button(
+        "Record and Save",
+        key="-RECORD AND SAVE-",
+        font="Any 15",
+        button_color=("white", "dark blue"),
+        size=(15, 2),
+    )
+
+    # arrange section 4 such that there are two rows for 4 buttons
+    section = [
+        [
+            sg.Text(
+                "Record and Save will record a sweep using the current instrument settings as set up by the user.\n\n",
+                expand_x=True,
+            )
+        ],
+        [
+            sg.Text(
+                "It will not load state files or correction files. This is helpful for customized runs.",
+                expand_x=True,
+            )
+        ],
+        [button],
+    ]
+    return section
+
+
 def get_defuault_layout():
     section1 = get_section1()
 
     section2 = get_multi_band_section()
 
     section3 = get_single_band_section()
+
+    section4 = get_section4()
 
     layout = [
         [
@@ -89,6 +119,9 @@ def get_defuault_layout():
         [sg.HorizontalSeparator()],
         [sg.Text("Individual Bands", font=("", 15))],
         *section3,
+        [sg.HorizontalSeparator()],
+        [sg.Text("Record and Save", font=("", 15))],
+        *section4,
     ]
 
     return layout

@@ -60,7 +60,7 @@ def validate_filename(inst, inst_out_folder, filename):
     return error_message
 
 
-def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur=5):
+def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur):
     # and this version which just does the measurement and saving
     # RECORD
     inst.write(":INIT:REST")
@@ -113,7 +113,7 @@ def get_inst_info(inst):
     return f"{manufacturer} - {model} - {serial}"
 
 
-def run_band(inst, settings, band_key, run_filename):
+def run_band(inst, settings, band_key, run_filename, setup=True):
     inst_out_folder = settings["-OUT FOLDER-"]
     local_out_folder = settings["-LOCAL OUT FOLDER-"]
     state_folder = settings["-STATE FOLDER-"]
@@ -131,9 +131,10 @@ def run_band(inst, settings, band_key, run_filename):
         return error_message
 
     # SET UP THE INSTRUMENT
-    recall_state(inst, state_folder, state_filename)
-    recall_corr(inst, corr_folder, corr_filename)
-    set_coupling(inst, coupling)
+    if setup:
+        recall_state(inst, state_folder, state_filename)
+        recall_corr(inst, corr_folder, corr_filename)
+        set_coupling(inst, coupling)
 
     # RECORD AND SAVE
     record_and_save(inst, inst_out_folder, run_filename, local_out_folder, sweep_dur)

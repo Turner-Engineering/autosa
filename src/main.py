@@ -3,7 +3,12 @@ import time
 import PySimpleGUI as sg
 import pyvisa
 
-from instrument.instrument import get_inst, get_inst_info, get_run_filename, run_band
+from instrument.instrument import (
+    get_inst,
+    get_inst_info,
+    get_run_filename,
+    run_band,
+)
 from ui.main_window import get_main_mindow, update_main_window
 from ui.settings_window import launch_settings_window, validate_settings
 
@@ -51,6 +56,19 @@ def handle_settings_event(inst, inst_found, main_window, inst_info):
     if settings_changed:
         settings_error = validate_settings(inst)
         update_main_window(main_window, inst_found, inst_info, settings_error)
+
+
+def run_record_and_save(inst, settings):
+    band_key = sg.popup_get_text(
+        "Enter band name:",
+        title="Band Name",
+    )
+    if band_key == None:
+        return
+
+    run_filename = get_run_filename(inst, settings, band_key)
+
+    run_band(inst, settings, band_key, run_filename, setup=False)
 
 
 def run_single_band(inst, settings, band_key):
@@ -166,6 +184,9 @@ def main():
                 settings,
                 band_key,
             )
+
+        if event == "-RECORD AND SAVE-":
+            run_record_and_save(inst, settings)
 
         if run_error_message != "":
             sg.popup_error(
