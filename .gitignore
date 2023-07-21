@@ -4,3 +4,4 @@
 .vscode
 install/build
 install/*.spec
+data
