@@ -151,5 +151,5 @@ def record_single_band(
 
 def get_inst_info(inst):
     resp = inst.query(":SYST:IDN?")
-    manufacturer, model, _, _ = resp.split(",")
-    return f"{manufacturer} - {model}"
+    manufacturer, model, serial, _ = resp.split(",")
+    return f"{manufacturer} - {model} - {serial}"
