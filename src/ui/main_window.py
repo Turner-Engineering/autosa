@@ -66,7 +66,6 @@ def get_defuault_layout():
                 background_color="white",
             ),
         ],
-        [sg.Text("Last Run Index:"), sg.Input(key="-LAST INDEX-", default_text="0")],
         [sg.Button("Run Sweeps", disabled=True, key="-RUN-")],
         [
             sg.ProgressBar(

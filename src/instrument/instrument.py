@@ -1,4 +1,3 @@
-import datetime
 import time
 
 import pyvisa
@@ -6,6 +5,17 @@ import pyvisa
 from bands_data import bands
 from instrument.file_transfer import save_file_to_local
 from instrument.folders import get_folder_files
+from utils.run_ids import run_index_to_id, get_todays_run_ids
+
+
+def get_run_id(inst, inst_out_folder):
+    filenames = get_folder_files(inst, inst_out_folder)
+    todays_run_ids = get_todays_run_ids(filenames)
+    todays_run_idxs = [int(run_id.split("-")[1]) for run_id in todays_run_ids]
+    last_run_index = max(todays_run_idxs) if todays_run_idxs else 0
+    run_index = last_run_index + 1
+    run_id = run_index_to_id(run_index)
+    return run_id
 
 
 def get_resource_name(resource_manager):
@@ -51,6 +61,9 @@ def validate_filename(inst, inst_out_folder, filename):
 
 
 def record_band(inst, inst_out_folder, filename, local_out_folder, sweep_dur=5):
+    # this should be calle something else like record data?
+    # Need to differentiate between the version that does setup
+    # and this version which just does the measurement and saving
     # RECORD
     inst.write(":INIT:REST")
     inst.write(":INIT:CONT ON")
@@ -84,17 +97,8 @@ def set_coupling(inst, coupling):
     # print(inst.query(f":INP:COUP?"))
 
 
-def get_run_id(run_index):
-    run_number = "%02d" % run_index
-    d = datetime.datetime.now()
-    month = str(int(d.strftime("%m")))
-    date = d.strftime("%d")
-    run_id = f"{month}{date}-{run_number}"
-    return run_id
-
-
-def get_run_filename(run_index, band_name, notes):
-    run_id = get_run_id(run_index)
+def get_run_filename(inst, inst_out_folder, band_name, notes):
+    run_id = get_run_id(inst, inst_out_folder)
     filename = f"{run_id} {notes} {band_name}"
     return filename
 
@@ -102,7 +106,6 @@ def get_run_filename(run_index, band_name, notes):
 def record_multiple_bands(
     inst,
     site_name,
-    last_run_index,
     folders,
     band_keys,
     sweep_dur,
@@ -115,11 +118,9 @@ def record_multiple_bands(
     for i, band_key in enumerate(band_keys):
         time.sleep(sweep_dur)
         pbar.update_bar(i + 1, bar_max)
-        run_index = i + 1 + last_run_index
         error_message = record_single_band(
             inst,
             site_name,
-            run_index,
             folders,
             band_key,
             sweep_dur,
@@ -140,7 +141,6 @@ def write_txt_file(filename, text):
 def record_single_band(
     inst,
     site_name,
-    run_index,
     folders,
     band_key,
     sweep_dur,
@@ -149,18 +149,17 @@ def record_single_band(
 
     state_filename = bands[band_key]["stateFilename"]
     corr_filename = bands[band_key]["corrFilename"]
-    run_filename = get_run_filename(run_index, band_key, site_name)
+    inst_out_folder = folders["outFolder"]
+    local_out_folder = folders["localOutFolder"]
+
+    run_filename = get_run_filename(inst, inst_out_folder, band_key, site_name)
+    error_message = validate_filename(inst, inst_out_folder, run_filename)
+    if error_message != "":
+        return error_message
 
     recall_state(inst, folders["stateFolder"], state_filename)
     recall_corr(inst, folders["corrFolder"], corr_filename)
     set_coupling(inst, coupling)
-
-    inst_out_folder = folders["outFolder"]
-    local_out_folder = folders["localOutFolder"]
-
-    error_message = validate_filename(inst, inst_out_folder, run_filename)
-    if error_message != "":
-        return error_message
 
     record_band(
         inst,
