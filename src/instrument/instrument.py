@@ -67,6 +67,7 @@ def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur
     inst.write(":INIT:CONT ON")
     time.sleep(sweep_dur)
     inst.write(":INIT:CONT OFF")
+    inst.write(":CALC:MARK1:MAX")
 
     # SAVE
     csv_path = f"{inst_out_folder}/{filename}.csv"
