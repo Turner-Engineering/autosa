@@ -203,7 +203,7 @@ def get_defuault_layout():
         sg.Tab("   Single Band Mode   ", single_band_section),
         sg.Tab("   Multi Band Mode   ", multi_band_section),
         sg.Tab("   Custom Mode   ", custom_mode_section),
-        sg.Tab("   Prep Band   ", prep_band_section),
+        sg.Tab("   Prep Band Mode   ", prep_band_section),
     ]
 
     tab_group_layout = [[sg.TabGroup([tabs], enable_events=True, key="-TAB GROUP-")]]

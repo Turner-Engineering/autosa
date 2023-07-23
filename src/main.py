@@ -155,7 +155,7 @@ def main():
             break
 
         inst, inst_found = get_inst()
-        if "Prep Band" not in values["-TAB GROUP-"]:
+        if "Prep Band Mode" not in values["-TAB GROUP-"]:
             settings_error = validate_settings(inst) if inst_found else ""
             inst_info = get_inst_info(inst) if inst_found else ""
 
