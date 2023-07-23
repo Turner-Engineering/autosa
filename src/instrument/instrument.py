@@ -113,28 +113,32 @@ def get_inst_info(inst):
     return f"{manufacturer} - {model} - {serial}"
 
 
-def run_band(inst, settings, band_key, run_filename, setup=True):
-    inst_out_folder = settings["-OUT FOLDER-"]
-    local_out_folder = settings["-LOCAL OUT FOLDER-"]
+def prep_band(inst, settings, band_key):
     state_folder = settings["-STATE FOLDER-"]
     corr_folder = settings["-CORR FOLDER-"]
-    sweep_dur = float(settings["-SWEEP DUR-"])
 
-    # READ BAND SETTINGS
     coupling = bands[band_key]["coupling"]
     state_filename = bands[band_key]["stateFilename"]
     corr_filename = bands[band_key]["corrFilename"]
+
+    recall_state(inst, state_folder, state_filename)
+    recall_corr(inst, corr_folder, corr_filename)
+    set_coupling(inst, coupling)
+
+
+def run_band(inst, settings, band_key, run_filename, setup=True):
+    inst_out_folder = settings["-OUT FOLDER-"]
+    local_out_folder = settings["-LOCAL OUT FOLDER-"]
+    sweep_dur = float(settings["-SWEEP DUR-"])
 
     # GET THE FILENAME AND CHECK FOR CONFLICTS
     error_message = validate_filename(inst, inst_out_folder, run_filename)
     if error_message != "":
         return error_message
 
-    # SET UP THE INSTRUMENT
+    # PREPARE THE INSTRUMENT
     if setup:
-        recall_state(inst, state_folder, state_filename)
-        recall_corr(inst, corr_folder, corr_filename)
-        set_coupling(inst, coupling)
+        prep_band(inst, settings, band_key)
 
     # RECORD AND SAVE
     record_and_save(inst, inst_out_folder, run_filename, local_out_folder, sweep_dur)
