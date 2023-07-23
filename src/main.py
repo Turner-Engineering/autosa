@@ -89,11 +89,6 @@ def run_single_band(inst, settings, band_key):
 
 
 def run_multiple_bands(inst, settings, band_keys, window, orientation):
-    # PROGRESS BAR
-    bar_max = len(band_keys)
-    pbar = window["-PROGRESS-"]
-    pbar.update_bar(bar_max / 50, bar_max)
-
     # CONFIRMATION
     first_run_filename = get_run_filename(inst, settings, band_keys[0], orientation)
     num_runs = len(band_keys)
@@ -105,6 +100,11 @@ def run_multiple_bands(inst, settings, band_keys, window, orientation):
     )
     if confirmation != "OK":
         return ""
+
+    # PROGRESS BAR
+    bar_max = len(band_keys)
+    pbar = window["-PROGRESS-"]
+    pbar.update_bar(bar_max / 50, bar_max)
 
     error_message = ""
     for i in range(len(band_keys)):
