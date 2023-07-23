@@ -64,8 +64,9 @@ def get_multi_band_section():
             sg.Text("Orientation:"),
             sg.OptionMenu(
                 key="-ORIENTATION-",
-                values=[("Horizontal"), ("Vertical")],
-                default_value=("Horizontal"),
+                values=["Horizontal", "Vertical"],
+                default_value="Horizontal",
+                disabled=True,
             ),
         ],
         [
@@ -216,7 +217,7 @@ def get_main_layout(inst_found):
     return [[sg.pin(default_col)], [sg.pin(inst_not_fount_col)]]
 
 
-def update_main_window(window, inst_found, inst_info, settings_error):
+def update_main_window(window, inst_found, inst_info, settings_error, values):
     settings_validity_text = (
         "✅ Settings Valid"
         if not settings_error
@@ -227,10 +228,20 @@ def update_main_window(window, inst_found, inst_info, settings_error):
 
     window[INST_FOUND_KEY].update(visible=inst_found)
     window[INST_NOT_FOUND_KEY].update(visible=not inst_found)
-    if inst_found:
-        window[SETTINGS_VALIDITY_KEY].update(settings_validity_text)
-        window[SETTINGS_VALIDITY_KEY].update(text_color=settings_validity_color)
-        window[INST_FOUND_INFO_KEY].update(inst_found_info_text)
+    if not inst_found:
+        return
+    window[SETTINGS_VALIDITY_KEY].update(settings_validity_text)
+    window[SETTINGS_VALIDITY_KEY].update(text_color=settings_validity_color)
+    window[INST_FOUND_INFO_KEY].update(inst_found_info_text)
+    # check if the band range is B5-B7, if so, show the orientation option
+
+    if values is not None:
+        window["-ORIENTATION-"].update(
+            disabled=values["-BAND RANGE-"] == "B0 - B4 (monopole)"
+        )
+    else:
+        window["-ORIENTATION-"].update(disabled=True)
+
     return
 
 
@@ -247,6 +258,6 @@ def get_main_mindow(inst_found, inst_info, settings_error):
         finalize=True,
         # icon="images/32x32.ico",
     )
-    update_main_window(window, inst_found, inst_info, settings_error)
+    update_main_window(window, inst_found, inst_info, settings_error, None)
 
     return window

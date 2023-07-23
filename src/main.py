@@ -149,7 +149,7 @@ def main():
         settings_error = validate_settings(inst) if inst_found else ""
         inst_info = get_inst_info(inst) if inst_found else ""
 
-        update_main_window(main_window, inst_found, inst_info, settings_error)
+        update_main_window(main_window, inst_found, inst_info, settings_error, values)
 
         if event == "Settings":
             handle_settings_event(inst, inst_found, main_window, inst_info)
@@ -161,16 +161,21 @@ def main():
 
         main_window["-RUN-"].update(disabled=not validate_band_range(values))
         if event == "-RUN-":
+            band_range = values["-BAND RANGE-"]
             band_keys = (
                 ["B0", "B1", "B2", "B3", "B4"]
-                if values["-BAND RANGE-"] == "B0 - B4 (monopole)"
+                if band_range == "B0 - B4 (monopole)"
                 else ["B5", "B6", "B7"]
-                if values["-BAND RANGE-"] == "B5 - B7 (bilogical)"
+                if band_range == "B5 - B7 (bilogical)"
                 else ""
             )
 
             # orientation is lowercase first letter of the word
-            orientation = values["-ORIENTATION-"][0].lower()
+            orientation = (
+                values["-ORIENTATION-"][0].lower()
+                if band_range == "B5 - B7 (bilogical)"
+                else ""
+            )
 
             run_error_message = run_multiple_bands(
                 inst,
