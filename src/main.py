@@ -65,11 +65,16 @@ def run_record_and_save(inst, settings):
         title="Band Name",
     )
     if band_key == None:
-        return
+        return ""
+    bad_chars = [" ", ",", ";", ":", "\\", "/", "*", "?", '"', "<", ">", "|"]
+    bad_band_key = any([char in band_key for char in bad_chars])
+    if bad_band_key:
+        return "Invalid filename"
 
     run_filename = get_run_filename(inst, settings, band_key)
 
-    run_band(inst, settings, band_key, run_filename, setup=False)
+    error_message = run_band(inst, settings, band_key, run_filename, setup=False)
+    return error_message
 
 
 def run_single_band(inst, settings, band_key, orientation):
@@ -206,7 +211,7 @@ def main():
             run_error_message = prep_band(inst, settings, band_key)
 
         if event == "-RECORD AND SAVE-":
-            run_record_and_save(inst, settings)
+            run_error_message = run_record_and_save(inst, settings)
 
         if run_error_message != "":
             sg.popup_error(
