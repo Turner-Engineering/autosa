@@ -8,6 +8,7 @@ from instrument.instrument import (
     get_inst_info,
     get_run_filename,
     run_band,
+    prep_band,
 )
 from ui.main_window import get_main_mindow, update_main_window
 from ui.settings_window import launch_settings_window, validate_settings
@@ -146,10 +147,13 @@ def main():
         event, values = main_window.read(timeout=timeout)
 
         inst, inst_found = get_inst()
-        settings_error = validate_settings(inst) if inst_found else ""
-        inst_info = get_inst_info(inst) if inst_found else ""
+        if "Prep Band" not in values["-TAB GROUP-"]:
+            settings_error = validate_settings(inst) if inst_found else ""
+            inst_info = get_inst_info(inst) if inst_found else ""
 
-        update_main_window(main_window, inst_found, inst_info, settings_error, values)
+            update_main_window(
+                main_window, inst_found, inst_info, settings_error, values
+            )
 
         if event == "Settings":
             handle_settings_event(inst, inst_found, main_window, inst_info)
@@ -185,7 +189,7 @@ def main():
                 orientation,
             )
 
-        if "BUTTON" in event:
+        if "SINGLE_BAND" in event:
             items = event.split("-")[1].split(" ")
             band_key, orientation = items[1], items[2]
             run_error_message = run_single_band(
@@ -194,6 +198,11 @@ def main():
                 band_key,
                 orientation,
             )
+
+        if "PREP_BAND" in event:
+            items = event.split("-")[1].split(" ")
+            band_key, orientation = items[1], items[2]
+            run_error_message = prep_band(inst, settings, band_key)
 
         if event == "-RECORD AND SAVE-":
             run_record_and_save(inst, settings)

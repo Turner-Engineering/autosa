@@ -85,10 +85,10 @@ def get_multi_band_section():
     ]
 
 
-def get_band_button(band_key, orientation=""):
+def get_band_button(band_key, orientation="", key_prefix="SINGLE_BAND"):
     return sg.Button(
         band_key + orientation,
-        key=f"-BUTTON {band_key} {orientation}-",
+        key=f"-{key_prefix} {band_key} {orientation}-",
         font=RUN_BUTTON_PROPS["font"],
         button_color=RUN_BUTTON_PROPS["button_color"],
         size=(12, 2),
@@ -147,6 +147,38 @@ def get_custom_mode_section():
     return section
 
 
+def get_prep_band_section():
+    prefix = "PREP_BAND"
+    monopole_buttons = [
+        get_band_button(b["band"], key_prefix=prefix) for b in BUTTON_DETAILS[0:5]
+    ]
+    bilogical_buttons_h = [
+        get_band_button(b["band"], "h", key_prefix=prefix) for b in BUTTON_DETAILS[5:8]
+    ]
+    bilogical_buttons_v = [
+        get_band_button(b["band"], "v", key_prefix=prefix) for b in BUTTON_DETAILS[5:8]
+    ]
+
+    # arrange section 4 such that there are two rows for 4 buttons
+    section = [
+        [
+            sg.Text(
+                "Prepare Band Mode lets you set up the instrument to run a band without recording any data.",
+                expand_x=True,
+            )
+        ],
+        [sg.Text("State files, correction files, and coupling set.", expand_x=True)],
+        [sg.Text("")],
+        [sg.Text("Monopole Bands:", expand_x=True, font="Any 15")],
+        monopole_buttons,
+        [sg.Text("")],
+        [sg.Text("Bilogical Bands:", expand_x=True, font="Any 15")],
+        bilogical_buttons_h,
+        bilogical_buttons_v,
+    ]
+    return section
+
+
 def get_defuault_layout():
     section1 = get_section1()
 
@@ -155,6 +187,8 @@ def get_defuault_layout():
     single_band_section = get_single_band_section()
 
     custom_mode_section = get_custom_mode_section()
+
+    prep_band_section = get_prep_band_section()
 
     setup_layout = [
         [
@@ -169,9 +203,10 @@ def get_defuault_layout():
         sg.Tab("   Single Band Mode   ", single_band_section),
         sg.Tab("   Multi Band Mode   ", multi_band_section),
         sg.Tab("   Custom Mode   ", custom_mode_section),
+        sg.Tab("   Prep Band   ", prep_band_section),
     ]
 
-    tab_group_layout = [[sg.TabGroup([tabs])]]
+    tab_group_layout = [[sg.TabGroup([tabs], enable_events=True, key="-TAB GROUP-")]]
 
     layout = setup_layout + tab_group_layout
 
@@ -228,7 +263,7 @@ def get_main_layout(inst_found):
     return [[sg.pin(default_col)], [sg.pin(inst_not_fount_col)]]
 
 
-def update_main_window(window, inst_found, inst_info, settings_error, values):
+def update_main_window(window, inst_found, inst_info, settings_error, values=None):
     settings_validity_text = (
         "✅ Settings Valid"
         if not settings_error
@@ -269,6 +304,6 @@ def get_main_mindow(inst_found, inst_info, settings_error):
         finalize=True,
         # icon="images/32x32.ico",
     )
-    update_main_window(window, inst_found, inst_info, settings_error, None)
+    update_main_window(window, inst_found, inst_info, settings_error)
 
     return window

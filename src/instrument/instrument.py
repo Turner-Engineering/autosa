@@ -114,16 +114,22 @@ def get_inst_info(inst):
 
 
 def prep_band(inst, settings, band_key):
+    error_message = ""
     state_folder = settings["-STATE FOLDER-"]
     corr_folder = settings["-CORR FOLDER-"]
 
     coupling = bands[band_key]["coupling"]
     state_filename = bands[band_key]["stateFilename"]
     corr_filename = bands[band_key]["corrFilename"]
-
-    recall_state(inst, state_folder, state_filename)
-    recall_corr(inst, corr_folder, corr_filename)
-    set_coupling(inst, coupling)
+    try:
+        recall_state(inst, state_folder, state_filename)
+        recall_corr(inst, corr_folder, corr_filename)
+        set_coupling(inst, coupling)
+        inst.write(":INIT:REST")
+        inst.control_ren(pyvisa.constants.VI_GPIB_REN_DEASSERT_GTL)
+    except Exception as e:
+        error_message = str(e)
+    return error_message
 
 
 def run_band(inst, settings, band_key, run_filename, setup=True):
@@ -138,7 +144,7 @@ def run_band(inst, settings, band_key, run_filename, setup=True):
 
     # PREPARE THE INSTRUMENT
     if setup:
-        prep_band(inst, settings, band_key)
+        error_message = prep_band(inst, settings, band_key)
 
     # RECORD AND SAVE
     record_and_save(inst, inst_out_folder, run_filename, local_out_folder, sweep_dur)
