@@ -145,6 +145,9 @@ def main():
 
         # without timeout, code pauses here and waits for event
         event, values = main_window.read(timeout=timeout)
+        if event == sg.WIN_CLOSED:
+            inst.control_ren(pyvisa.constants.VI_GPIB_REN_DEASSERT_GTL)
+            break
 
         inst, inst_found = get_inst()
         if "Prep Band" not in values["-TAB GROUP-"]:
@@ -157,8 +160,6 @@ def main():
 
         if event == "Settings":
             handle_settings_event(inst, inst_found, main_window, inst_info)
-        if event == sg.WIN_CLOSED:
-            break
 
         run_error_message = ""
         settings = sg.user_settings()
