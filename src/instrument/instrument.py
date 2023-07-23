@@ -74,6 +74,13 @@ def set_ref_level_to_show_max(inst, trace_max):
             new_ref_level += 10
         inst.write(f":DISP:WIND:TRAC:Y:RLEV {new_ref_level}")
 
+
+def rename_screen(inst, new_name):
+    old_name = inst.query(":INST:SCR:SELECT?").replace("\n", "").replace('"', "")
+    if old_name != new_name:
+        inst.write(f":INST:SCR:REN '{new_name}'")
+
+
 def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur):
     # and this version which just does the measurement and saving
     # RECORD
@@ -144,6 +151,7 @@ def prep_band(inst, settings, band_key):
         recall_state(inst, state_folder, state_filename)
         recall_corr(inst, corr_folder, corr_filename)
         set_coupling(inst, coupling)
+        rename_screen(inst, band_key)
         inst.write(":INIT:REST")
         inst.control_ren(pyvisa.constants.VI_GPIB_REN_DEASSERT_GTL)
     except Exception as e:
