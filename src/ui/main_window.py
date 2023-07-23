@@ -85,15 +85,21 @@ def get_multi_band_section():
     ]
 
 
+def get_band_button(band_key, orientation=""):
+    return sg.Button(
+        band_key + orientation,
+        key=f"-BUTTON {band_key} {orientation}-",
+        font=RUN_BUTTON_PROPS["font"],
+        button_color=RUN_BUTTON_PROPS["button_color"],
+        size=(12, 2),
+        expand_x=True,
+    )
+
+
 def get_single_band_section():
-    buttons = [
-        sg.Button(
-            b["band"],
-            key=f"-BUTTON {b['band']}-",
-            **RUN_BUTTON_PROPS,
-        )
-        for b in BUTTON_DETAILS
-    ]
+    monopole_buttons = [get_band_button(b["band"]) for b in BUTTON_DETAILS[0:5]]
+    bilogical_buttons_h = [get_band_button(b["band"], "h") for b in BUTTON_DETAILS[5:8]]
+    bilogical_buttons_v = [get_band_button(b["band"], "v") for b in BUTTON_DETAILS[5:8]]
 
     # arrange section 4 such that there are two rows for 4 buttons
     section = [
@@ -104,8 +110,13 @@ def get_single_band_section():
                 expand_x=True,
             )
         ],
-        buttons[0:4],
-        buttons[4:8],
+        [sg.Text("")],
+        [sg.Text("Monopole Bands:", expand_x=True, font="Any 15")],
+        monopole_buttons,
+        [sg.Text("")],
+        [sg.Text("Bilogical Bands:", expand_x=True, font="Any 15")],
+        bilogical_buttons_h,
+        bilogical_buttons_v,
     ]
     return section
 

@@ -60,7 +60,7 @@ def handle_settings_event(inst, inst_found, main_window, inst_info):
 
 def run_record_and_save(inst, settings):
     band_key = sg.popup_get_text(
-        "Enter band name:",
+        "Enter band name (e.g. B3, B5h, B7v):",
         title="Band Name",
     )
     if band_key == None:
@@ -71,10 +71,10 @@ def run_record_and_save(inst, settings):
     run_band(inst, settings, band_key, run_filename, setup=False)
 
 
-def run_single_band(inst, settings, band_key):
+def run_single_band(inst, settings, band_key, orientation):
     # difference between this and run band is this one confirms the filename
     # READ SETTINGS
-    run_filename = get_run_filename(inst, settings, band_key)
+    run_filename = get_run_filename(inst, settings, band_key, orientation)
 
     # CONFIRMATION
     confirmation = sg.popup_ok_cancel(
@@ -186,12 +186,13 @@ def main():
             )
 
         if "BUTTON" in event:
-            band_key = event.split("-")[1].split(" ")[1]
-
+            items = event.split("-")[1].split(" ")
+            band_key, orientation = items[1], items[2]
             run_error_message = run_single_band(
                 inst,
                 settings,
                 band_key,
+                orientation,
             )
 
         if event == "-RECORD AND SAVE-":
