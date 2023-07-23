@@ -1,4 +1,5 @@
 import time
+import math
 
 import pyvisa
 
@@ -60,6 +61,19 @@ def validate_filename(inst, inst_out_folder, filename):
     return error_message
 
 
+def get_ref_level(inst):
+    ref_level = float(inst.query(":DISP:WIND:TRAC:Y:RLEV?").replace("\n", ""))
+    return ref_level
+
+
+def set_ref_level_to_show_max(inst, trace_max):
+    ref_level = get_ref_level(inst)
+    if trace_max > ref_level:
+        new_ref_level = math.ceil(trace_max / 10) * 10
+        if new_ref_level - trace_max < 2:
+            new_ref_level += 10
+        inst.write(f":DISP:WIND:TRAC:Y:RLEV {new_ref_level}")
+
 def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur):
     # and this version which just does the measurement and saving
     # RECORD
@@ -67,7 +81,11 @@ def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur
     inst.write(":INIT:CONT ON")
     time.sleep(sweep_dur)
     inst.write(":INIT:CONT OFF")
+
+    # ADJUST
     inst.write(":CALC:MARK1:MAX")
+    trace_max = float(inst.query(":CALC:MARK1:Y?").replace("\n", ""))
+    set_ref_level_to_show_max(inst, trace_max)
 
     # SAVE
     csv_path = f"{inst_out_folder}/{filename}.csv"
