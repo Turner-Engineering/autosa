@@ -81,7 +81,9 @@ def rename_screen(inst, new_name):
         inst.write(f":INST:SCR:REN '{new_name}'")
 
 
-def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur):
+def record_and_save(
+    inst, inst_out_folder, filename, local_out_folder, sweep_dur, set_ref_level
+):
     # and this version which just does the measurement and saving
     # RECORD
     inst.write(":INIT:REST")
@@ -91,8 +93,9 @@ def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur
 
     # ADJUST
     inst.write(":CALC:MARK1:MAX")
-    trace_max = float(inst.query(":CALC:MARK1:Y?").replace("\n", ""))
-    set_ref_level_to_show_max(inst, trace_max)
+    if set_ref_level:
+        trace_max = float(inst.query(":CALC:MARK1:Y?").replace("\n", ""))
+        set_ref_level_to_show_max(inst, trace_max)
 
     # SAVE
     csv_path = f"{inst_out_folder}/{filename}.csv"
@@ -163,6 +166,7 @@ def run_band(inst, settings, band_key, run_filename, setup=True):
     inst_out_folder = settings["-OUT FOLDER-"]
     local_out_folder = settings["-LOCAL OUT FOLDER-"]
     sweep_dur = float(settings["-SWEEP DUR-"])
+    set_ref_level = settings["-SET REF LEVEL-"]
 
     # GET THE FILENAME AND CHECK FOR CONFLICTS
     error_message = validate_filename(inst, inst_out_folder, run_filename)
@@ -174,5 +178,12 @@ def run_band(inst, settings, band_key, run_filename, setup=True):
         error_message = prep_band(inst, settings, band_key)
 
     # RECORD AND SAVE
-    record_and_save(inst, inst_out_folder, run_filename, local_out_folder, sweep_dur)
+    record_and_save(
+        inst,
+        inst_out_folder,
+        run_filename,
+        local_out_folder,
+        sweep_dur,
+        set_ref_level=set_ref_level,
+    )
     return error_message

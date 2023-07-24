@@ -34,6 +34,7 @@ FOLDER_FIELDS = [
 SETTINGS_KEYS = [field["key"] for field in FOLDER_FIELDS if "key" in field] + [
     "-SWEEP DUR-",
     "-RUN NOTE-",
+    "-SET REF LEVEL-",
 ]
 
 
@@ -163,8 +164,18 @@ def get_folder_settings(folder_fields):
 def get_other_settings():
     sweep_dur_default = sg.user_settings_get_entry("-SWEEP DUR-", 5)
     run_note_default = sg.user_settings_get_entry("-RUN NOTE-", "Philadelphia")
+    set_ref_level_default = sg.user_settings_get_entry("-SET REF LEVEL-", True)
     layout = [
         [sg.Text("Other", font=("", 15))],
+        [
+            sg.Text("Adjust Reference Level:"),
+            sg.Checkbox(
+                "If this is checked, the reference adjusted such that all trace peaks are visible.",
+                key="-SET REF LEVEL-",
+                default=set_ref_level_default,
+                expand_x=True,
+            ),
+        ],
         [
             sg.Text("Sweep Duration (s):"),
             sg.Input(key="-SWEEP DUR-", default_text=sweep_dur_default, size=60),
