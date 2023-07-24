@@ -1,6 +1,6 @@
 # Autosa
 
-Autosa is Tenco software used to automate data acquisition using a signal analyzer (AUTOmated Signal Analysis or AUTOmatic Signal Analyzer). The name is read as a single word with a stress on the second syllable (not "Auto Essay").
+Autosa is Tenco software used to automate data acquisition using a signal analyzer (AUTOmated Signal Analysis or AUTOmatic Signal Analyzer). The name is spelled with a capital "A" with the rest lowercase as "Autosa" and is read as a single word with a stress on the second syllable (not "Auto Essay").
 
 # Installation
 
