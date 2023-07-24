@@ -1,3 +1,5 @@
+import os
+
 import PySimpleGUI as sg
 
 from bands_data import bands
@@ -26,6 +28,7 @@ FOLDER_FIELDS = [
         "key": "-LOCAL OUT FOLDER-",
         "label": "Local Output Folder",
         "default": "",
+        "validation": ["exists_local"],
         "browse": True,
     },
 ]
@@ -62,6 +65,10 @@ def filenames_in_folder(expected_filenames, actual_filenames):
     return set(expected_filenames).issubset(set(actual_filenames))
 
 
+def get_folder_exists_local(folder_path):
+    return os.path.isdir(folder_path)
+
+
 def validate_folders(inst, settings, folder_fields):
     state_filenames = get_state_filenames(bands)
     corr_filenames = get_corr_filenames(bands)
@@ -71,6 +78,14 @@ def validate_folders(inst, settings, folder_fields):
         folder_path = settings[folder_field["key"]]
         if "validation" not in folder_field:
             continue
+
+        exists_local = get_folder_exists_local(folder_path)
+        expect_exists_local = "exists_local" in folder_field["validation"]
+        if expect_exists_local:
+            if not exists_local:
+                return f'{folder_label} "{folder_path}" does not exist on this computer'
+            else:
+                continue
 
         exists, empty, filenames = get_folder_info(inst, folder_path)
         expect_exists = "exists" in folder_field["validation"]
