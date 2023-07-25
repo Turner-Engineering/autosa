@@ -47,7 +47,7 @@ def get_multi_band_section():
         ],
         [
             sg.Text(
-                "State files, correction files, coupling, and file names are set automatically.",
+                "State files, correction files, and file names are set automatically.",
                 expand_x=True,
             )
         ],
@@ -106,7 +106,7 @@ def get_single_band_section():
         [sg.Text("Single Band Mode lets you run one band at a time.", expand_x=True)],
         [
             sg.Text(
-                "State files, correction files, coupling, and file names are set automatically.",
+                "State files, correction files, and file names are set automatically.",
                 expand_x=True,
             )
         ],
@@ -152,11 +152,8 @@ def get_prep_band_section():
     monopole_buttons = [
         get_band_button(b["band"], key_prefix=prefix) for b in BUTTON_DETAILS[0:5]
     ]
-    bilogical_buttons_h = [
-        get_band_button(b["band"], "h", key_prefix=prefix) for b in BUTTON_DETAILS[5:8]
-    ]
-    bilogical_buttons_v = [
-        get_band_button(b["band"], "v", key_prefix=prefix) for b in BUTTON_DETAILS[5:8]
+    bilogical_buttons = [
+        get_band_button(b["band"], key_prefix=prefix) for b in BUTTON_DETAILS[5:8]
     ]
 
     # arrange section 4 such that there are two rows for 4 buttons
@@ -167,14 +164,13 @@ def get_prep_band_section():
                 expand_x=True,
             )
         ],
-        [sg.Text("State files, correction files, and coupling set.", expand_x=True)],
+        [sg.Text("State files and correction files are set.", expand_x=True)],
         [sg.Text("")],
         [sg.Text("Monopole Bands:", expand_x=True, font="Any 15")],
         monopole_buttons,
         [sg.Text("")],
         [sg.Text("Bilogical Bands:", expand_x=True, font="Any 15")],
-        bilogical_buttons_h,
-        bilogical_buttons_v,
+        bilogical_buttons,
     ]
     return section
 
@@ -226,7 +222,7 @@ def get_inst_not_found_layout():
     steps = [
         "1. Make sure the instrument is plugged in to power and turned on",
         "2. Make sure the instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable",
-        '3. Make sure the signal analyzer program is running on the device (may be called "LaunchXSA" on the desktop)',
+        '3. Make sure the signal analyzer program is running on the device (called "LaunchXSA" on the desktop)',
         "4. Ask for help",
     ]
 

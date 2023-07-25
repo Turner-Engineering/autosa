@@ -3,7 +3,6 @@ import math
 
 import pyvisa
 
-from bands_data import bands
 from instrument.file_transfer import save_file_to_local
 from instrument.folders import get_folder_files
 from utils.run_ids import run_index_to_id, get_todays_run_ids
@@ -117,6 +116,15 @@ def recall_corr(inst, corr_folder, filename):
     return
 
 
+def recall_cors(inst, corr_folder, filenames):
+    for i in range(16):
+        idx = i + 1
+        inst.write(f":SENS:CORR:CSET{idx} OFF")
+    for i, filename in enumerate(filenames):
+        inst.write(f":MMEM:LOAD:CORR {i+1},'{corr_folder}/{filename}'")
+    return
+
+
 def set_coupling(inst, coupling):
     inst.write(f":INP:COUP {coupling}")
     # print(inst.query(f":INP:COUP?"))
@@ -146,14 +154,11 @@ def prep_band(inst, settings, band_key):
     error_message = ""
     state_folder = settings["-STATE FOLDER-"]
     corr_folder = settings["-CORR FOLDER-"]
-
-    coupling = bands[band_key]["coupling"]
-    state_filename = bands[band_key]["stateFilename"]
-    corr_filename = bands[band_key]["corrFilename"]
+    state_filename = settings[f"-{band_key} STATE-"]
+    corr_filenames = settings[f"-{band_key} CORR-"]
     try:
         recall_state(inst, state_folder, state_filename)
-        recall_corr(inst, corr_folder, corr_filename)
-        set_coupling(inst, coupling)
+        recall_cors(inst, corr_folder, corr_filenames)
         rename_screen(inst, band_key)
         inst.write(":INIT:REST")
         inst.control_ren(pyvisa.constants.VI_GPIB_REN_DEASSERT_GTL)
