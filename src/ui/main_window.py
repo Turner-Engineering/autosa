@@ -226,7 +226,7 @@ def get_inst_not_found_layout():
     steps = [
         "1. Make sure the instrument is plugged in to power and turned on",
         "2. Make sure the instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable",
-        '3. Make sure the signal analyzer program is running on the device (may be called "LaunchXSA" on the desktop)',
+        '3. Make sure the signal analyzer program is running on the device (called "LaunchXSA" on the desktop)',
         "4. Ask for help",
     ]
 
