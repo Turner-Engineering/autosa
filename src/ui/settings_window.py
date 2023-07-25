@@ -76,8 +76,8 @@ def get_state_filenames(settings):
     return state_filenames
 
 
-def filenames_in_folder(expected_filenames, actual_filenames):
-    return set(expected_filenames).issubset(set(actual_filenames))
+def get_missing_files(expected_filenames, actual_filenames):
+    return set(expected_filenames).difference(set(actual_filenames))
 
 
 def get_folder_exists_local(folder_path):
@@ -114,19 +114,19 @@ def validate_folders(inst, settings, folder_fields):
             return f'{folder_label} "{folder_path}" does is empty'
 
         # make sure all the expected files are present
-        state_files_present = filenames_in_folder(state_filenames, filenames)
-        if "STATE" in folder_field["key"] and not state_files_present:
+        missing_state_files = get_missing_files(state_filenames, filenames)
+        if "STATE" in folder_field["key"] and missing_state_files:
             error_message = (
-                f'{folder_label} "{folder_path}" is missing one or more of the following files:\n\n'
-                + "\n".join(state_filenames)
+                f'{folder_label} "{folder_path}" is missing following file(s):\n\n'
+                + "\n".join(missing_state_files)
             )
             return error_message
 
-        corr_files_present = filenames_in_folder(corr_filenames, filenames)
-        if "CORR" in folder_field["key"] and not corr_files_present:
+        missing_corr_files = get_missing_files(corr_filenames, filenames)
+        if "CORR" in folder_field["key"] and missing_corr_files:
             error_message = (
-                f'{folder_label} "{folder_path}" is missing one or more of the following files:\n\n'
-                + "\n".join(corr_filenames)
+                f'{folder_label} "{folder_path}" is missing the following file(s):\n\n'
+                + "\n".join(missing_corr_files)
             )
             return error_message
     return error_message
