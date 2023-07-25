@@ -237,26 +237,7 @@ def get_other_settings():
     return layout
 
 
-def get_band_frame(band_key):
-    title = f"  Band {band_key}  "
-    state_key = f"-{band_key} STATE-"
-    corr_key = f"-{band_key} CORR 1-"
-    default_state = DEFAULT_FILENAMES[state_key]
-    default_corr = DEFAULT_FILENAMES[corr_key]
-    layout = [
-        [
-            sg.Text("State File Name", size=15),
-            sg.Input(key=state_key, expand_x=True, default_text=default_state),
-        ],
-        [
-            sg.Text("Correction File Name", size=15),
-            sg.Input(key=corr_key, expand_x=True, default_text=default_corr),
-        ],
-    ]
-    return sg.Frame(title, layout, font=("", 10, "bold"), expand_x=True)
-
-
-def get_frame_layout(filename_type):
+def get_filenames_frame_layout(filename_type):
     band_keys = ["B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7"]
     layout = [
         [
@@ -273,9 +254,15 @@ def get_frame_layout(filename_type):
 
 
 def get_band_setup_section():
-    layout1 = [[sg.Frame("State Files", get_frame_layout("STATE"), expand_x=True)]]
+    layout1 = [
+        [sg.Frame("State Files", get_filenames_frame_layout("STATE"), expand_x=True)]
+    ]
     layout2 = [
-        [sg.Frame("Correction Files", get_frame_layout("CORR 1"), expand_x=True)]
+        [
+            sg.Frame(
+                "Correction Files", get_filenames_frame_layout("CORR 1"), expand_x=True
+            )
+        ]
     ]
 
     band_setup_section = [
