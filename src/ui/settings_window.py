@@ -1,8 +1,8 @@
 import os
+import re
 
 import PySimpleGUI as sg
 
-from bands_data import bands
 from instrument.folders import get_folder_info
 
 FOLDER_FIELDS = [
@@ -33,29 +33,44 @@ FOLDER_FIELDS = [
     },
 ]
 
+DEFAULT_FILENAMES = {
+    "-B0 CORR 1-": "Rod A 1 kHz.csv",
+    "-B1 CORR 1-": "Rod A 10 kHz.csv",
+    "-B2 CORR 1-": "Rod A 10 kHz.csv",
+    "-B3 CORR 1-": "Rod A 10 kHz.csv",
+    "-B4 CORR 1-": "Rod A 100 kHz.csv",
+    "-B5 CORR 1-": "Bilogic 100.csv",
+    "-B6 CORR 1-": "Bilogic 300.csv",
+    "-B7 CORR 1-": "Bilogic 300.csv",
+    "-B0 STATE-": "State_B0.state",
+    "-B1 STATE-": "State_B1.state",
+    "-B2 STATE-": "State_B2.state",
+    "-B3 STATE-": "State_B3.state",
+    "-B4 STATE-": "State_B4.state",
+    "-B5 STATE-": "State_B5.state",
+    "-B6 STATE-": "State_B6.state",
+    "-B7 STATE-": "State_B7.state",
+}
+
+
 # these are the keys used to address all settings
-SETTINGS_KEYS = [field["key"] for field in FOLDER_FIELDS if "key" in field] + [
-    "-SWEEP DUR-",
-    "-RUN NOTE-",
-    "-SET REF LEVEL-",
-]
+folder_keys = [field["key"] for field in FOLDER_FIELDS if "key" in field]
+filename_keys = [key for key in DEFAULT_FILENAMES]
+other_keys = ["-SWEEP DUR-", "-RUN NOTE-", "-SET REF LEVEL-"]
+SETTINGS_KEYS = folder_keys + filename_keys + other_keys
 
 
-def get_corr_filenames(bands):
-    corr_filenames = []
-    for band in bands:
-        corr_filename = bands[band]["corrFilename"]
-        corr_filenames.append(corr_filename)
+def get_corr_filenames(settings):
+    regex = r"^-B\d CORR \d-$"
+    corr_filenames = [settings[key] for key in settings if re.match(regex, key)]
     corr_filenames = list(set(corr_filenames))
     corr_filenames.sort()
     return corr_filenames
 
 
-def get_state_filenames(bands):
-    state_filenames = []
-    for band in bands:
-        state_filename = bands[band]["stateFilename"]
-        state_filenames.append(state_filename)
+def get_state_filenames(settings):
+    regex = r"^-B\d STATE-$"
+    state_filenames = [settings[key] for key in settings if re.match(regex, key)]
     state_filenames = list(set(state_filenames))
     state_filenames.sort()
     return state_filenames
@@ -70,8 +85,8 @@ def get_folder_exists_local(folder_path):
 
 
 def validate_folders(inst, settings, folder_fields):
-    state_filenames = get_state_filenames(bands)
-    corr_filenames = get_corr_filenames(bands)
+    state_filenames = get_state_filenames(settings)
+    corr_filenames = get_corr_filenames(settings)
     for folder_field in folder_fields:
         # get folder label and path
         folder_label = folder_field["label"]
@@ -142,6 +157,7 @@ def validate_run_note(settings):
 
 def validate_settings(inst, settings=None):
     settings = sg.user_settings() if settings is None else settings
+    settings = {key: settings[key] for key in SETTINGS_KEYS}
 
     # validate saved user settings
     folders_error = validate_folders(inst, settings, FOLDER_FIELDS)
@@ -221,17 +237,74 @@ def get_other_settings():
     return layout
 
 
+def get_band_frame(band_key):
+    title = f"  Band {band_key}  "
+    state_key = f"-{band_key} STATE-"
+    corr_key = f"-{band_key} CORR 1-"
+    default_state = DEFAULT_FILENAMES[state_key]
+    default_corr = DEFAULT_FILENAMES[corr_key]
+    layout = [
+        [
+            sg.Text("State File Name", size=15),
+            sg.Input(key=state_key, expand_x=True, default_text=default_state),
+        ],
+        [
+            sg.Text("Correction File Name", size=15),
+            sg.Input(key=corr_key, expand_x=True, default_text=default_corr),
+        ],
+    ]
+    return sg.Frame(title, layout, font=("", 10, "bold"), expand_x=True)
+
+
+def get_frame_layout(filename_type):
+    band_keys = ["B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7"]
+    layout = [
+        [
+            sg.Text(band_key, size=5),
+            sg.Input(
+                key=f"-{band_key} {filename_type}-",
+                expand_x=True,
+                default_text=DEFAULT_FILENAMES[f"-{band_key} {filename_type}-"],
+            ),
+        ]
+        for band_key in band_keys
+    ]
+    return layout
+
+
+def get_band_setup_section():
+    layout1 = [[sg.Frame("State Files", get_frame_layout("STATE"), expand_x=True)]]
+    layout2 = [
+        [sg.Frame("Correction Files", get_frame_layout("CORR 1"), expand_x=True)]
+    ]
+
+    band_setup_section = [
+        [sg.Text("Band Setup", font=("", 15))],
+        [sg.Column(layout1, expand_x=True), sg.Column(layout2, expand_x=True)],
+    ]
+    return band_setup_section
+
+
 def get_settings_window(folder_fields):
     folder_settings = get_folder_settings(folder_fields)
     other_settings = get_other_settings()
 
+    main_section = [
+        *folder_settings,
+        [sg.HorizontalSeparator()],
+        *other_settings,
+    ]
+
+    band_setup_section = get_band_setup_section()
+
+    tabs = [
+        sg.Tab("     Primary     ", main_section),
+        sg.Tab("     Band Setup     ", band_setup_section),
+    ]
+
     layout = [
         [sg.Text("Settings", font=("_ 25"))],
-        [sg.HorizontalSeparator()],
-        folder_settings,
-        [sg.HorizontalSeparator()],
-        other_settings,
-        [sg.HorizontalSeparator()],
+        [sg.TabGroup([tabs])],
         [sg.Button("Save"), sg.Button("Cancel")],
     ]
 

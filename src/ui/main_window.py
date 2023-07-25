@@ -47,7 +47,7 @@ def get_multi_band_section():
         ],
         [
             sg.Text(
-                "State files, correction files, coupling, and file names are set automatically.",
+                "State files, correction files, and file names are set automatically.",
                 expand_x=True,
             )
         ],
@@ -106,7 +106,7 @@ def get_single_band_section():
         [sg.Text("Single Band Mode lets you run one band at a time.", expand_x=True)],
         [
             sg.Text(
-                "State files, correction files, coupling, and file names are set automatically.",
+                "State files, correction files, and file names are set automatically.",
                 expand_x=True,
             )
         ],
@@ -167,7 +167,7 @@ def get_prep_band_section():
                 expand_x=True,
             )
         ],
-        [sg.Text("State files, correction files, and coupling set.", expand_x=True)],
+        [sg.Text("State files and correction files are set.", expand_x=True)],
         [sg.Text("")],
         [sg.Text("Monopole Bands:", expand_x=True, font="Any 15")],
         monopole_buttons,
