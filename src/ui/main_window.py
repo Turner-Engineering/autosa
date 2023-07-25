@@ -152,11 +152,8 @@ def get_prep_band_section():
     monopole_buttons = [
         get_band_button(b["band"], key_prefix=prefix) for b in BUTTON_DETAILS[0:5]
     ]
-    bilogical_buttons_h = [
-        get_band_button(b["band"], "h", key_prefix=prefix) for b in BUTTON_DETAILS[5:8]
-    ]
-    bilogical_buttons_v = [
-        get_band_button(b["band"], "v", key_prefix=prefix) for b in BUTTON_DETAILS[5:8]
+    bilogical_buttons = [
+        get_band_button(b["band"], key_prefix=prefix) for b in BUTTON_DETAILS[5:8]
     ]
 
     # arrange section 4 such that there are two rows for 4 buttons
@@ -173,8 +170,7 @@ def get_prep_band_section():
         monopole_buttons,
         [sg.Text("")],
         [sg.Text("Bilogical Bands:", expand_x=True, font="Any 15")],
-        bilogical_buttons_h,
-        bilogical_buttons_v,
+        bilogical_buttons,
     ]
     return section
 
