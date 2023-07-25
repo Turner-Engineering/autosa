@@ -11,7 +11,12 @@ from instrument.instrument import (
     prep_band,
 )
 from ui.main_window import get_main_mindow, update_main_window
-from ui.settings_window import launch_settings_window, validate_settings
+from ui.settings_window import (
+    launch_settings_window,
+    validate_settings,
+    add_default_settings,
+    save_settings,
+)
 
 
 def handle_py_visa_error(e):
@@ -136,6 +141,9 @@ def main():
     sg.theme("SystemDefaultForReal")
     # default location for this file is Users/<username>/AppData/Local/PySimpleGUI/settings/
     sg.user_settings_filename("autosa.json")
+    settings = sg.user_settings()
+    settings = add_default_settings(settings)
+    save_settings(settings)
 
     # Assert that NI-VISA is installed, else throw error dialog
     ni_visa_installed = assert_ni_visa_installed(pyvisa)
