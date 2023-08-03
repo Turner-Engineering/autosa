@@ -136,7 +136,7 @@ def set_coupling(inst, coupling):
 
 
 def get_run_filename(inst, settings, band_name, orientation=""):
-    inst_out_folder = settings["-OUT FOLDER-"]
+    inst_out_folder = settings["-INST OUT FOLDER-"]
     notes = settings["-RUN NOTE-"]
     run_id = get_run_id(inst, inst_out_folder)
     filename = f"{run_id} {notes} {band_name}{orientation}"
@@ -174,7 +174,7 @@ def prep_band(inst, settings, band_key):
 
 
 def run_band(inst, settings, band_key, run_filename, setup=True):
-    inst_out_folder = settings["-OUT FOLDER-"]
+    inst_out_folder = settings["-INST OUT FOLDER-"]
     local_out_folder = settings["-LOCAL OUT FOLDER-"]
     sweep_dur = float(settings["-SWEEP DUR-"])
     set_ref_level = settings["-SET REF LEVEL-"]

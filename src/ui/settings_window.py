@@ -18,7 +18,7 @@ FOLDER_FIELDS = [
         "events": True,
     },
     {
-        "key": "-OUT FOLDER-",
+        "key": "-INST OUT FOLDER-",
         "label": "Instrument Output Folder",
         "validation": ["exists"],
     },
@@ -34,7 +34,7 @@ FOLDER_FIELDS = [
 DEFAULT_SETTINGS = {
     "-STATE FOLDER-": "D:/Users/Instrument/Desktop/State Files",
     "-CORR FOLDER-": "D:/Users/Instrument/Desktop/Correction Files",
-    "-OUT FOLDER-": "D:/Users/Instrument/Desktop/Test Data",
+    "-INST OUT FOLDER-": "D:/Users/Instrument/Desktop/Test Data",
     "-LOCAL OUT FOLDER-": "",
     "-B0 CORR-": ['"Rod A kHz.csv"'],
     "-B1 CORR-": ["Rod A 10 kHz.csv"],
