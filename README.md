@@ -2,10 +2,13 @@
 
 Autosa is Tenco software used to automate data acquisition using a signal analyzer (AUTOmated Signal Analysis or AUTOmatic Signal Analyzer). The name is spelled exactly as "Autosa" and is read as a single word with a stress on the second syllable.
 
-## Installation
+## Getting Started
 
-1. Install [NI-VISA](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html). This allows Autosa to communicate with the instrument.
-2. Download the `install/dist/Autosa.exe` file from this repository and run
+Windows is the recommended operating system for Autosa. It has not been tested on other operating systems.
+
+1. Download and Install [NI-VISA](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html). This allows Autosa to communicate with the instrument.
+2. Download the executable file [`Autosa.exe`](https://github.com/ThisTemba/autosa/blob/master/install/dist/Autosa.exe) from this repository
+3. Double click the executable file to run the program
 
 ## Guiding Principles
 
