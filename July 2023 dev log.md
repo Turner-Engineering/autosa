@@ -111,3 +111,26 @@ We need to get the last run index:
 - next steps for tomorrow are to add the orientation to individual band running. Plan is to do it with three rows and two sections
 - section 1 is one row of 5 for monopole
 - Section 2 is two rows of 3 for bilogic, first row is h second is v
+
+https://pyvisa.readthedocs.io/
+
+## July 23 2023
+
+### Some helpful features
+
+I implemented a few helpful features:
+
+1. Automatically set marker to peak
+2. Automatically raise reference level if max is too high
+3. Set tab name to band name
+4. Add prep mode
+5. Return to local mode on window close
+6. Add orientation to single band buttons
+7. Add more filename validation
+
+## July 24 2023
+
+It seems statefiles are more capable than I thought. The statefile can store coupling factors so we don't need that, and I think they can also store corrections.
+I think correction files can be loaded into collection registers and state files and select which registers are active for which state.
+
+- also the save screen config + state will save all the set up bands so that they don't have to be re-set up every time
