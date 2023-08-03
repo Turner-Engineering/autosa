@@ -60,6 +60,11 @@ def validate_filename(inst, inst_out_folder, filename):
     return error_message
 
 
+def disable_ref_level_offset(inst):
+    inst.write(":DISP:WIND:TRAC:Y:RLEV:OFFS:STAT OFF")
+    return
+
+
 def get_ref_level(inst):
     ref_level = float(inst.query(":DISP:WIND:TRAC:Y:RLEV?").replace("\n", ""))
     return ref_level
@@ -160,6 +165,7 @@ def prep_band(inst, settings, band_key):
         recall_state(inst, state_folder, state_filename)
         recall_cors(inst, corr_folder, corr_filenames)
         rename_screen(inst, band_key)
+        disable_ref_level_offset(inst)
         inst.write(":INIT:REST")
         inst.control_ren(pyvisa.constants.VI_GPIB_REN_DEASSERT_GTL)
     except Exception as e:
