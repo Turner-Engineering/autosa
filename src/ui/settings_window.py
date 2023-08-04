@@ -290,7 +290,6 @@ def get_band_setup_section(inst, corr_folder=None):
         else corr_folder
     )
     filenames = get_folder_files(inst, corr_folder)
-    print(filenames)
 
     row1 = []
     for band_key in BAND_KEYS[0:4]:
