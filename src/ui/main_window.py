@@ -62,15 +62,6 @@ def get_defuault_layout():
     return layout
 
 
-def set_band_button_disabled(window, disabled):
-    disabled_color = ("white", "grey")
-    enabled_color = ("white", "dark blue")
-    button_color = disabled_color if disabled else enabled_color
-    for bk in BAND_KEYS:
-        window[f"-BUTTON {bk}-"].update(disabled=disabled)
-        window[f"-BUTTON {bk}-"].update(button_color=button_color)
-
-
 def get_inst_not_found_layout():
     steps = [
         "1. Make sure the instrument is plugged in to power and turned on",
