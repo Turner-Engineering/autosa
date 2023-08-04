@@ -54,7 +54,6 @@ DEFAULT_SETTINGS = {
     "-B7 STATE-": "State_B7.state",
     "-SWEEP DUR-": 5,
     "-RUN NOTE-": "Philadelphia",
-    "-SET REF LEVEL-": True,
 }
 
 BAND_KEYS = ["B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7"]
@@ -203,18 +202,8 @@ def get_folder_settings():
 def get_other_settings():
     sweep_dur_default = sg.user_settings_get_entry("-SWEEP DUR-", 5)
     run_note_default = sg.user_settings_get_entry("-RUN NOTE-", "Philadelphia")
-    set_ref_level_default = sg.user_settings_get_entry("-SET REF LEVEL-", True)
     layout = [
         [sg.Text("Other", font=("", 15))],
-        [
-            sg.Text("Adjust Reference Level:"),
-            sg.Checkbox(
-                "If this is checked, the reference adjusted such that all trace peaks are visible.",
-                key="-SET REF LEVEL-",
-                default=set_ref_level_default,
-                expand_x=True,
-            ),
-        ],
         [
             sg.Text("Sweep Duration (s):"),
             sg.Input(key="-SWEEP DUR-", default_text=sweep_dur_default, size=60),

@@ -71,16 +71,23 @@ def run_reset(inst):
     inst.write(":INIT:REST")
 
 
-def disable_ref_level_offset(inst):
-    inst.write(":DISP:WIND:TRAC:Y:RLEV:OFFS:STAT OFF")
-
-
 def release_inst(inst):
     inst.control_ren(pyvisa.constants.VI_GPIB_REN_DEASSERT_GTL)
 
 
 def set_marker_to_max(inst):
     inst.write(":CALC:MARK1:MAX")
+
+
+def disable_ref_level_offset(inst):
+    inst.write(":DISP:WIND:TRAC:Y:RLEV:OFFS:STAT OFF")
+
+
+def get_trace_max(inst, trace_num=1):
+    data = inst.query(f":TRAC? TRACE{trace_num}").replace("\n", "")
+    data = data.split(",")
+    data = [float(d) for d in data]
+    return max(data)
 
 
 def get_ref_level(inst):
@@ -90,13 +97,6 @@ def get_ref_level(inst):
 
 def set_ref_level(inst, ref_level):
     inst.write(f":DISP:WIND:TRAC:Y:RLEV {ref_level}")
-
-
-def get_trace_max(inst, trace_num=1):
-    data = inst.query(f":TRAC? TRACE{trace_num}").replace("\n", "")
-    data = data.split(",")
-    data = [float(d) for d in data]
-    return max(data)
 
 
 def adjust_ref_level(inst):
@@ -144,9 +144,7 @@ def save_trace_and_screen(
     save_file_to_local(inst, csv_path, local_out_folder)
 
 
-def record_and_save(
-    inst, inst_out_folder, filename, local_out_folder, sweep_dur, set_ref_level
-):
+def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur):
     # TODO: probably want to get rid of this function an dreplace it with a "record" function
 
     # RECORD
@@ -157,8 +155,7 @@ def record_and_save(
 
     # ADJUST
     set_marker_to_max(inst)
-    if set_ref_level:
-        adjust_ref_level(inst)
+    adjust_ref_level(inst)
 
     # SAVE
     save_trace_and_screen(inst, filename, inst_out_folder, local_out_folder)
@@ -237,7 +234,6 @@ def run_band(inst, settings, band_key, run_filename, setup=True):
     inst_out_folder = settings["-INST OUT FOLDER-"]
     local_out_folder = settings["-LOCAL OUT FOLDER-"]
     sweep_dur = float(settings["-SWEEP DUR-"])
-    set_ref_level = settings["-SET REF LEVEL-"]
 
     # GET THE FILENAME AND CHECK FOR CONFLICTS
     error_message = validate_filename(inst, inst_out_folder, run_filename)
@@ -255,6 +251,5 @@ def run_band(inst, settings, band_key, run_filename, setup=True):
         run_filename,
         local_out_folder,
         sweep_dur,
-        set_ref_level=set_ref_level,
     )
     return error_message
