@@ -15,7 +15,7 @@ def get_window_layout(run_id):
     ]
     col2 = [
         [sg.Text("Run Note:")],
-        [sg.InputText(key=RUN_NOTE_KEY, size=(30, 1), enable_events=True)],
+        [sg.InputText(key=RUN_NOTE_KEY, size=(30, 1), enable_events=True, focus=True)],
     ]
     col3 = [
         [sg.Text("Band:")],
@@ -30,7 +30,11 @@ def get_window_layout(run_id):
         [sg.Column(col1), sg.Column(col2), sg.Column(col3), sg.Column(col4)],
         [sg.Text("Trace Filename:"), sg.Text("", key=RUN_FILENAME_CSV_KEY)],
         [sg.Text("Screen Filename:"), sg.Text("", key=RUN_FILENAME_PNG_KEY)],
-        [sg.Button("Ok"), sg.Button("Cancel")],
+        [
+            sg.Text("", expand_x=True),
+            sg.Button("Save", size=(10, 1)),
+            sg.Button("Cancel", size=(10, 1)),
+        ],
     ]
 
     return layout
@@ -51,15 +55,15 @@ def update_window(window, run_filename):
 
 def get_filename_from_user(run_id):
     layout = get_window_layout(run_id)
-    window = sg.Window("Create filename", layout, finalize=True)
-    window.bind("<Return>", "Ok")
+    window = sg.Window("Save Trace and Screen", layout, finalize=True)
+    window.bind("<Return>", "Save")
 
     while True:
         event, values = window.read()
         if event == RUN_NOTE_KEY or event == BAND_NAME_KEY:
             run_filename = get_filename(values)
             update_window(window, run_filename)
-        elif event == "Ok":
+        elif event == "Save":
             if values[RUN_NOTE_KEY].strip() == "":
                 sg.Popup("Please enter a Run Note")
             else:
