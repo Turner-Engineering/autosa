@@ -59,6 +59,23 @@ def validate_filename(inst, inst_out_folder, filename):
     return error_message
 
 
+# ONE LINERS
+def release_inst(inst):
+    inst.control_ren(pyvisa.constants.VI_GPIB_REN_DEASSERT_GTL)
+
+
+def recall_state(inst, state_folder, filename):
+    inst.write(f":MMEM:LOAD:STAT '{state_folder}/{filename}'")
+
+
+def recall_corr(inst, corr_folder, filename):
+    inst.write(f":MMEM:LOAD:CORR 1,'{corr_folder}/{filename}'")
+
+
+def set_coupling(inst, coupling):
+    inst.write(f":INP:COUP {coupling}")
+
+
 def run_start(inst):
     inst.write(":INIT:CONT ON")
 
@@ -71,12 +88,21 @@ def run_reset(inst):
     inst.write(":INIT:REST")
 
 
-def release_inst(inst):
-    inst.control_ren(pyvisa.constants.VI_GPIB_REN_DEASSERT_GTL)
-
-
 def set_marker_to_max(inst):
     inst.write(":CALC:MARK1:MAX")
+
+
+def save_trace(inst, csv_path):
+    inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csv_path}"')
+
+
+def set_ref_level(inst, ref_level):
+    inst.write(f":DISP:WIND:TRAC:Y:RLEV {ref_level}")
+
+
+def get_ref_level(inst):
+    ref_level = float(inst.query(":DISP:WIND:TRAC:Y:RLEV?").replace("\n", ""))
+    return ref_level
 
 
 def disable_ref_level_offset(inst):
@@ -88,15 +114,6 @@ def get_trace_max(inst, trace_num=1):
     data = data.split(",")
     data = [float(d) for d in data]
     return max(data)
-
-
-def get_ref_level(inst):
-    ref_level = float(inst.query(":DISP:WIND:TRAC:Y:RLEV?").replace("\n", ""))
-    return ref_level
-
-
-def set_ref_level(inst, ref_level):
-    inst.write(f":DISP:WIND:TRAC:Y:RLEV {ref_level}")
 
 
 def adjust_ref_level(inst):
@@ -138,7 +155,7 @@ def save_trace_and_screen(
     """
     csv_path = f"{inst_out_folder}/{filename}.csv"
     png_path = f"{inst_out_folder}/{filename}.png"
-    inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csv_path}"')
+    save_trace(inst, csv_path)
     save_screen(inst, png_path)
     save_file_to_local(inst, png_path, local_out_folder)
     save_file_to_local(inst, csv_path, local_out_folder)
@@ -162,16 +179,6 @@ def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur
     return
 
 
-def recall_state(inst, state_folder, filename):
-    inst.write(f":MMEM:LOAD:STAT '{state_folder}/{filename}'")
-    return
-
-
-def recall_corr(inst, corr_folder, filename):
-    inst.write(f":MMEM:LOAD:CORR 1,'{corr_folder}/{filename}'")
-    return
-
-
 def recall_cors(inst, corr_folder, filenames):
     for i in range(16):
         idx = i + 1
@@ -179,11 +186,6 @@ def recall_cors(inst, corr_folder, filenames):
     for i, filename in enumerate(filenames):
         inst.write(f":MMEM:LOAD:CORR {i+1},'{corr_folder}/{filename}'")
     return
-
-
-def set_coupling(inst, coupling):
-    inst.write(f":INP:COUP {coupling}")
-    # print(inst.query(f":INP:COUP?"))
 
 
 def create_run_filename(run_id, run_note, band_name, orientation):

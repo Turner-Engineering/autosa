@@ -148,8 +148,8 @@ I think correction files can be loaded into collection registers and state files
 
 ---
 
-- [ ] make sure state files are set up with 10s number y scale 20
-- [ ] Add auto marker positioning to manual mode
+- [x] make sure state files are set up with 10s number y scale 20
+- [x] Add auto marker positioning to manual mode
 - [ ] Add indicator to say when instrument is under remote control 10
 - [x] have trace closer to the top (don't leave 10 dB gap) 5
 - [x] Save screenshot in light mode, leave instrument in dark mode 10
@@ -162,8 +162,12 @@ I think correction files can be loaded into collection registers and state files
 - [ ] Have instructions to say that the state files should contain limit lines and BW
 - [ ] Have setting to have marker auto peak off (low priority)
 
-Aug 4 2023
+## Aug 4 2023
 
 Notes:
 
 - seems like USB-B 3.0 has some issues, recommend 2.0 till we can figure out what's going on
+
+### State File Ispector
+
+I think we want some kind of tool that says if the state files are set up correctly
