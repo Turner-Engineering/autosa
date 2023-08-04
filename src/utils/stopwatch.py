@@ -49,7 +49,6 @@ def main():
     stopwatch.start()
     # Do something...
     stopwatch.stop()
-    print(f"Elapsed time: {stopwatch.get_time()} seconds")
     stopwatch.reset()
 
 

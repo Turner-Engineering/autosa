@@ -355,7 +355,6 @@ def launch_settings_window(inst):
     settings_changed = False
     while True:
         event, values = window.read()
-        print(event)
         if event in (sg.WIN_CLOSED, "Cancel"):
             break
         if event == "-CORR FOLDER-":
