@@ -134,3 +134,36 @@ It seems statefiles are more capable than I thought. The statefile can store cou
 I think correction files can be loaded into collection registers and state files and select which registers are active for which state.
 
 - also the save screen config + state will save all the set up bands so that they don't have to be re-set up every time
+
+## August
+
+- [x] Don't record with ref level offset 10
+
+---
+
+- [ ] Have run note pop up as dialog in single band mode
+- [x] Manual start stop for custom duration (have popup for file name here too) 60
+- [x] "Save as is" button is good to have! 10
+- [x] Merge prep band mode into manual mode (want to prepare then run, then save, and repeat) 30
+
+---
+
+- [ ] make sure state files are set up with 10s number y scale 20
+- [ ] Add auto marker positioning to manual mode
+- [ ] Add indicator to say when instrument is under remote control 10
+- [x] have trace closer to the top (don't leave 10 dB gap) 5
+- [x] Save screenshot in light mode, leave instrument in dark mode 10
+- [x] Close settings window on right before taking screenshot 20
+- [x] Have a "release" tab / button to let go of the instrument and allow manual control 10
+
+---
+
+- [ ] Have a button to pull up all states in different tabs
+- [ ] Have instructions to say that the state files should contain limit lines and BW
+- [ ] Have setting to have marker auto peak off (low priority)
+
+Aug 4 2023
+
+Notes:
+
+- seems like USB-B 3.0 has some issues, recommend 2.0 till we can figure out what's going on
