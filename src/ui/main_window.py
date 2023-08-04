@@ -121,7 +121,7 @@ def get_single_band_section():
     return section
 
 
-def get_custom_mode_section():
+def get_manual_mode_section():
     record_and_save_button = sg.Button(
         "Record and Save",
         key="-RECORD AND SAVE-",
@@ -134,6 +134,22 @@ def get_custom_mode_section():
         size=RUN_BUTTON_PROPS["size"],
         font=RUN_BUTTON_PROPS["font"],
         button_color=("white", "dark green"),
+    )
+
+    start_stop_button = sg.Button(
+        "Start",
+        key="-START STOP-",
+        size=RUN_BUTTON_PROPS["size"],
+        font=RUN_BUTTON_PROPS["font"],
+        button_color=("white", "dark blue"),
+    )
+
+    reset_button = sg.Button(
+        "Reset",
+        key="-RESET-",
+        size=RUN_BUTTON_PROPS["size"],
+        font=RUN_BUTTON_PROPS["font"],
+        button_color=("white", "dark red"),
     )
 
     # arrange section 4 such that there are two rows for 4 buttons
@@ -150,7 +166,7 @@ def get_custom_mode_section():
                 expand_x=True,
             )
         ],
-        [save_button, record_and_save_button],
+        [start_stop_button, reset_button, save_button],
     ]
     return section
 
@@ -192,7 +208,7 @@ def get_defuault_layout():
 
     prep_band_section = get_prep_band_section()
 
-    custom_mode_section = get_custom_mode_section()
+    manual_mode_section = get_manual_mode_section()
 
     setup_layout = [
         [
@@ -207,7 +223,7 @@ def get_defuault_layout():
         sg.Tab("   Single Band Mode   ", single_band_section),
         sg.Tab("   Multi Band Mode   ", multi_band_section),
         sg.Tab("   Prep Band Mode   ", prep_band_section),
-        sg.Tab("   Custom Mode   ", custom_mode_section),
+        sg.Tab("   Manual Mode   ", manual_mode_section),
     ]
 
     tab_group_layout = [[sg.TabGroup([tabs], enable_events=True, key="-TAB GROUP-")]]

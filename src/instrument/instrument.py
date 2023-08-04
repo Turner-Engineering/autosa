@@ -60,6 +60,21 @@ def validate_filename(inst, inst_out_folder, filename):
     return error_message
 
 
+def run_start(inst):
+    inst.write(":INIT:CONT ON")
+    return
+
+
+def run_stop(inst):
+    inst.write(":INIT:CONT OFF")
+    return
+
+
+def run_reset(inst):
+    inst.write(":INIT:REST")
+    return
+
+
 def disable_ref_level_offset(inst):
     inst.write(":DISP:WIND:TRAC:Y:RLEV:OFFS:STAT OFF")
     return

@@ -11,6 +11,9 @@ from instrument.instrument import (
     prep_band,
     save_trace_and_screen,
     get_run_id,
+    run_start,
+    run_stop,
+    run_reset,
 )
 from ui.main_window import get_main_mindow, update_main_window
 from ui.settings_window import (
@@ -235,6 +238,19 @@ def main():
 
             save_trace_and_screen(inst, run_filename, inst_out_folder, local_out_folder)
             run_error_message = ""
+
+        if event == "-START STOP-" and main_window["-START STOP-"].GetText() == "Start":
+            print("start")
+            run_start(inst)
+            main_window["-START STOP-"].update(text="Stop")
+        elif (
+            event == "-START STOP-" and main_window["-START STOP-"].get_text() == "Stop"
+        ):
+            print("stop")
+            run_stop(inst)
+            main_window["-START STOP-"].update(text="Start")
+        elif event == "-RESET-":
+            run_reset(inst)
 
         if run_error_message != "":
             sg.popup_error(
