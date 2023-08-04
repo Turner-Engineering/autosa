@@ -17,10 +17,8 @@ def get_single_band_layout():
             )
         ],
         [sg.Text("")],
-        [sg.Text("Monopole Bands:", expand_x=True, font="Any 15")],
+        [sg.Text("Prepare, Record, and Save:", expand_x=True, font="Any 15")],
         monopole_buttons,
-        [sg.Text("")],
-        [sg.Text("Bilogical Bands:", expand_x=True, font="Any 15")],
         bilogical_buttons_h,
         bilogical_buttons_v,
     ]
