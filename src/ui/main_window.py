@@ -10,7 +10,7 @@ SETTINGS_VALIDITY_KEY = "-SETTINGS VALIDITY-"
 INST_FOUND_INFO_KEY = "-INST INFO-"
 
 
-def get_top_section():
+def get_top_layout():
     return [
         [
             sg.Text("Autosa by Tenco", font=("", 15)),
@@ -38,7 +38,7 @@ def get_release_layout():
 
 
 def get_defuault_layout():
-    top_section = get_top_section()
+    top_section = get_top_layout()
 
     multi_band_layout = get_multi_band_layout()
 
