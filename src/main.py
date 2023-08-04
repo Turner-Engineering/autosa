@@ -15,7 +15,7 @@ from instrument.instrument import (
     run_stop,
     run_reset,
 )
-from ui.main_window import get_main_mindow, update_main_window
+from ui.main_window import get_main_mindow, update_main_window, update_start_stop_button
 from ui.settings_window import (
     launch_settings_window,
     validate_settings,
@@ -24,6 +24,7 @@ from ui.settings_window import (
 )
 
 from ui.get_filename_from_user import get_filename_from_user
+from utils.stopwatch import Stopwatch
 
 
 def handle_py_visa_error(e):
@@ -62,6 +63,13 @@ def validate_band_range(values):
     if values["-BAND RANGE-"] == "":
         return False
     return True
+
+
+def update_stopwatch_time(main_window, stopwatch):
+    main_window["-STOPWATCH TIME-"].update(
+        stopwatch.get_time_str(),
+        text_color="black" if stopwatch.get_time() == 0 else "green",
+    )
 
 
 def handle_settings_event(inst, inst_found, main_window, inst_info):
@@ -159,9 +167,10 @@ def main():
 
     inst, inst_found = get_inst()
     main_window = get_main_mindow(inst_found, "", "")
+    stopwatch = Stopwatch()
 
     while True:
-        timeout = 500 if inst_found else 200
+        timeout = 50 if inst_found else 200
 
         # without timeout, code pauses here and waits for event
         event, values = main_window.read(timeout=timeout)
@@ -183,6 +192,7 @@ def main():
 
         run_error_message = ""
         settings = sg.user_settings()
+        update_stopwatch_time(main_window, stopwatch)
 
         main_window["-RUN-"].update(disabled=not validate_band_range(values))
         if event == "-RUN-":
@@ -239,18 +249,25 @@ def main():
             save_trace_and_screen(inst, run_filename, inst_out_folder, local_out_folder)
             run_error_message = ""
 
-        if event == "-START STOP-" and main_window["-START STOP-"].GetText() == "Start":
-            print("start")
+        start_stop_state = main_window["-START STOP-"].metadata
+        if event == "-START STOP-" and start_stop_state == "Start":
             run_start(inst)
-            main_window["-START STOP-"].update(text="Stop")
-        elif (
-            event == "-START STOP-" and main_window["-START STOP-"].get_text() == "Stop"
-        ):
-            print("stop")
+            stopwatch.start()
+            main_window["-STOPWATCH START TIME-"].update(stopwatch.get_start_time_str())
+            update_stopwatch_time(main_window, stopwatch)
+            update_start_stop_button(main_window, "Stop")
+
+        elif event == "-START STOP-" and start_stop_state == "Stop":
             run_stop(inst)
-            main_window["-START STOP-"].update(text="Start")
+            stopwatch.stop()
+            update_stopwatch_time(main_window, stopwatch)
+            update_start_stop_button(main_window, "Start")
+
         elif event == "-RESET-":
+            run_stop(inst)
             run_reset(inst)
+            stopwatch.reset()
+            update_start_stop_button(main_window, "Start")
 
         if run_error_message != "":
             sg.popup_error(

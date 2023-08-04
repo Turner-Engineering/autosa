@@ -129,27 +129,25 @@ def get_manual_mode_section():
     )
 
     save_button = sg.Button(
-        "Save",
         key="-SAVE TRACE AND SCREEN-",
-        size=RUN_BUTTON_PROPS["size"],
-        font=RUN_BUTTON_PROPS["font"],
-        button_color=("white", "dark green"),
+        image_filename="../images/save-purple.png",
+        image_size=(60, 60),
+        image_subsample=10,
     )
 
     start_stop_button = sg.Button(
-        "Start",
         key="-START STOP-",
-        size=RUN_BUTTON_PROPS["size"],
-        font=RUN_BUTTON_PROPS["font"],
-        button_color=("white", "dark blue"),
+        image_filename="../images/play-green.png",
+        image_size=(60, 60),
+        image_subsample=10,
+        metadata="Start",
     )
 
     reset_button = sg.Button(
-        "Reset",
         key="-RESET-",
-        size=RUN_BUTTON_PROPS["size"],
-        font=RUN_BUTTON_PROPS["font"],
-        button_color=("white", "dark red"),
+        image_filename="../images/reset-blue.png",
+        image_size=(60, 60),
+        image_subsample=10,
     )
 
     # arrange section 4 such that there are two rows for 4 buttons
@@ -167,8 +165,30 @@ def get_manual_mode_section():
             )
         ],
         [start_stop_button, reset_button, save_button],
+        [
+            sg.Text(
+                "0:00.0", size=(20, 1), key="-STOPWATCH TIME-", font=("Any", 45, "bold")
+            )
+        ],
+        [
+            sg.Text("Last Start Time: ", font="Any 12"),
+            sg.Text("None", key="-STOPWATCH START TIME-", font="Any 12"),
+        ],
     ]
     return section
+
+
+def update_start_stop_button(main_window, state):
+    main_window["-START STOP-"].metadata = state
+    if state == "Start":
+        filename = "../images/play-green.png"
+    elif state == "Stop":
+        filename = "../images/pause-red.png"
+    main_window["-START STOP-"].update(
+        image_filename=filename,
+        image_size=(60, 60),
+        image_subsample=10,
+    )
 
 
 def get_prep_band_section():
@@ -220,10 +240,10 @@ def get_defuault_layout():
     ]
 
     tabs = [
+        sg.Tab("   Manual Mode   ", manual_mode_section),
+        sg.Tab("   Prep Band Mode   ", prep_band_section),
         sg.Tab("   Single Band Mode   ", single_band_section),
         sg.Tab("   Multi Band Mode   ", multi_band_section),
-        sg.Tab("   Prep Band Mode   ", prep_band_section),
-        sg.Tab("   Manual Mode   ", manual_mode_section),
     ]
 
     tab_group_layout = [[sg.TabGroup([tabs], enable_events=True, key="-TAB GROUP-")]]
