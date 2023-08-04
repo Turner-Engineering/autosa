@@ -1,5 +1,4 @@
 import time
-import math
 
 import pyvisa
 
@@ -80,6 +79,10 @@ def release_inst(inst):
     inst.control_ren(pyvisa.constants.VI_GPIB_REN_DEASSERT_GTL)
 
 
+def set_marker_to_max(inst):
+    inst.write(":CALC:MARK1:MAX")
+
+
 def get_ref_level(inst):
     ref_level = float(inst.query(":DISP:WIND:TRAC:Y:RLEV?").replace("\n", ""))
     return ref_level
@@ -89,7 +92,15 @@ def set_ref_level(inst, ref_level):
     inst.write(f":DISP:WIND:TRAC:Y:RLEV {ref_level}")
 
 
-def set_ref_level_to_show_max(inst, trace_max):
+def get_trace_max(inst, trace_num=1):
+    data = inst.query(f":TRAC? TRACE{trace_num}").replace("\n", "")
+    data = data.split(",")
+    data = [float(d) for d in data]
+    return max(data)
+
+
+def adjust_ref_level(inst):
+    trace_max = get_trace_max(inst)
     ref_level = get_ref_level(inst)
     if trace_max > ref_level:
         new_ref_level = round(trace_max / 10) * 10
@@ -145,10 +156,9 @@ def record_and_save(
     inst.write(":INIT:CONT OFF")
 
     # ADJUST
-    inst.write(":CALC:MARK1:MAX")
+    set_marker_to_max(inst)
     if set_ref_level:
-        trace_max = float(inst.query(":CALC:MARK1:Y?").replace("\n", ""))
-        set_ref_level_to_show_max(inst, trace_max)
+        adjust_ref_level(inst)
 
     # SAVE
     save_trace_and_screen(inst, filename, inst_out_folder, local_out_folder)
