@@ -120,7 +120,8 @@ def save_trace_and_screen(
 def record_and_save(
     inst, inst_out_folder, filename, local_out_folder, sweep_dur, set_ref_level
 ):
-    # and this version which just does the measurement and saving
+    # TODO: probably want to get rid of this function an dreplace it with a "record" function
+
     # RECORD
     inst.write(":INIT:REST")
     inst.write(":INIT:CONT ON")
