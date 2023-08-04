@@ -39,11 +39,7 @@ def get_manual_mode_layout():
         bilogical_buttons,
         [sg.Text("Record and Save:", expand_x=True, font="Any 15")],
         [start_stop_button, reset_button, save_button],
-        [
-            sg.Text(
-                "0:00.0", size=(20, 1), key="-STOPWATCH TIME-", font=("Any", 45, "bold")
-            )
-        ],
+        [sg.Text("0:00.0", key="-STOPWATCH TIME-", font=("Any", 45, "bold"))],
         [
             sg.Text("Last Start Time: ", font="Any 12"),
             sg.Text("None", key="-STOPWATCH START TIME-", font=("Any", 12, "bold")),
