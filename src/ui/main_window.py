@@ -1,6 +1,8 @@
 import PySimpleGUI as sg
 from ui.manual_mode import get_manual_mode_layout
-from ui.run_buttons import get_band_button, RUN_BUTTON_PROPS, BAND_KEYS
+from ui.run_buttons import BAND_KEYS
+from ui.single_band_mode import get_single_band_layout
+from ui.multi_band_mode import get_multi_band_layout
 
 INST_FOUND_KEY = "-INST FOUND-"
 INST_NOT_FOUND_KEY = "-INST NOT FOUND-"
@@ -8,8 +10,13 @@ SETTINGS_VALIDITY_KEY = "-SETTINGS VALIDITY-"
 INST_FOUND_INFO_KEY = "-INST INFO-"
 
 
-def get_section1():
+def get_top_section():
     return [
+        [
+            sg.Text("Autosa by Tenco", font=("", 15)),
+            sg.Text("", expand_x=True),  # This will push the button to the right
+            sg.B("Settings", button_color=("black", "light gray"), size=(10, 2)),
+        ],
         [sg.Text("", text_color="green", key=INST_FOUND_INFO_KEY, expand_x=True)],
         [sg.Text("", text_color="green", key=SETTINGS_VALIDITY_KEY, expand_x=True)],
         [
@@ -21,96 +28,14 @@ def get_section1():
     ]
 
 
-def get_multi_band_section():
-    return [
-        [
-            sg.Text(
-                "Multi-Band mode allows you to run multiple bands in a row with no intervention.",
-                expand_x=True,
-            )
-        ],
-        [
-            sg.Text(
-                "State files, correction files, and file names are set automatically.",
-                expand_x=True,
-            )
-        ],
-        [
-            sg.Text("Band Range:"),
-            sg.OptionMenu(
-                key="-BAND RANGE-",
-                values=["B0 - B4 (monopole)", "B5 - B7 (bilogical)"],
-                background_color="white",
-                default_value="B0 - B4 (monopole)",
-            ),
-        ],
-        [
-            sg.Text("Orientation:"),
-            sg.OptionMenu(
-                key="-ORIENTATION-",
-                values=["Horizontal", "Vertical"],
-                default_value="Horizontal",
-                disabled=True,
-            ),
-        ],
-        [
-            sg.Button(
-                "Run Sweeps",
-                disabled=True,
-                key="-RUN-",
-                **RUN_BUTTON_PROPS,
-            )
-        ],
-        [
-            sg.ProgressBar(
-                1, orientation="h", size=(60, 20), key="-PROGRESS-", expand_x=True
-            )
-        ],
-    ]
-
-
-def get_single_band_section():
-    monopole_buttons = [get_band_button(bk) for bk in BAND_KEYS[0:5]]
-    bilogical_buttons_h = [get_band_button(bk, "h") for bk in BAND_KEYS[5:8]]
-    bilogical_buttons_v = [get_band_button(bk, "v") for bk in BAND_KEYS[5:8]]
-
-    # arrange section 4 such that there are two rows for 4 buttons
-    section = [
-        [sg.Text("Single Band Mode lets you run one band at a time.", expand_x=True)],
-        [
-            sg.Text(
-                "State files, correction files, and file names are set automatically.",
-                expand_x=True,
-            )
-        ],
-        [sg.Text("")],
-        [sg.Text("Monopole Bands:", expand_x=True, font="Any 15")],
-        monopole_buttons,
-        [sg.Text("")],
-        [sg.Text("Bilogical Bands:", expand_x=True, font="Any 15")],
-        bilogical_buttons_h,
-        bilogical_buttons_v,
-    ]
-    return section
-
-
 def get_defuault_layout():
-    section1 = get_section1()
+    top_section = get_top_section()
 
-    multi_band_section = get_multi_band_section()
+    multi_band_section = get_multi_band_layout()
 
-    single_band_section = get_single_band_section()
+    single_band_section = get_single_band_layout()
 
     manual_mode_section = get_manual_mode_layout()
-
-    setup_layout = [
-        [
-            sg.Text("Autosa by Tenco", font=("", 15)),
-            sg.Text("", expand_x=True),  # This will push the button to the right
-            sg.B("Settings", button_color=("black", "light gray"), size=(10, 2)),
-        ],
-        *section1,
-    ]
 
     tabs = [
         sg.Tab("   Manual Mode   ", manual_mode_section),
@@ -120,7 +45,7 @@ def get_defuault_layout():
 
     tab_group_layout = [[sg.TabGroup([tabs], enable_events=True, key="-TAB GROUP-")]]
 
-    layout = setup_layout + tab_group_layout
+    layout = top_section + tab_group_layout
 
     return layout
 
