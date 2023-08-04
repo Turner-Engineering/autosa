@@ -133,7 +133,7 @@ def get_custom_mode_section():
         key="-SAVE TRACE AND SCREEN-",
         size=RUN_BUTTON_PROPS["size"],
         font=RUN_BUTTON_PROPS["font"],
-        button_color=("white", "dark green")
+        button_color=("white", "dark green"),
     )
 
     # arrange section 4 such that there are two rows for 4 buttons

@@ -73,9 +73,7 @@ def get_ref_level(inst):
 def set_ref_level_to_show_max(inst, trace_max):
     ref_level = get_ref_level(inst)
     if trace_max > ref_level:
-        new_ref_level = math.ceil(trace_max / 10) * 10
-        if new_ref_level - trace_max < 2:
-            new_ref_level += 10
+        new_ref_level = round(trace_max / 10) * 10
         inst.write(f":DISP:WIND:TRAC:Y:RLEV {new_ref_level}")
 
 
