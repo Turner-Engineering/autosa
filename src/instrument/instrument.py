@@ -225,7 +225,7 @@ def prep_band(inst, settings, band_key):
     return error_message
 
 
-def run_band(inst, settings, band_key, run_filename, setup=True):
+def run_band(inst, settings, band_key, run_filename, save=True):
     inst_out_folder = settings["-INST OUT FOLDER-"]
     local_out_folder = settings["-LOCAL OUT FOLDER-"]
     sweep_dur = float(settings["-SWEEP DUR-"])
@@ -236,8 +236,7 @@ def run_band(inst, settings, band_key, run_filename, setup=True):
         return error_message
 
     # PREPARE THE INSTRUMENT
-    if setup:
-        error_message = prep_band(inst, settings, band_key)
+    error_message = prep_band(inst, settings, band_key)
 
     # RECORD, ADJUST, AND SAVE
     record_and_adjust(inst, sweep_dur)

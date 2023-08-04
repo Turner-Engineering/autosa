@@ -83,24 +83,6 @@ def handle_settings_event(inst, inst_found, main_window, inst_info):
         update_main_window(main_window, inst_found, inst_info, settings_error)
 
 
-def run_record_and_save(inst, settings):
-    band_key = sg.popup_get_text(
-        "Enter band name (e.g. B3, B5h, B7v):",
-        title="Band Name",
-    )
-    if band_key == None:
-        return ""
-    bad_chars = [" ", ",", ";", ":", "\\", "/", "*", "?", '"', "<", ">", "|"]
-    bad_band_key = any([char in band_key for char in bad_chars])
-    if bad_band_key:
-        return "Invalid filename"
-
-    run_filename = get_run_filename(inst, settings, band_key)
-
-    error_message = run_band(inst, settings, band_key, run_filename, setup=False)
-    return error_message
-
-
 def run_single_band(inst, settings, band_key, orientation):
     # difference between this and run band is this one confirms the filename
     # READ SETTINGS
@@ -244,9 +226,6 @@ def main():
             stopwatch.reset()
             update_stopwatch_time(main_window, stopwatch)
             update_start_stop_button(main_window, "Start")
-
-        if event == "-RECORD AND SAVE-":
-            run_error_message = run_record_and_save(inst, settings)
 
         if event == "-SAVE TRACE AND SCREEN-":
             run_id = get_run_id(inst, settings["-INST OUT FOLDER-"])
