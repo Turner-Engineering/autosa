@@ -228,6 +228,8 @@ def main():
         if event == "-SAVE TRACE AND SCREEN-":
             run_id = get_run_id(inst, settings["-INST OUT FOLDER-"])
             run_filename = get_filename_from_user(run_id)
+            if run_filename == None:
+                continue
             inst_out_folder = settings["-INST OUT FOLDER-"]
             local_out_folder = settings["-LOCAL OUT FOLDER-"]
 

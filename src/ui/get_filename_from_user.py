@@ -59,11 +59,14 @@ def get_filename_from_user(run_id):
             run_filename = get_filename(values)
             update_window(window, run_filename)
         elif event == "Ok":
-            run_filename = get_filename(values)
-            window.close()
-            break
+            if values[RUN_NOTE_KEY].strip() == "":
+                sg.Popup("Please enter a Run Note")
+            else:
+                run_filename = get_filename(values)
+                break
         elif event == sg.WINDOW_CLOSED or event == "Cancel":
-            window.close()
+            run_filename = None
             break
 
+    window.close()
     return run_filename
