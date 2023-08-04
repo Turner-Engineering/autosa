@@ -161,10 +161,7 @@ def save_trace_and_screen(
     save_file_to_local(inst, csv_path, local_out_folder)
 
 
-def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur):
-    # TODO: probably want to get rid of this function an dreplace it with a "record" function
-
-    # RECORD
+def record_and_adjust(inst, sweep_dur):
     inst.write(":INIT:REST")
     inst.write(":INIT:CONT ON")
     time.sleep(sweep_dur)
@@ -173,10 +170,6 @@ def record_and_save(inst, inst_out_folder, filename, local_out_folder, sweep_dur
     # ADJUST
     set_marker_to_max(inst)
     adjust_ref_level(inst)
-
-    # SAVE
-    save_trace_and_screen(inst, filename, inst_out_folder, local_out_folder)
-    return
 
 
 def recall_cors(inst, corr_folder, filenames):
@@ -246,12 +239,8 @@ def run_band(inst, settings, band_key, run_filename, setup=True):
     if setup:
         error_message = prep_band(inst, settings, band_key)
 
-    # RECORD AND SAVE
-    record_and_save(
-        inst,
-        inst_out_folder,
-        run_filename,
-        local_out_folder,
-        sweep_dur,
-    )
+    # RECORD, ADJUST, AND SAVE
+    record_and_adjust(inst, sweep_dur)
+    save_trace_and_screen(inst, run_filename, inst_out_folder, local_out_folder)
+
     return error_message
