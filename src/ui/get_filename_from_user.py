@@ -51,7 +51,8 @@ def update_window(window, run_filename):
 
 def get_filename_from_user(run_id):
     layout = get_window_layout(run_id)
-    window = sg.Window("Create filename", layout)
+    window = sg.Window("Create filename", layout, finalize=True)
+    window.bind("<Return>", "Ok")
 
     while True:
         event, values = window.read()
