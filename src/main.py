@@ -15,6 +15,8 @@ from instrument.instrument import (
     run_stop,
     run_reset,
     release_inst,
+    set_marker_to_max,
+    adjust_ref_level,
 )
 from ui.main_window import get_main_mindow, update_main_window
 from ui.manual_mode import update_start_stop_button
@@ -267,6 +269,8 @@ def main():
 
         elif event == "-START STOP-" and start_stop_state == "Stop":
             run_stop(inst)
+            set_marker_to_max(inst)
+            adjust_ref_level(inst)
             stopwatch.stop()
             update_start_stop_button(main_window, "Start")
             update_stopwatch_time(main_window, stopwatch)
