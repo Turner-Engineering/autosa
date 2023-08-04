@@ -1,27 +1,11 @@
 import PySimpleGUI as sg
+from ui.manual_mode import get_manual_mode_layout
+from ui.run_buttons import get_band_button, RUN_BUTTON_PROPS, BAND_KEYS
 
 INST_FOUND_KEY = "-INST FOUND-"
 INST_NOT_FOUND_KEY = "-INST NOT FOUND-"
 SETTINGS_VALIDITY_KEY = "-SETTINGS VALIDITY-"
 INST_FOUND_INFO_KEY = "-INST INFO-"
-
-BUTTON_DETAILS = [
-    {"band": "B0", "freqs": "10 kHz - 160 kHz"},
-    {"band": "B1", "freqs": "150 kHz - 650 kHz"},
-    {"band": "B2", "freqs": "500 kHz - 3 MHz"},
-    {"band": "B3", "freqs": "2.5 MHz - 7.5 MHz"},
-    {"band": "B4", "freqs": "5 MHz - 30 MHz"},
-    {"band": "B5", "freqs": "25 MHz - 325 MHz"},
-    {"band": "B6", "freqs": "300 MHz - 1.3 GHz"},
-    {"band": "B7", "freqs": "1 GHz - 6 GHz"},
-]
-
-
-RUN_BUTTON_PROPS = {
-    "font": "Any 15",
-    "button_color": ("white", "dark blue"),
-    "size": (15, 2),
-}
 
 
 def get_section1():
@@ -85,21 +69,10 @@ def get_multi_band_section():
     ]
 
 
-def get_band_button(band_key, orientation="", key_prefix="SINGLE_BAND"):
-    return sg.Button(
-        band_key + orientation,
-        key=f"-{key_prefix} {band_key} {orientation}-",
-        font=RUN_BUTTON_PROPS["font"],
-        button_color=RUN_BUTTON_PROPS["button_color"],
-        size=(12, 2),
-        expand_x=True,
-    )
-
-
 def get_single_band_section():
-    monopole_buttons = [get_band_button(b["band"]) for b in BUTTON_DETAILS[0:5]]
-    bilogical_buttons_h = [get_band_button(b["band"], "h") for b in BUTTON_DETAILS[5:8]]
-    bilogical_buttons_v = [get_band_button(b["band"], "v") for b in BUTTON_DETAILS[5:8]]
+    monopole_buttons = [get_band_button(bk) for bk in BAND_KEYS[0:5]]
+    bilogical_buttons_h = [get_band_button(bk, "h") for bk in BAND_KEYS[5:8]]
+    bilogical_buttons_v = [get_band_button(bk, "v") for bk in BAND_KEYS[5:8]]
 
     # arrange section 4 such that there are two rows for 4 buttons
     section = [
@@ -121,104 +94,6 @@ def get_single_band_section():
     return section
 
 
-def get_manual_mode_section():
-    record_and_save_button = sg.Button(
-        "Record and Save",
-        key="-RECORD AND SAVE-",
-        **RUN_BUTTON_PROPS,
-    )
-
-    save_button = sg.Button(
-        key="-SAVE TRACE AND SCREEN-",
-        image_filename="../images/save-purple.png",
-        image_size=(60, 60),
-        image_subsample=10,
-    )
-
-    start_stop_button = sg.Button(
-        key="-START STOP-",
-        image_filename="../images/play-green.png",
-        image_size=(60, 60),
-        image_subsample=10,
-        metadata="Start",
-    )
-
-    reset_button = sg.Button(
-        key="-RESET-",
-        image_filename="../images/reset-blue.png",
-        image_size=(60, 60),
-        image_subsample=10,
-    )
-
-    # arrange section 4 such that there are two rows for 4 buttons
-    section = [
-        [
-            sg.Text(
-                "Record and Save will record a sweep using the current instrument settings as set up by the user.\n\n",
-                expand_x=True,
-            )
-        ],
-        [
-            sg.Text(
-                "It will not load state files or correction files. This is helpful for customized runs.",
-                expand_x=True,
-            )
-        ],
-        [start_stop_button, reset_button, save_button],
-        [
-            sg.Text(
-                "0:00.0", size=(20, 1), key="-STOPWATCH TIME-", font=("Any", 45, "bold")
-            )
-        ],
-        [
-            sg.Text("Last Start Time: ", font="Any 12"),
-            sg.Text("None", key="-STOPWATCH START TIME-", font="Any 12"),
-        ],
-    ]
-    return section
-
-
-def update_start_stop_button(main_window, state):
-    main_window["-START STOP-"].metadata = state
-    if state == "Start":
-        filename = "../images/play-green.png"
-    elif state == "Stop":
-        filename = "../images/pause-red.png"
-    main_window["-START STOP-"].update(
-        image_filename=filename,
-        image_size=(60, 60),
-        image_subsample=10,
-    )
-
-
-def get_prep_band_section():
-    prefix = "PREP_BAND"
-    monopole_buttons = [
-        get_band_button(b["band"], key_prefix=prefix) for b in BUTTON_DETAILS[0:5]
-    ]
-    bilogical_buttons = [
-        get_band_button(b["band"], key_prefix=prefix) for b in BUTTON_DETAILS[5:8]
-    ]
-
-    # arrange section 4 such that there are two rows for 4 buttons
-    section = [
-        [
-            sg.Text(
-                "Prepare Band Mode lets you set up the instrument to run a band without recording any data.",
-                expand_x=True,
-            )
-        ],
-        [sg.Text("State files and correction files are set.", expand_x=True)],
-        [sg.Text("")],
-        [sg.Text("Monopole Bands:", expand_x=True, font="Any 15")],
-        monopole_buttons,
-        [sg.Text("")],
-        [sg.Text("Bilogical Bands:", expand_x=True, font="Any 15")],
-        bilogical_buttons,
-    ]
-    return section
-
-
 def get_defuault_layout():
     section1 = get_section1()
 
@@ -226,9 +101,7 @@ def get_defuault_layout():
 
     single_band_section = get_single_band_section()
 
-    prep_band_section = get_prep_band_section()
-
-    manual_mode_section = get_manual_mode_section()
+    manual_mode_section = get_manual_mode_layout()
 
     setup_layout = [
         [
@@ -241,7 +114,6 @@ def get_defuault_layout():
 
     tabs = [
         sg.Tab("   Manual Mode   ", manual_mode_section),
-        sg.Tab("   Prep Band Mode   ", prep_band_section),
         sg.Tab("   Single Band Mode   ", single_band_section),
         sg.Tab("   Multi Band Mode   ", multi_band_section),
     ]
@@ -257,9 +129,9 @@ def set_band_button_disabled(window, disabled):
     disabled_color = ("white", "grey")
     enabled_color = ("white", "dark blue")
     button_color = disabled_color if disabled else enabled_color
-    for b in BUTTON_DETAILS:
-        window[f"-BUTTON {b['band']}-"].update(disabled=disabled)
-        window[f"-BUTTON {b['band']}-"].update(button_color=button_color)
+    for bk in BAND_KEYS:
+        window[f"-BUTTON {bk}-"].update(disabled=disabled)
+        window[f"-BUTTON {bk}-"].update(button_color=button_color)
 
 
 def get_inst_not_found_layout():

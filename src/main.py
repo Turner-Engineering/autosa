@@ -15,7 +15,8 @@ from instrument.instrument import (
     run_stop,
     run_reset,
 )
-from ui.main_window import get_main_mindow, update_main_window, update_start_stop_button
+from ui.main_window import get_main_mindow, update_main_window
+from ui.manual_mode import update_start_stop_button
 from ui.settings_window import (
     launch_settings_window,
     validate_settings,
@@ -234,6 +235,7 @@ def main():
             items = event.split("-")[1].split(" ")
             band_key, orientation = items[1], items[2]
             run_error_message = prep_band(inst, settings, band_key)
+            main_window["-LAST BAND PREPARED-"].update(band_key)
 
         if event == "-RECORD AND SAVE-":
             run_error_message = run_record_and_save(inst, settings)
