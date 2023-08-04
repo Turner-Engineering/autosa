@@ -85,11 +85,21 @@ def get_ref_level(inst):
     return ref_level
 
 
+def set_ref_level(inst, ref_level):
+    inst.write(f":DISP:WIND:TRAC:Y:RLEV {ref_level}")
+
+
 def set_ref_level_to_show_max(inst, trace_max):
     ref_level = get_ref_level(inst)
     if trace_max > ref_level:
         new_ref_level = round(trace_max / 10) * 10
-        inst.write(f":DISP:WIND:TRAC:Y:RLEV {new_ref_level}")
+        set_ref_level(inst, new_ref_level)
+
+
+def round_ref_level(inst):
+    ref_level = get_ref_level(inst)
+    new_ref_level = round(ref_level / 10) * 10
+    set_ref_level(inst, new_ref_level)
 
 
 def rename_screen(inst, new_name):
@@ -205,6 +215,7 @@ def prep_band(inst, settings, band_key):
         recall_cors(inst, corr_folder, corr_filenames)
         rename_screen(inst, band_key)
         disable_ref_level_offset(inst)
+        round_ref_level(inst)
         inst.write(":INIT:REST")
         release_inst(inst)
     except Exception as e:
