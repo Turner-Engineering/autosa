@@ -103,6 +103,12 @@ def rename_screen(inst, new_name):
         inst.write(f":INST:SCR:REN '{new_name}'")
 
 
+def save_screen(inst, png_path):
+    inst.write(":DISP:FSCR:STAT ON")  # set to full screen
+    inst.write(":MMEM:STOR:SCR:THEM OUTL")  # set to light mode
+    inst.write(f':MMEM:STOR:SCR "{png_path}"')  # save screen
+
+
 def save_trace_and_screen(
     inst, filename: str, inst_out_folder: str, local_out_folder: str
 ):
@@ -117,7 +123,7 @@ def save_trace_and_screen(
     csv_path = f"{inst_out_folder}/{filename}.csv"
     png_path = f"{inst_out_folder}/{filename}.png"
     inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csv_path}"')
-    inst.write(f':MMEM:STOR:SCR "{png_path}"')
+    save_screen(inst, png_path)
     save_file_to_local(inst, png_path, local_out_folder)
     save_file_to_local(inst, csv_path, local_out_folder)
 
