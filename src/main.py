@@ -239,6 +239,9 @@ def main():
             band_key, orientation = items[1], items[2]
             run_error_message = prep_band(inst, settings, band_key)
             main_window["-LAST BAND PREPARED-"].update(band_key)
+            stopwatch.reset()
+            update_stopwatch_time(main_window, stopwatch)
+            update_start_stop_button(main_window, "Start")
 
         if event == "-RECORD AND SAVE-":
             run_error_message = run_record_and_save(inst, settings)
