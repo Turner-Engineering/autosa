@@ -5,18 +5,18 @@ import pyvisa
 
 from instrument.instrument import (
     get_inst,
+    get_run_id,
     get_inst_info,
     get_run_filename,
-    run_band,
     prep_band,
-    save_trace_and_screen,
-    get_run_id,
+    run_band,
     run_start,
     run_stop,
     run_reset,
     release_inst,
     set_marker_to_max,
     adjust_ref_level,
+    save_trace_and_screen,
 )
 from ui.main_window import get_main_mindow, update_main_window
 from ui.manual_mode import update_start_stop_button
@@ -84,19 +84,18 @@ def handle_settings_event(inst, inst_found, main_window, inst_info):
 
 
 def run_single_band(inst, settings, band_key, orientation):
-    # difference between this and run band is this one confirms the filename
-    # READ SETTINGS
-    run_filename = get_run_filename(inst, settings, band_key, orientation)
+    # PREPARE, RECORD, ADJUST
+    error_message = run_band(inst, settings, band_key, "", save=False)
 
-    # CONFIRMATION
-    confirmation = sg.popup_ok_cancel(
-        f'Confirm run filename:\n\n"{run_filename}"',
-        title="Confirm Run",
-    )
-    if confirmation != "OK":
-        return ""
+    # GET FILENAME
+    run_id = get_run_id(inst, settings["-INST OUT FOLDER-"])
+    run_filename = get_filename_from_user(run_id, band_key, orientation)
 
-    error_message = run_band(inst, settings, band_key, run_filename)
+    # SAVE
+    if run_filename != None:
+        inst_out_folder = settings["-INST OUT FOLDER-"]
+        local_out_folder = settings["-LOCAL OUT FOLDER-"]
+        save_trace_and_screen(inst, run_filename, inst_out_folder, local_out_folder)
     return error_message
 
 

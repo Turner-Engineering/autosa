@@ -231,15 +231,17 @@ def run_band(inst, settings, band_key, run_filename, save=True):
     sweep_dur = float(settings["-SWEEP DUR-"])
 
     # GET THE FILENAME AND CHECK FOR CONFLICTS
-    error_message = validate_filename(inst, inst_out_folder, run_filename)
-    if error_message != "":
-        return error_message
+    if save:
+        error_message = validate_filename(inst, inst_out_folder, run_filename)
+        if error_message != "":
+            return error_message
 
     # PREPARE THE INSTRUMENT
     error_message = prep_band(inst, settings, band_key)
 
     # RECORD, ADJUST, AND SAVE
     record_and_adjust(inst, sweep_dur)
-    save_trace_and_screen(inst, run_filename, inst_out_folder, local_out_folder)
+    if save:
+        save_trace_and_screen(inst, run_filename, inst_out_folder, local_out_folder)
 
     return error_message
