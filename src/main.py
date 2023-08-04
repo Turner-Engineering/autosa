@@ -262,20 +262,21 @@ def main():
             run_start(inst)
             stopwatch.start()
             main_window["-STOPWATCH START TIME-"].update(stopwatch.get_start_time_str())
-            update_stopwatch_time(main_window, stopwatch)
             update_start_stop_button(main_window, "Stop")
+            update_stopwatch_time(main_window, stopwatch)
 
         elif event == "-START STOP-" and start_stop_state == "Stop":
             run_stop(inst)
             stopwatch.stop()
-            update_stopwatch_time(main_window, stopwatch)
             update_start_stop_button(main_window, "Start")
+            update_stopwatch_time(main_window, stopwatch)
 
         elif event == "-RESET-":
             run_stop(inst)
             run_reset(inst)
             stopwatch.reset()
             update_start_stop_button(main_window, "Start")
+            update_stopwatch_time(main_window, stopwatch)
 
         if run_error_message != "":
             sg.popup_error(
