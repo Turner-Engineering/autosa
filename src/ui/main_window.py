@@ -28,19 +28,31 @@ def get_top_section():
     ]
 
 
+def get_release_layout():
+    text1 = "Instrument Released!"
+    text2 = "You can now control the instrument using the front panel."
+    return [
+        [sg.Text(text1, font=("Any", 40, "bold"), expand_x=True, text_color="green")],
+        [sg.Text(text2, font=("", 20), expand_x=True)],
+    ]
+
+
 def get_defuault_layout():
     top_section = get_top_section()
 
-    multi_band_section = get_multi_band_layout()
+    multi_band_layout = get_multi_band_layout()
 
-    single_band_section = get_single_band_layout()
+    single_band_layout = get_single_band_layout()
 
-    manual_mode_section = get_manual_mode_layout()
+    manual_mode_layout = get_manual_mode_layout()
+
+    release_layout = get_release_layout()
 
     tabs = [
-        sg.Tab("   Manual Mode   ", manual_mode_section),
-        sg.Tab("   Single Band Mode   ", single_band_section),
-        sg.Tab("   Multi Band Mode   ", multi_band_section),
+        sg.Tab("   Manual Mode   ", manual_mode_layout),
+        sg.Tab("   Single Band Mode   ", single_band_layout),
+        sg.Tab("   Multi Band Mode   ", multi_band_layout),
+        sg.Tab("   Release   ", release_layout),
     ]
 
     tab_group_layout = [[sg.TabGroup([tabs], enable_events=True, key="-TAB GROUP-")]]

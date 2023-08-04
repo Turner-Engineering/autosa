@@ -14,6 +14,7 @@ from instrument.instrument import (
     run_start,
     run_stop,
     run_reset,
+    release_inst,
 )
 from ui.main_window import get_main_mindow, update_main_window
 from ui.manual_mode import update_start_stop_button
@@ -180,13 +181,15 @@ def main():
             break
 
         inst, inst_found = get_inst()
-        if "Prep Band Mode" not in values["-TAB GROUP-"]:
+        if "Release" not in values["-TAB GROUP-"]:
             settings_error = validate_settings(inst) if inst_found else ""
             inst_info = get_inst_info(inst) if inst_found else ""
 
             update_main_window(
                 main_window, inst_found, inst_info, settings_error, values
             )
+        else:
+            release_inst(inst)
 
         if event == "Settings":
             handle_settings_event(inst, inst_found, main_window, inst_info)
