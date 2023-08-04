@@ -85,6 +85,25 @@ def rename_screen(inst, new_name):
         inst.write(f":INST:SCR:REN '{new_name}'")
 
 
+def save_trace_and_screen(
+    inst, filename: str, inst_out_folder: str, local_out_folder: str
+):
+    """Save the trace to a csv file and the screen to a png file on the instrument, then copy both to the local computer
+
+    Args:
+        inst (instrument): the signal analyzer
+        filename (string): the filename without extension used to save the image and trace
+        inst_out_folder (string): path to instrument output folder
+        local_out_folder (string): path to local output folder
+    """
+    csv_path = f"{inst_out_folder}/{filename}.csv"
+    png_path = f"{inst_out_folder}/{filename}.png"
+    inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csv_path}"')
+    inst.write(f':MMEM:STOR:SCR "{png_path}"')
+    save_file_to_local(inst, png_path, local_out_folder)
+    save_file_to_local(inst, csv_path, local_out_folder)
+
+
 def record_and_save(
     inst, inst_out_folder, filename, local_out_folder, sweep_dur, set_ref_level
 ):
@@ -102,12 +121,7 @@ def record_and_save(
         set_ref_level_to_show_max(inst, trace_max)
 
     # SAVE
-    csv_path = f"{inst_out_folder}/{filename}.csv"
-    png_path = f"{inst_out_folder}/{filename}.png"
-    inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csv_path}"')
-    inst.write(f':MMEM:STOR:SCR "{png_path}"')
-    save_file_to_local(inst, png_path, local_out_folder)
-    save_file_to_local(inst, csv_path, local_out_folder)
+    save_trace_and_screen(inst, filename, inst_out_folder, local_out_folder)
     return
 
 
@@ -135,11 +149,16 @@ def set_coupling(inst, coupling):
     # print(inst.query(f":INP:COUP?"))
 
 
+def create_run_filename(run_id, run_note, band_name, orientation):
+    filename = f"{run_id} {run_note} {band_name}{orientation}"
+    return filename
+
+
 def get_run_filename(inst, settings, band_name, orientation=""):
     inst_out_folder = settings["-INST OUT FOLDER-"]
-    notes = settings["-RUN NOTE-"]
+    run_note = settings["-RUN NOTE-"]
     run_id = get_run_id(inst, inst_out_folder)
-    filename = f"{run_id} {notes} {band_name}{orientation}"
+    filename = create_run_filename(run_id, run_note, band_name, orientation)
     return filename
 
 

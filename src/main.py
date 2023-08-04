@@ -9,6 +9,8 @@ from instrument.instrument import (
     get_run_filename,
     run_band,
     prep_band,
+    save_trace_and_screen,
+    get_run_id,
 )
 from ui.main_window import get_main_mindow, update_main_window
 from ui.settings_window import (
@@ -17,6 +19,8 @@ from ui.settings_window import (
     add_default_settings,
     save_settings,
 )
+
+from ui.get_filename_from_user import get_filename_from_user
 
 
 def handle_py_visa_error(e):
@@ -220,6 +224,15 @@ def main():
 
         if event == "-RECORD AND SAVE-":
             run_error_message = run_record_and_save(inst, settings)
+
+        if event == "-SAVE TRACE AND SCREEN-":
+            run_id = get_run_id(inst, settings["-INST OUT FOLDER-"])
+            run_filename = get_filename_from_user(run_id)
+            inst_out_folder = settings["-INST OUT FOLDER-"]
+            local_out_folder = settings["-LOCAL OUT FOLDER-"]
+
+            save_trace_and_screen(inst, run_filename, inst_out_folder, local_out_folder)
+            run_error_message = ""
 
         if run_error_message != "":
             sg.popup_error(

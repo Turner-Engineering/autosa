@@ -122,10 +122,18 @@ def get_single_band_section():
 
 
 def get_custom_mode_section():
-    button = sg.Button(
+    record_and_save_button = sg.Button(
         "Record and Save",
         key="-RECORD AND SAVE-",
         **RUN_BUTTON_PROPS,
+    )
+
+    save_button = sg.Button(
+        "Save",
+        key="-SAVE TRACE AND SCREEN-",
+        size=RUN_BUTTON_PROPS["size"],
+        font=RUN_BUTTON_PROPS["font"],
+        button_color=("white", "dark green")
     )
 
     # arrange section 4 such that there are two rows for 4 buttons
@@ -142,7 +150,7 @@ def get_custom_mode_section():
                 expand_x=True,
             )
         ],
-        [button],
+        [save_button, record_and_save_button],
     ]
     return section
 
@@ -182,9 +190,9 @@ def get_defuault_layout():
 
     single_band_section = get_single_band_section()
 
-    custom_mode_section = get_custom_mode_section()
-
     prep_band_section = get_prep_band_section()
+
+    custom_mode_section = get_custom_mode_section()
 
     setup_layout = [
         [
