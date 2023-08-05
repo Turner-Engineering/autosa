@@ -31,10 +31,26 @@ def get_top_layout():
 def get_release_layout():
     text1 = "Instrument Released!"
     text2 = "You can now control the instrument using the front panel."
-    return [
-        [sg.Text(text1, font=("Any", 40, "bold"), expand_x=True, text_color="green")],
-        [sg.Text(text2, font=("", 20), expand_x=True)],
+    col1 = sg.Column(
+        [[sg.Text(text1, font=("Any", 30, "bold"), text_color="green")]],
+        justification="center",
+    )
+    col2 = sg.Column(
+        [[sg.Text(text2, font=("", 15), size=(50, 1))]],
+        justification="center",
+    )
+    layout = [
+        [sg.Text("")],
+        [col1],
+        [col2],
+        [
+            sg.Column(
+                [[sg.Image("../images/N9010B_front_panel.png", subsample=2)]],
+                justification="center",
+            )
+        ],
     ]
+    return layout
 
 
 def get_defuault_layout():
@@ -52,7 +68,7 @@ def get_defuault_layout():
         sg.Tab("   Manual Mode   ", manual_mode_layout),
         sg.Tab("   Single Band Mode   ", single_band_layout),
         sg.Tab("   Multi Band Mode   ", multi_band_layout),
-        sg.Tab("   Release   ", release_layout),
+        sg.Tab("  --- Release ---  ", release_layout, title_color="light green"),
     ]
 
     tab_group_layout = [[sg.TabGroup([tabs], enable_events=True, key="-TAB GROUP-")]]
