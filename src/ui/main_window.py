@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+from ui.get_resource_path import resource_path
 from ui.manual_mode import get_manual_mode_layout
 from ui.run_buttons import BAND_KEYS
 from ui.single_band_mode import get_single_band_layout
@@ -45,7 +46,7 @@ def get_release_layout():
         [col2],
         [
             sg.Column(
-                [[sg.Image("../images/N9010B_front_panel.png", subsample=2)]],
+                [[sg.Image(resource_path("./images/N9010B_front_panel.png"), subsample=2)]],
                 justification="center",
             )
         ],
@@ -157,7 +158,7 @@ def get_main_mindow(inst_found, inst_info, settings_error):
         default_element_size=(20, 1),
         auto_size_text=False,
         finalize=True,
-        # icon="images/32x32.ico",
+        # icon=resource_path("images/32x32.ico"),
     )
     update_main_window(window, inst_found, inst_info, settings_error)
 

@@ -44,3 +44,4 @@ The build is done by executing the `build.py` file. The output executable (`.exe
 
 - pyvisa
 - pysimplegui
+- pyinstaller
