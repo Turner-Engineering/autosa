@@ -261,8 +261,10 @@ def get_multiselect(band_key, filenames):
         filenames,
         select_mode=select_mode,
         key=key,
-        expand_y=True,
+        # expand_y=True,
         default_values=default_values,
+        # set width
+        size=(70, 10),
     )
 
 
@@ -281,13 +283,16 @@ def get_band_setup_section(inst, corr_folder=None):
     filenames = get_folder_files(inst, corr_folder)
 
     row1 = []
-    for band_key in BAND_KEYS[0:4]:
+    for band_key in BAND_KEYS[0:3]:
         row1.append(get_corr_frame(band_key, filenames))
     row2 = []
-    for band_key in BAND_KEYS[4:8]:
+    for band_key in BAND_KEYS[3:6]:
         row2.append(get_corr_frame(band_key, filenames))
+    row3 = []
+    for band_key in BAND_KEYS[6:8]:
+        row3.append(get_corr_frame(band_key, filenames))
 
-    layout = [row1, row2]
+    layout = [row1, row2, row3]
 
     # frame = sg.Frame("Amplitude Correction Files", layout, expand_x=True)
     return layout
