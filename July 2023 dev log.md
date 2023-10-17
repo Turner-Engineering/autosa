@@ -135,32 +135,33 @@ I think correction files can be loaded into collection registers and state files
 
 - also the save screen config + state will save all the set up bands so that they don't have to be re-set up every time
 
-## August
+## August 3 2023
 
-- [x] Don't record with ref level offset 10
-
----
-
-- [ ] Have run note pop up as dialog in single band mode
-- [x] Manual start stop for custom duration (have popup for file name here too) 60
-- [x] "Save as is" button is good to have! 10
-- [x] Merge prep band mode into manual mode (want to prepare then run, then save, and repeat) 30
+- [x] Don't record with ref level offset
 
 ---
 
-- [x] make sure state files are set up with 10s number y scale 20
+- [x] Have run note pop up as dialog in single band mode
+- [x] Manual start stop for custom duration (have popup for file name here too)
+- [x] "Save as is" button is good to have!
+- [x] Merge prep band mode into manual mode (want to prepare then run, then save, and repeat)
+- [ ] Fix settings so that they work on the first install
+
+---
+
+- [x] make sure state files are set up with 10s number y scale
 - [x] Add auto marker positioning to manual mode
-- [ ] Add indicator to say when instrument is under remote control 10
-- [x] have trace closer to the top (don't leave 10 dB gap) 5
-- [x] Save screenshot in light mode, leave instrument in dark mode 10
-- [x] Close settings window on right before taking screenshot 20
-- [x] Have a "release" tab / button to let go of the instrument and allow manual control 10
+- [x] have trace closer to the top (don't leave 10 dB gap)
+- [x] Save screenshot in light mode, leave instrument in dark mode
+- [x] Close settings window on right before taking screenshot
+- [x] Have a "release" tab / button to let go of the instrument and allow manual control
 
 ---
 
 - [ ] Have a button to pull up all states in different tabs
 - [ ] Have instructions to say that the state files should contain limit lines and BW
 - [ ] Have setting to have marker auto peak off (low priority)
+- [ ] Add indicator to say when instrument is under remote control
 
 ## Aug 4 2023
 
