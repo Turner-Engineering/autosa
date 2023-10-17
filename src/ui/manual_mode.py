@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+from ui.get_resource_path import resource_path
 from ui.run_buttons import get_band_button, BAND_KEYS
 
 
@@ -16,20 +17,20 @@ def get_manual_mode_layout():
 
     start_stop_button = sg.Button(
         key="-START STOP-",
-        image_filename="../images/play-green.png",
+        image_filename=resource_path("./images/play-green.png"),
         metadata="Start",
         **img_props,
     )
 
     reset_button = sg.Button(
         key="-RESET-",
-        image_filename="../images/reset-blue.png",
+        image_filename=resource_path("./images/reset-blue.png"),
         **img_props,
     )
 
     save_button = sg.Button(
         key="-SAVE TRACE AND SCREEN-",
-        image_filename="../images/save-purple.png",
+        image_filename=resource_path("./images/save-purple.png"),
         **img_props,
     )
 
@@ -55,9 +56,9 @@ def get_manual_mode_layout():
 def update_start_stop_button(main_window, state):
     main_window["-START STOP-"].metadata = state
     if state == "Start":
-        filename = "../images/play-green.png"
+        filename = resource_path("./images/play-green.png")
     elif state == "Stop":
-        filename = "../images/pause-red.png"
+        filename = resource_path("./images/pause-red.png")
     main_window["-START STOP-"].update(
         image_filename=filename,
         image_size=(60, 60),

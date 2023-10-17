@@ -7,6 +7,7 @@ Autosa is Tenco software used to automate data acquisition using a signal analyz
 Windows is the recommended operating system for AutosaVersion 2022 Q3. It has not been tested on other operating systems.
 
 ### Autosa Installation
+**Autosa has only been tested on Windows 10 and Windows 11 devices**
 
 1. Download and Install [NI-VISA Version 2022 Q3](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html) for Windows. This allows Autosa to communicate with the instrument.
    1. This will download the NI package manager from which you will install NI-VISA
@@ -19,6 +20,9 @@ Windows is the recommended operating system for AutosaVersion 2022 Q3. It has no
 
 1. Make sure the instrument is plugged in to power and turned on
 2. Make sure the instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable
+![image](https://github.com/ThisTemba/autosa/assets/36087610/0b688734-af36-4af1-bae5-a3874f0893b7)
+
+
 3. Make sure the signal analyzer program is running on the device (called "LaunchXSA" on the desktop)
 
 ## Guiding Principles
@@ -42,3 +46,4 @@ The build is done by executing the `build.py` file. The output executable (`.exe
 
 - pyvisa
 - pysimplegui
+- pyinstaller
