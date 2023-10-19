@@ -23,10 +23,11 @@ Windows is the recommended operating system for AutosaVersion 2022 Q3. It has no
 2. Make sure the instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable. See image below.
 3. Make sure the signal analyzer program is running on the device (called "LaunchXSA" on the desktop)
 
-<figure>
-   <img src="https://github.com/ThisTemba/autosa/assets/36087610/0b688734-af36-4af1-bae5-a3874f0893b7" width="300px" />
-   <figcaption>Required USB-B to USB-A cable</figcaption>
-</figure>
+
+<img src="https://github.com/ThisTemba/autosa/assets/36087610/0b688734-af36-4af1-bae5-a3874f0893b7" width="300px" />
+
+Required USB-B to USB-A cable
+
 
 ## Guiding Principles
 
