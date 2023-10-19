@@ -29,13 +29,16 @@ Windows is the recommended operating system for AutosaVersion 2022 Q3. It has no
 Required USB-B to USB-A cable
 
 
-## Guiding Principles
+
+## Development
+
+### Guiding Principles
 
 This software is written to be as "plug-and-play" as possible. The more set up steps are required to use the software, the less likely it is to be used. This is why it comes packaged as an `.exe` file that just needs to be downloaded and double clicked. In this vein, all user interfaces should be as self-explanatory as possible.
 
 Different levels of automation are available for differing comfort levels and use-cases. The most automated mode performs up to 5 runs in a row with no intervention. This is good for surveys, when everything is set up correctly and the procedure is merely repeated at each site. The least automated mode functions almost as an extension of the instrument's physical interface, allowing the user to start, stop, and save data manually. This is good for railcar EMC tests where timing varies and tests are repeated depending on the results.
 
-## Development
+### Packages
 
 The following packages are required for development:
 
