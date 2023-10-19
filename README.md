@@ -7,6 +7,7 @@ Autosa is Tenco software used to automate data acquisition using a signal analyz
 Windows is the recommended operating system for AutosaVersion 2022 Q3. It has not been tested on other operating systems.
 
 ### Autosa Installation
+
 **Autosa has only been tested on Windows 10 and Windows 11 devices**
 
 1. Download and Install [NI-VISA Version 2022 Q3](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html) for Windows. This allows Autosa to communicate with the instrument.
@@ -19,11 +20,13 @@ Windows is the recommended operating system for AutosaVersion 2022 Q3. It has no
 ### Instrument Setup
 
 1. Make sure the instrument is plugged in to power and turned on
-2. Make sure the instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable
-![image](https://github.com/ThisTemba/autosa/assets/36087610/0b688734-af36-4af1-bae5-a3874f0893b7)
-
-
+2. Make sure the instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable. See image below.
 3. Make sure the signal analyzer program is running on the device (called "LaunchXSA" on the desktop)
+
+<figure>
+   <img src="https://github.com/ThisTemba/autosa/assets/36087610/0b688734-af36-4af1-bae5-a3874f0893b7" width="300px" />
+   <figcaption>Required USB-B to USB-A cable</figcaption>
+</figure>
 
 ## Guiding Principles
 
@@ -33,17 +36,20 @@ Different levels of automation are available for differing comfort levels and us
 
 ## Development
 
-- GUI is built with [pysimplegui](https://www.pysimplegui.org/en/latest/)
-- Build is done with [pyinstaller](https://pyinstaller.org/en/stable/)
+The following packages are required for development:
+
+- [pysimplegui](https://www.pysimplegui.org/en/latest/) - creating user interface
+- [pyinstaller](https://pyinstaller.org/en/stable/) - compiling python scripts `.exe` file
+- [pyvisa](https://pyvisa.readthedocs.io/en/latest/) - communicating with the instrument over USB
+
+Install all three with pip:
+
+```bash
+pip install pysimplegui pyinstaller pyvisa
+```
 
 ### Building
 
 This project uses [PyInstaller](https://pyinstaller.org/en/stable/) to convert the python scripts and packages into a single, distributable `.exe` file.
 
 The build is done by executing the `build.py` file. The output executable (`.exe`) file will be located in `root/install/dist`. The `/install/build` folder are the temporary files used by PyInstaller to create the executable. I don't know what the `.spec` file is, but it doesn't seem to be required to run the executable.
-
-## Required Python Packages
-
-- pyvisa
-- pysimplegui
-- pyinstaller
