@@ -10,12 +10,17 @@ Windows is the recommended operating system for AutosaVersion 2022 Q3. It has no
 
 **Autosa has only been tested on Windows 10 and Windows 11 devices**
 
-1. Download and Install [NI-VISA Version 2022 Q3](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html) for Windows. This allows Autosa to communicate with the instrument.
-   1. This will download the NI package manager from which you will install NI-VISA
-   2. Deselect all when it asks about additional packages, don't need those
-2. Download the executable file [`Autosa.exe`](https://github.com/ThisTemba/autosa/blob/master/install/dist/Autosa.exe) from this repository
-   1. Autosa is not a "recognized" windows app, so you may get a warning about that, ignore the warning and run the executable. You may have to click "More Info" and then "Run Anyway" to get it to run.
+This takes about 10 to 20 minutes, 1 reboot, and requires a decent internet connection.
+
+1. Download and Install [NI-VISA](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html) for Windows (last tested version was 2023 Q3). This allows Autosa to communicate with the instrument. Please read the instructions below for extra guidance.
+   1. The link above will take you to the This will download the NI Package Manager from which you will install NI-VISA.
+   2. You will be asked to disable windows fast startup - do this, it only affects boot from shutdown and not by much.
+   3. Deselect ALL when it asks about additional packages, Autosa does not need them.
+2. Download the executable file [`Autosa.exe`](https://github.com/ThisTemba/autosa/releases/tag/v0.3) from this repository
+   1. This link takes you to the "releases" page of this repository. From here, click "Autosa.exe" under "Assets" to download the executable file.
+   2. Autosa is not a "recognized" windows app, so you may get a warning about that, ignore the warning and run the executable. You may have to click "More Info" and then "Run Anyway" to get it to run.
 3. Double click the executable file to run the program
+   1. If the instrument is not connected, the program will start and say the instrument was not detected. See below for usage instructions
 
 ### Instrument Setup
 
@@ -23,12 +28,9 @@ Windows is the recommended operating system for AutosaVersion 2022 Q3. It has no
 2. Make sure the instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable. See image below.
 3. Make sure the signal analyzer program is running on the device (called "LaunchXSA" on the desktop)
 
-
 <img src="https://github.com/ThisTemba/autosa/assets/36087610/0b688734-af36-4af1-bae5-a3874f0893b7" width="300px" />
 
 Required USB-B to USB-A cable
-
-
 
 ## Development
 
