@@ -46,7 +46,14 @@ def get_release_layout():
         [col2],
         [
             sg.Column(
-                [[sg.Image(resource_path("./images/N9010B_front_panel.png"), subsample=2)]],
+                [
+                    [
+                        sg.Image(
+                            resource_path("./images/N9010B_front_panel.png"),
+                            subsample=2,
+                        )
+                    ]
+                ],
                 justification="center",
             )
         ],

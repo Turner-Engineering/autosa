@@ -187,9 +187,7 @@ def main():
             band_keys = (
                 ["B0", "B1", "B2", "B3", "B4"]
                 if band_range == "B0 - B4 (monopole)"
-                else ["B5", "B6", "B7"]
-                if band_range == "B5 - B7 (bilogical)"
-                else ""
+                else ["B5", "B6", "B7"] if band_range == "B5 - B7 (bilogical)" else ""
             )
 
             # orientation is lowercase first letter of the word
