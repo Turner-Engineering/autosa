@@ -248,7 +248,7 @@ def main():
         elif event == "-START STOP-" and start_stop_state == "Stop":
             run_stop(inst)
             set_marker_to_max(inst)
-            adjust_ref_level(inst)
+            # adjust_ref_level(inst)
             stopwatch.stop()
             update_start_stop_button(main_window, "Start")
             update_stopwatch_time(main_window, stopwatch)

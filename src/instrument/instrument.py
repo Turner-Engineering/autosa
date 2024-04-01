@@ -169,7 +169,7 @@ def record_and_adjust(inst, sweep_dur):
 
     # ADJUST
     set_marker_to_max(inst)
-    adjust_ref_level(inst)
+    # adjust_ref_level(inst)
 
 
 def recall_cors(inst, corr_folder, filenames):
