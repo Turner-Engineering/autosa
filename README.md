@@ -2,7 +2,7 @@
 
 Autosa is Tenco software used to automate data acquisition using a signal analyzer (AUTOmated Signal Analysis or AUTOmatic Signal Analyzer). The name is spelled exactly as "Autosa" and is read as a single word with a stress on the second syllable.
 
-## Getting Started
+## Usage
 
 Windows is the recommended operating system for AutosaVersion 2022 Q3. It has not been tested on other operating systems.
 
@@ -65,3 +65,7 @@ The build is done by executing the `build.py` file. The output executable (`.exe
 ### October 2023
 
 Tenco used Autosa in the field for the first time on October 18th 2023 for railcar tests.
+
+Tenco used Autosa in January 2024 for the NYCT Crane Car Test in New York City.
+
+Tenco used Autosa in January 2024 for the Toshiba Electric Locomotive Commissioning Tests in Taiwan.
