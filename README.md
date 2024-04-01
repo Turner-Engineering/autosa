@@ -2,7 +2,7 @@
 
 Autosa is Tenco software used to automate data acquisition using a signal analyzer (AUTOmated Signal Analysis or AUTOmatic Signal Analyzer). The name is spelled exactly as "Autosa" and is read as a single word with a stress on the second syllable.
 
-## Usage
+## Setup
 
 Windows is the recommended operating system for AutosaVersion 2022 Q3. It has not been tested on other operating systems.
 
@@ -31,6 +31,18 @@ This takes about 10 to 20 minutes, 1 reboot, and requires a decent internet conn
 <img src="https://github.com/ThisTemba/autosa/assets/36087610/0b688734-af36-4af1-bae5-a3874f0893b7" width="300px" />
 
 Required USB-B to USB-A cable
+
+### Usage
+
+To be written. Roughly:
+
+1. There are three modes: manual, semi-automatic, and automatic
+2. Manual mode is for when you want to start and stop the instrument manually
+3. Semi-automatic mode is for when you want to run a band at a time automatically
+4. Automatic mode is for when you want to run multiple bands in a row automatically
+5. The main things Autosa does is load the state file, load the correction file, and save the trace and screenshot with the correct name
+
+- It is best to set the local output folder to a cloud-synced folder like Dropbox or OneDrive so that the data is backed up automatically.
 
 ## Development
 
