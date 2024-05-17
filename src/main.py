@@ -206,6 +206,7 @@ def main():
             )
 
         if "SINGLE_BAND" in event:
+            # event is like "-SINGLE_BAND B6 v-"
             items = event.split("-")[1].split(" ")
             band_key, band_ori = items[1], items[2]
             run_error_message = run_single_band(

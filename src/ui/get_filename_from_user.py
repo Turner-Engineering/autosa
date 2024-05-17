@@ -8,9 +8,13 @@ RUN_FILENAME_CSV_KEY = "-RUN FILENAME CSV-"
 RUN_FILENAME_PNG_KEY = "-RUN FILENAME PNG-"
 
 
-def get_window_layout(run_id, band):
+def get_window_layout(run_id, band_name):
     band_input = sg.InputText(
-        band, key=BAND_NAME_KEY, size=(5, 1), enable_events=True, disabled=band != ""
+        band_name,
+        key=BAND_NAME_KEY,
+        size=(5, 1),
+        enable_events=True,
+        disabled=band_name != "",
     )
     col1 = [
         [sg.Text("Run ID:")],
@@ -57,8 +61,8 @@ def update_window(window, run_filename):
 
 
 def get_filename_from_user(run_id, band_key="", band_ori=""):
-    band = band_key + band_ori
-    layout = get_window_layout(run_id, band)
+    band_name = band_key + band_ori
+    layout = get_window_layout(run_id, band_name)
     window = sg.Window("Save Trace and Screen", layout, finalize=True)
     window.bind("<Return>", "Save")
 
