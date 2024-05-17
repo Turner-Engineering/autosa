@@ -17,17 +17,21 @@ def get_run_id(inst, inst_out_folder):
     return run_id
 
 
-def get_resource_name(resource_manager):
+def get_resource_name(resource_manager, emulator_mode):
     resource_names = resource_manager.list_resources()
-    resource_names = [r for r in resource_names if "USB" in r]
+    if emulator_mode:
+        resource_names = [r for r in resource_names if "inst0" in r]
+    else:
+        resource_names = [r for r in resource_names if "USB" in r]
     resource_names = [r for r in resource_names if "::INSTR" in r]
     resource_name = "" if len(resource_names) == 0 else resource_names[0]
     return resource_name
 
 
 def get_inst():
+    emulator_mode = False
     resource_manager = pyvisa.ResourceManager()
-    resource_name = get_resource_name(resource_manager)
+    resource_name = get_resource_name(resource_manager, emulator_mode)
     inst = None
     if resource_name != "":
         rm = pyvisa.ResourceManager()
