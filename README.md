@@ -72,6 +72,10 @@ This project uses [PyInstaller](https://pyinstaller.org/en/stable/) to convert t
 
 The build is done by executing the `build.py` file. The output executable (`.exe`) file will be located in `root/install/dist`. The `/install/build` folder are the temporary files used by PyInstaller to create the executable. I don't know what the `.spec` file is, but it doesn't seem to be required to run the executable.
 
+### Terminology
+
+`band_ori` = "v", "h"
+
 ## Real World Tests
 
 ### October 2023

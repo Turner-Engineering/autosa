@@ -83,13 +83,13 @@ def handle_settings_event(inst, inst_found, main_window, inst_info):
         update_main_window(main_window, inst_found, inst_info, settings_error)
 
 
-def run_single_band(inst, settings, band_key, orientation):
+def run_single_band(inst, settings, band_key, band_ori):
     # PREPARE, RECORD, ADJUST
     error_message = run_band(inst, settings, band_key, "", save=False)
 
     # GET FILENAME
     run_id = get_run_id(inst, settings["-INST OUT FOLDER-"])
-    run_filename = get_filename_from_user(run_id, band_key, orientation)
+    run_filename = get_filename_from_user(run_id, band_key, band_ori)
 
     # SAVE
     if run_filename != None:
@@ -99,9 +99,9 @@ def run_single_band(inst, settings, band_key, orientation):
     return error_message
 
 
-def run_multiple_bands(inst, settings, band_keys, window, orientation):
+def run_multiple_bands(inst, settings, band_keys, window, band_ori):
     # CONFIRMATION
-    first_run_filename = get_run_filename(inst, settings, band_keys[0], orientation)
+    first_run_filename = get_run_filename(inst, settings, band_keys[0], band_ori)
     num_runs = len(band_keys)
     part1 = f"Please confirm that you would like to run bands\n\n{band_keys[0]} to {band_keys[-1]} ({num_runs} runs total)\n\n"
     part2 = f'and that the first filename should be:\n\n"{first_run_filename}"\n (the rest will be numbered sequentially)'
@@ -120,7 +120,7 @@ def run_multiple_bands(inst, settings, band_keys, window, orientation):
     error_message = ""
     for i in range(len(band_keys)):
         band_key = band_keys[i]
-        run_filename = get_run_filename(inst, settings, band_key, orientation)
+        run_filename = get_run_filename(inst, settings, band_key, band_ori)
 
         # PROGRESS BAR
         time.sleep(2)  #  not sure what this is for
@@ -190,8 +190,8 @@ def main():
                 else ["B5", "B6", "B7"] if band_range == "B5 - B7 (bilogical)" else ""
             )
 
-            # orientation is lowercase first letter of the word
-            orientation = (
+            # band_ori is lowercase first letter of the word "Horizontal" or "Vertical"
+            band_ori = (
                 values["-ORIENTATION-"][0].lower()
                 if band_range == "B5 - B7 (bilogical)"
                 else ""
@@ -202,22 +202,22 @@ def main():
                 settings,
                 band_keys,
                 main_window,
-                orientation,
+                band_ori,
             )
 
         if "SINGLE_BAND" in event:
             items = event.split("-")[1].split(" ")
-            band_key, orientation = items[1], items[2]
+            band_key, band_ori = items[1], items[2]
             run_error_message = run_single_band(
                 inst,
                 settings,
                 band_key,
-                orientation,
+                band_ori,
             )
 
         if "PREP_BAND" in event:
             items = event.split("-")[1].split(" ")
-            band_key, orientation = items[1], items[2]
+            band_key, band_ori = items[1], items[2]
             run_error_message = prep_band(inst, settings, band_key)
             main_window["-LAST BAND PREPARED-"].update(band_key)
             stopwatch.reset()

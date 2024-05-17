@@ -9,10 +9,10 @@ RUN_BUTTON_PROPS = {
 }
 
 
-def get_band_button(band_key, orientation="", key_prefix="SINGLE_BAND"):
+def get_band_button(band_key, band_ori="", key_prefix="SINGLE_BAND"):
     return sg.Button(
-        band_key + orientation,
-        key=f"-{key_prefix} {band_key} {orientation}-",
+        band_key + band_ori,
+        key=f"-{key_prefix} {band_key} {band_ori}-",
         font=RUN_BUTTON_PROPS["font"],
         button_color=RUN_BUTTON_PROPS["button_color"],
         size=(12, 2),

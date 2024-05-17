@@ -56,8 +56,8 @@ def update_window(window, run_filename):
     window[RUN_FILENAME_PNG_KEY].update(run_filename + ".png")
 
 
-def get_filename_from_user(run_id, band_key="", orientation=""):
-    band = band_key + orientation
+def get_filename_from_user(run_id, band_key="", band_ori=""):
+    band = band_key + band_ori
     layout = get_window_layout(run_id, band)
     window = sg.Window("Save Trace and Screen", layout, finalize=True)
     window.bind("<Return>", "Save")
