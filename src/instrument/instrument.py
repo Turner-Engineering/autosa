@@ -181,16 +181,17 @@ def recall_cors(inst, corr_folder, filenames):
     return
 
 
-def create_run_filename(run_id, run_note, band_name, band_ori):
-    filename = f"{run_id} {run_note} {band_name}{band_ori}"
+def create_run_filename(run_id, run_note, band_name):
+    filename = f"{run_id} {run_note} {band_name}"
     return filename
 
 
-def get_run_filename(inst, settings, band_name, band_ori=""):
+def get_run_filename(inst, settings, band_key, band_ori=""):
     inst_out_folder = settings["-INST OUT FOLDER-"]
     run_note = settings["-RUN NOTE-"]
     run_id = get_run_id(inst, inst_out_folder)
-    filename = create_run_filename(run_id, run_note, band_name, band_ori)
+    band_name = band_key + band_ori
+    filename = create_run_filename(run_id, run_note, band_name)
     return filename
 
 

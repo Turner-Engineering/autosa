@@ -47,7 +47,7 @@ def get_filename(values):
     run_id = values[RUN_ID_KEY].strip()
     run_note = values[RUN_NOTE_KEY].strip()
     band_name = values[BAND_NAME_KEY].strip()
-    run_filename = create_run_filename(run_id, run_note, band_name, "")
+    run_filename = create_run_filename(run_id, run_note, band_name)
     return run_filename
 
 
