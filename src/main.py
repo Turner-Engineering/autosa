@@ -217,7 +217,7 @@ def main():
 
         if "PREP_BAND" in event:
             items = event.split("-")[1].split(" ")
-            band_key, band_ori = items[1], items[2]
+            band_key = items[1]
             run_error_message = prep_band(inst, settings, band_key)
             main_window["-LAST BAND PREPARED-"].update(band_key)
             stopwatch.reset()
