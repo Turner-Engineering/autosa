@@ -89,3 +89,9 @@ Tenco used Autosa in the field for the first time on October 18th 2023 for railc
 Tenco used Autosa in January 2024 for the NYCT Crane Car Test in New York City.
 
 Tenco used Autosa in January 2024 for the Toshiba Electric Locomotive Commissioning Tests in Taiwan.
+
+# Notes
+
+### May 24 2024
+
+- added delay to run band, this should deal with the screenshotting of alerts with a small hit to time.

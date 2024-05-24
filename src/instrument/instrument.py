@@ -246,6 +246,10 @@ def run_band(inst, settings, band_key, run_filename, save=True):
 
     # RECORD, ADJUST, AND SAVE
     record_and_adjust(inst, sweep_dur)
+    # this gives the instrument time to clear the screen of any alerts (they take about 3 seconds to clear)
+
+    time.sleep(5)
+
     if save:
         save_trace_and_screen(inst, run_filename, inst_out_folder, local_out_folder)
 
