@@ -72,6 +72,10 @@ This project uses [PyInstaller](https://pyinstaller.org/en/stable/) to convert t
 
 The build is done by executing the `build.py` file. The output executable (`.exe`) file will be located in `root/install/dist`. The `/install/build` folder are the temporary files used by PyInstaller to create the executable. I don't know what the `.spec` file is, but it doesn't seem to be required to run the executable.
 
+### N9010B Reference Docs
+
+Autosa was written to work with the N9010B signal analyzer. The [User's and Programmer's Reference](https://www.keysight.com/us/en/assets/9018-04666/user-manuals/9018-04666.pdf) was used to develop the SCPI commands.
+
 ### Terminology
 
 `band_ori` = "v", "h"
@@ -85,3 +89,9 @@ Tenco used Autosa in the field for the first time on October 18th 2023 for railc
 Tenco used Autosa in January 2024 for the NYCT Crane Car Test in New York City.
 
 Tenco used Autosa in January 2024 for the Toshiba Electric Locomotive Commissioning Tests in Taiwan.
+
+# Notes
+
+### May 24 2024
+
+- added delay to run band, this should deal with the screenshotting of alerts with a small hit to time.
