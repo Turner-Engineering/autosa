@@ -100,7 +100,7 @@ def run_single_band(inst, settings, band_key, band_ori):
     return error_message
 
 
-def run_multiple_bands(inst, settings, band_keys, window, band_ori):
+def run_multiple_bands(inst, settings, window, band_keys, band_ori):
     # CONFIRMATION
     first_run_filename = get_run_filename(inst, settings, band_keys[0], band_ori)
     num_runs = len(band_keys)
@@ -201,8 +201,8 @@ def main():
             run_error_message = run_multiple_bands(
                 inst,
                 settings,
-                band_keys,
                 main_window,
+                band_keys,
                 band_ori,
             )
 
