@@ -21,7 +21,7 @@ def binblock_raw(data_in):
     return data_in[offset : offset + data_len]
 
 
-def save_file_to_local(inst, file_path, out_folder):
+def copy_file_to_local(inst, file_path, out_folder):
     # Read the contents of the screen image
     file_path = file_path.replace("/", "\\")
     out_folder = out_folder.replace("/", "\\")

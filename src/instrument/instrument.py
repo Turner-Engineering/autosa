@@ -2,7 +2,7 @@ import time
 
 import pyvisa
 
-from instrument.file_transfer import save_file_to_local
+from instrument.file_transfer import copy_file_to_local
 from instrument.folders import get_folder_files
 from utils.run_ids import run_index_to_id, get_todays_run_ids
 
@@ -161,8 +161,8 @@ def save_trace_and_screen(
     png_path = f"{inst_out_folder}/{filename}.png"
     save_trace(inst, csv_path)
     save_screen(inst, png_path)
-    save_file_to_local(inst, png_path, local_out_folder)
-    save_file_to_local(inst, csv_path, local_out_folder)
+    copy_file_to_local(inst, png_path, local_out_folder)
+    copy_file_to_local(inst, csv_path, local_out_folder)
 
 
 def record_and_adjust(inst, sweep_dur):
