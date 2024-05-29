@@ -88,8 +88,9 @@ def run_single_band(inst, settings, band_key, band_ori):
     error_message = run_band(inst, settings, band_key, "", save=False)
 
     # GET FILENAME
+    band_name = band_key + band_ori
     run_id = get_run_id(inst, settings["-INST OUT FOLDER-"])
-    run_filename = get_filename_from_user(run_id, band_key, band_ori)
+    run_filename = get_filename_from_user(run_id, band_name)
 
     # SAVE
     if run_filename != None:
