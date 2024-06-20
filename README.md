@@ -90,8 +90,14 @@ Tenco used Autosa in January 2024 for the NYCT Crane Car Test in New York City.
 
 Tenco used Autosa in January 2024 for the Toshiba Electric Locomotive Commissioning Tests in Taiwan.
 
-# Notes
+Tenco used Autosa In April 2024 for P2250 Railcar Tests in Pueblo, Colorado.
+
+## Notes
 
 ### May 24 2024
 
 - added delay to run band, this should deal with the screenshotting of alerts with a small hit to time.
+
+### June 5 2024
+
+- Good thing that the file namer is based on the folders in the signal analyzer and not the folders on the test laptop. The test laptop can change within a single test, but only one SA will be used.
