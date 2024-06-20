@@ -179,7 +179,7 @@ def record_and_adjust(inst, sweep_dur):
 def recall_cors(inst, corr_folder, filenames):
     for i in range(16):
         idx = i + 1
-        inst.write(f":SENS:CORR:CSET{idx} OFF")
+        # inst.write(f":SENS:CORR:CSET{idx} OFF")
     for i, filename in enumerate(filenames):
         inst.write(f":MMEM:LOAD:CORR {i+1},'{corr_folder}/{filename}'")
     return

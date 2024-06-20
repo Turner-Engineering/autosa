@@ -16,7 +16,7 @@ This takes about 10 to 20 minutes, 1 reboot, and requires a decent internet conn
    1. The link above will take you to the This will download the NI Package Manager from which you will install NI-VISA.
    2. You will be asked to disable windows fast startup - do this, it only affects boot from shutdown and not by much.
    3. Deselect ALL when it asks about additional packages, Autosa does not need them.
-2. Download the executable file [`Autosa.exe`](https://github.com/ThisTemba/autosa/releases/tag/v0.3) from this repository
+2. Download the executable file [`Autosa.exe`](https://github.com/ThisTemba/autosa/releases/latest) from this repository
    1. This link takes you to the "releases" page of this repository. From here, click "Autosa.exe" under "Assets" to download the executable file.
    2. Autosa is not a "recognized" windows app, so you may get a warning about that, ignore the warning and run the executable. You may have to click "More Info" and then "Run Anyway" to get it to run.
 3. Double click the executable file to run the program
