@@ -6,7 +6,6 @@ dist_folder = "install/dist"
 program_name = "Autosa"
 python_file_path = "src/main.py"
 datas = "../src/images;./images"
-# iconPath = "tenco-favicon-192x192.ico"
 
 PyInstaller.__main__.run(
     [
@@ -21,8 +20,6 @@ PyInstaller.__main__.run(
         program_name,
         "--add-data",
         datas,
-        # "--icon",
-        # iconPath,
         "--onefile",
         "--windowed",
         "--clean",
