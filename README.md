@@ -95,7 +95,7 @@ Tenco used Autosa In April 2024 for P2250 Railcar Tests in Pueblo, Colorado.
 ## Notes
 
 ### May 24 2024
-asdf
+
 - added delay to run band, this should deal with the screenshotting of alerts with a small hit to time.
 
 ### June 5 2024
