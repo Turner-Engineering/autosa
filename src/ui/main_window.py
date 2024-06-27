@@ -165,7 +165,6 @@ def get_main_mindow(inst_found, inst_info, settings_error):
         default_element_size=(20, 1),
         auto_size_text=False,
         finalize=True,
-        # icon=resource_path("images/32x32.ico"),
     )
     update_main_window(window, inst_found, inst_info, settings_error)
 
