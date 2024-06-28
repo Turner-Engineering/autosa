@@ -16,7 +16,8 @@ def confirm_run(window, range_var, run_progress, prog_amt, header_frame):
         else 3 if selected_range == "B5 - B7 (bilogical)" else 8
     )
 
-    run_note = get_run_note(header_frame).get("1.0", "end-1c")
+    # TODO fix this call
+    # run_note = get_run_note(header_frame).get("1.0", "end-1c")
 
     confirm_label = ctk.CTkLabel(
         run_window,
@@ -24,7 +25,7 @@ def confirm_run(window, range_var, run_progress, prog_amt, header_frame):
             "Please confirm that you would like to run bands\n"
             f"{selected_range} ({run_num} runs total)\n"
             "and that the first filename should be:\n"
-            f"mdd {run_note} B#\n"
+            f"mdd [run note] B#\n"
             "(the rest will be numbered sequentially)"
         ),
     )
@@ -69,8 +70,7 @@ def orient_callback(range_var, orientation_range):
 
 def get_run_note(header_frame):
     """get the run note to call when text is needed."""
-    run_note_text = ctk.CTkTextbox(header_frame, width=150, height=10)
-    run_note_text.insert("0.0", "[run note]")
+    run_note_text = ctk.CTkEntry(header_frame, placeholder_text="[run note]")
     run_note_text.grid(row=0, column=1, padx=5, pady=5, sticky="E")
 
     return run_note_text

@@ -17,16 +17,17 @@ def get_folder_frame(settings_window):
         ("Local Output Folder:", ""),
     ]
 
-    for i, (folder_labels, folder_paths) in enumerate(folder_texts, start=1):
+    for i, (folder_labels, folder_paths) in enumerate(folder_texts):
         folder_label = ctk.CTkLabel(folder_frame, text=folder_labels, justify="left")
         folder_label.grid(row=i, column=0, padx=10, pady=2, sticky="W")
 
-        folder_path = ctk.CTkTextbox(folder_frame, width=500, height=10)
-        folder_path.insert("0.0", folder_paths)
+        folder_path = ctk.CTkEntry(
+            folder_frame, placeholder_text=folder_paths, width=500
+        )
         folder_path.grid(row=i, column=2, padx=10, pady=2, sticky="EW")
 
     browse_button = ctk.CTkButton(folder_frame, text="Browse")
-    browse_button.grid(row=4, column=3, padx=10, pady=2, sticky="W")
+    browse_button.grid(row=3, column=3, padx=10, pady=2, sticky="W")
 
 
 def get_other_frame(settings_window):
@@ -34,7 +35,7 @@ def get_other_frame(settings_window):
     other_frame = ctk.CTkFrame(settings_window, fg_color="orange")
     other_frame.grid(row=2, column=0, sticky="EW")
     # other_frame.rowconfigure([0, 1, 2, 3, 4], weight=1)
-    # other_frame.columnconfigure([0, 1], weight=1)
+    # other_frame.columnconfigure([0, 1, 2, 3, 4], weight=1)
 
     frame_header2 = ctk.CTkLabel(other_frame, text="Other", justify="left")
     frame_header2.grid(row=0, column=0, padx=10, pady=2, sticky="W")
@@ -44,9 +45,8 @@ def get_other_frame(settings_window):
     )
     sweep_dur_label.grid(row=1, column=0, padx=10, pady=2, sticky="W")
 
-    sweep_dur_text = ctk.CTkTextbox(other_frame, width=50, height=10)
-    sweep_dur_text.insert("0.0", "5")
-    sweep_dur_text.grid(row=1, column=1, padx=10, pady=2, sticky="EW")
+    sweep_dur = ctk.CTkEntry(other_frame, placeholder_text="5")
+    sweep_dur.grid(row=1, column=1, padx=10, pady=2, sticky="W")
 
     run_note_text = ctk.CTkLabel(
         other_frame,
@@ -57,7 +57,7 @@ def get_other_frame(settings_window):
         ),
         justify="left",
     )
-    run_note_text.grid(row=2, column=0, padx=10, pady=2, sticky="W", columnspan=2)
+    run_note_text.grid(row=2, column=0, padx=10, pady=2, sticky="W")
 
 
 def get_button_frame(settings_window):

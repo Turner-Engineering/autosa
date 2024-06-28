@@ -1,3 +1,5 @@
+# TODO convert to using classes
+
 import customtkinter as ctk
 from ui.new_manual_mode import get_manual_mode_layout
 from ui.new_single_band_mode import get_single_band_layout

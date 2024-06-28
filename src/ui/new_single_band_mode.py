@@ -18,8 +18,7 @@ def get_header_frame(single_tab):
     )
     tab2_header.grid(row=0, column=0, padx=5, pady=5, sticky="W")
 
-    run_note_text = ctk.CTkTextbox(header_frame, width=150, height=10)
-    run_note_text.insert("0.0", "[run note]")
+    run_note_text = ctk.CTkEntry(header_frame, placeholder_text="[run note]")
     run_note_text.grid(row=0, column=1, padx=5, pady=5, sticky="E")
 
 
