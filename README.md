@@ -36,10 +36,10 @@ Required USB-B to USB-A cable
 
 To be written. Roughly:
 
-1. There are three modes: manual, semi-automatic, and automatic
-2. Manual mode is for when you want to start and stop the instrument manually
-3. Semi-automatic mode is for when you want to run a band at a time automatically
-4. Automatic mode is for when you want to run multiple bands in a row automatically
+1. There are three modes: manual, single-band, and multi-band
+2. Manual Mode is for when you want to start and stop the instrument manually
+3. Single-band Mode is for when you want to run a band at a time automatically
+4. Multi-band Mode is for when you want to run multiple bands in a row automatically
 5. The main things Autosa does is load the state file, load the correction file, and save the trace and screenshot with the correct name
 
 - It is best to set the local output folder to a cloud-synced folder like Dropbox or OneDrive so that the data is backed up automatically.
