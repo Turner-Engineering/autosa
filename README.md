@@ -36,11 +36,12 @@ Required USB-B to USB-A cable
 
 To be written. Roughly:
 
-1. There are three modes: manual, single-band, and multi-band
-2. Manual Mode is for when you want to start and stop the instrument manually
-3. Single-band Mode is for when you want to run a band at a time automatically
-4. Multi-band Mode is for when you want to run multiple bands in a row automatically
-5. The main things Autosa does is load the state file, load the correction file, and save the trace and screenshot with the correct name
+There are three modes:
+1. Manual Mode is for when you want to start and stop the instrument manually
+2. Single-band Mode is for when you want to run a band at a time automatically
+3. Multi-band Mode is for when you want to run multiple bands in a row automatically
+
+Autosa simplifies the process of loading the state file, loading the correction file, and saving the trace and screenshot with the correct name. The Manual Mode will require the user to do this process. The Single-Band Mode does this process for the selected band. The Multi-Band Mode does the process for an entire range of band.
 
 - It is best to set the local output folder to a cloud-synced folder like Dropbox or OneDrive so that the data is backed up automatically.
 
@@ -56,14 +57,14 @@ Different levels of automation are available for differing comfort levels and us
 
 The following packages are required for development:
 
-- [pysimplegui](https://www.pysimplegui.org/en/latest/) - creating user interface
+- [tkinter](https://tkdocs.com/) - creating user interface
 - [pyinstaller](https://pyinstaller.org/en/stable/) - compiling python scripts `.exe` file
 - [pyvisa](https://pyvisa.readthedocs.io/en/latest/) - communicating with the instrument over USB
 
-Install all three with pip:
+Tkinter is included in Python, so install "pyinstaller" and "pyvisa" with pip:
 
 ```bash
-pip install pysimplegui pyinstaller pyvisa
+pip install pyinstaller pyvisa
 ```
 
 ### Building
