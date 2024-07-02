@@ -1,98 +1,55 @@
 import customtkinter as ctk
+from ui.primary_settings import MainSettingFrame
+from ui.corr_settings import CorrSettingFrame
 
 
-def get_folder_frame(settings_window):
-    """creates and sets up the frame for the folders"""
-    folder_frame = ctk.CTkFrame(settings_window, fg_color="pink")
-    folder_frame.grid(row=1, column=0, sticky="EW")
-    folder_frame.rowconfigure([0, 1, 2, 3, 4], weight=1)
-
-    frame_header1 = ctk.CTkLabel(folder_frame, text="Folders", justify="left")
-    frame_header1.grid(row=0, column=0, padx=10, pady=2, sticky="W")
-
-    folder_texts = [
-        ("State Files Folder:", "D:/Users/Instrument/Desktop/State Files"),
-        ("Correction Files Folder:", "D:/Users/Instrument/Desktop/Correction Files"),
-        ("Instrument Output Folder:", "D:/Users/Instrument/Desktop/Test Data"),
-        ("Local Output Folder:", ""),
-    ]
-
-    for i, (folder_labels, folder_paths) in enumerate(folder_texts):
-        folder_label = ctk.CTkLabel(folder_frame, text=folder_labels, justify="left")
-        folder_label.grid(row=i, column=0, padx=10, pady=2, sticky="W")
-
-        folder_path = ctk.CTkEntry(
-            folder_frame, placeholder_text=folder_paths, width=500
-        )
-        folder_path.grid(row=i, column=2, padx=10, pady=2, sticky="EW")
-
-    browse_button = ctk.CTkButton(folder_frame, text="Browse")
-    browse_button.grid(row=3, column=3, padx=10, pady=2, sticky="W")
-
-
-def get_other_frame(settings_window):
-    """creates and sets up the frame with the sweep duration and run note"""
-    other_frame = ctk.CTkFrame(settings_window, fg_color="orange")
-    other_frame.grid(row=2, column=0, sticky="EW")
-    # other_frame.rowconfigure([0, 1, 2, 3, 4], weight=1)
-    # other_frame.columnconfigure([0, 1, 2, 3, 4], weight=1)
-
-    frame_header2 = ctk.CTkLabel(other_frame, text="Other", justify="left")
-    frame_header2.grid(row=0, column=0, padx=10, pady=2, sticky="W")
-
-    sweep_dur_label = ctk.CTkLabel(
-        other_frame, text="Sweep Duration(s):", justify="left"
-    )
-    sweep_dur_label.grid(row=1, column=0, padx=10, pady=2, sticky="W")
-
-    sweep_dur = ctk.CTkEntry(other_frame, placeholder_text="5")
-    sweep_dur.grid(row=1, column=1, padx=10, pady=2, sticky="W")
-
-    run_note_text = ctk.CTkLabel(
-        other_frame,
-        text=(
-            "The run note is the text placed after the run id and band name in filename.\n"
-            'Files will be saved as "808-13 B3 [run note].csv" and "808-13 B3 [run note].png"\n'
-            "This can be used for location, test type, or any other information."
-        ),
-        justify="left",
-    )
-    run_note_text.grid(row=2, column=0, padx=10, pady=2, sticky="W")
-
-
-def get_button_frame(settings_window):
-    """Creates the save and cancel buttons"""
-    button_frame = ctk.CTkFrame(settings_window, fg_color="blue")
-    button_frame.grid(row=3, column=0, sticky="EW")
-
-    save_button = ctk.CTkButton(
-        button_frame, text="Save", command=lambda: print("SAVED!")
-    )
-    save_button.grid(row=0, column=0, padx=10, pady=10, sticky="W")
-
-    cancel_button = ctk.CTkButton(
-        button_frame, text="Cancel", command=lambda: settings_window.destroy
-    )
-    cancel_button.grid(row=0, column=1, padx=10, pady=10, sticky="W")
-
-
-def get_settings_window(window):
+class get_settings_window(ctk.CTkToplevel):
     """opens a new window and sets it up for settings"""
-    settings_window = ctk.CTkToplevel(window)
-    settings_window.title("Settings")
-    settings_window.iconbitmap("images/autosa_logo.ico")
-    settings_window.columnconfigure(0, weight=1)
-    settings_window.rowconfigure([0, 1, 2, 3], weight=1)
 
-    # title frame
-    settings_header = ctk.CTkLabel(settings_window, text="Settings", justify="left")
-    settings_header.grid(row=0, column=0, padx=5, pady=5, sticky="W")
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Settings")
+        window_width = 1400
+        window_height = 600
+        self.geometry(f"{window_width}x{window_height}")
 
-    # Folder Frame
-    get_folder_frame(settings_window)
+        self.iconbitmap("images/autosa_logo.ico")
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure([0, 1, 2, 3], weight=1)
+        self.create_widgets()
 
-    # Other Frame
-    get_other_frame(settings_window)
+        # title frame
+        settings_header = ctk.CTkLabel(self, text="Settings", justify="left")
+        settings_header.grid(row=0, column=0, padx=5, pady=5, sticky="W")
 
-    # Button frame
-    get_button_frame(settings_window)
+    def create_widgets(self):
+        self.get_button_frame()  # Button frame
+        self.get_settings_menu_layout()
+
+    def get_button_frame(self):
+        """Creates the save and cancel buttons"""
+        button_frame = ctk.CTkFrame(self)
+        button_frame.grid(row=3, column=0, sticky="EW")
+
+        save_button = ctk.CTkButton(
+            button_frame, text="Save", command=lambda: print("SAVED!")
+        )
+        save_button.grid(row=0, column=0, padx=10, pady=10, sticky="W")
+
+        cancel_button = ctk.CTkButton(
+            button_frame, text="Cancel", command=lambda: self.destroy
+        )
+        cancel_button.grid(row=0, column=1, padx=10, pady=10, sticky="W")
+
+    def get_settings_menu_layout(self):
+        tabview = ctk.CTkTabview(self)
+        tabview.grid(row=1, column=0, padx=5, pady=5, sticky="EW")
+        tabview.rowconfigure([0, 1, 2, 3], weight=1)
+
+        tab1 = tabview.add("      Primary      ")
+        frame = MainSettingFrame(tab1)
+        frame.pack(expand=1, fill="both")
+
+        tab2 = tabview.add("      Amplitude Correction      ")
+        frame = CorrSettingFrame(tab2)
+        frame.pack(expand=1, fill="both")

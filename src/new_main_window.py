@@ -1,88 +1,95 @@
-# TODO convert to using classes
-
 import customtkinter as ctk
-from ui.new_manual_mode import get_manual_mode_layout
-from ui.new_single_band_mode import get_single_band_layout
-from ui.new_multi_band_mode import get_multi_band_layout
+
+from ui.new_manual_mode import ManualModeFrame
+from ui.new_single_band_mode import SingleModeFrame
+from ui.new_multi_band_mode import MultiModeFrame
 from ui.new_settings_window import get_settings_window
 
-SETTINGS_VALIDITY_KEY = "-SETTINGS VALIDITY-"
-INST_FOUND_INFO_KEY = "-INST INFO-"
-
-# window creation
-window = ctk.CTk()
-window.title("Autosa by Tenco")
-window.geometry("1200x720")
-window.columnconfigure(0, weight=1)
-window.rowconfigure(0, weight=1)
-window.iconbitmap("images/autosa_logo.ico")
+ctk.set_appearance_mode("light")
 ctk.set_widget_scaling(1.5)
 
 
-# first frame of the window
-def get_top_layout(top_frame):
-    top_frame.columnconfigure([0, 1], weight=1)
-    # top_frame.rowconfigure(0, weight=1)
+class HeaderFrame(ctk.CTkFrame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.columnconfigure(0, weight=1)
+        self.create_widgets()
 
-    title_label = ctk.CTkLabel(top_frame, text="Autosa", font=("", 18))
-    title_label.grid(row=0, column=0, sticky="W", padx=10, pady=10)
+    def create_widgets(self):
+        self.columnconfigure([0, 1], weight=1)
+        # self.rowconfigure(0, weight=1)
 
-    settings_button = ctk.CTkButton(
-        top_frame, text="Settings", command=lambda: get_settings_window(window)
-    )
-    settings_button.grid(row=0, column=1, sticky="E", padx=10, pady=10)
+        title_label = ctk.CTkLabel(self, text="Autosa", font=("", 18))
+        title_label.grid(row=0, column=0, sticky="W", padx=10, pady=10)
 
-    info_label = ctk.CTkLabel(
-        top_frame,
-        text=(f"{INST_FOUND_INFO_KEY}\n" f"{SETTINGS_VALIDITY_KEY}"),
-        text_color="green",
-        justify="left",
-        anchor="w",
-    )
-    info_label.grid(row=1, column=0, sticky="W", padx=10, columnspan=2)
+        settings_button = ctk.CTkButton(
+            self, text="Settings", command=lambda: get_settings_window(self)
+        )
+        settings_button.grid(row=0, column=1, sticky="E", padx=10, pady=10)
 
-    check_label = ctk.CTkLabel(
-        top_frame, text="Make sure to check the settings before running anything!"
-    )
-    check_label.grid(row=3, column=0, sticky="W", padx=10, columnspan=2)
+        run_note_text = ctk.CTkEntry(self, placeholder_text="[run note]")
+        run_note_text.grid(row=1, column=1, padx=10, pady=10, sticky="E")
 
+        info_label = ctk.CTkLabel(
+            self,
+            text=("✅ Instrument Detected\n✅ Settings Valid"),
+            text_color="green",
+            justify="left",
+            anchor="w",
+        )
+        info_label.grid(row=1, column=0, sticky="W", padx=10, columnspan=2)
 
-def menu_layout(menu_frame):
-    """menu_layout(menu_frame) sets the structure for the different modes"""
-    # format to center
-    menu_frame.columnconfigure(0, weight=1)
-    menu_frame.rowconfigure(0, weight=1)
-
-    tabview = ctk.CTkTabview(menu_frame)
-    tabview.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
-
-    # tab formatting
-    manual_tab = tabview.add("      Manual Mode      ")
-    single_tab = tabview.add("      Single Band Mode      ")
-    multi_tab = tabview.add("      Multi Band Mode      ")
-
-    # MANUAL MODE
-    get_manual_mode_layout(manual_tab)
-
-    # single band mode
-    get_single_band_layout(single_tab)
-
-    # multi band mode
-    get_multi_band_layout(multi_tab, window)
+        check_label = ctk.CTkLabel(
+            self, text="Make sure to check the settings before running anything!"
+        )
+        check_label.grid(row=3, column=0, sticky="W", padx=10, columnspan=2)
 
 
-def main():
-    """main() sets the structure of the window into two parts"""
-    top_frame = ctk.CTkFrame(window, border_width=2, fg_color="pink")
-    top_frame.grid(row=0, column=0, sticky="ew")
-    get_top_layout(top_frame)
+class MenuFrame(ctk.CTkFrame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.columnconfigure(0, weight=1)  # format to center
+        self.rowconfigure(0, weight=1)
+        self.create_widgets()
 
-    menu_frame = ctk.CTkFrame(window, border_width=2, fg_color="blue")
-    menu_frame.grid(row=1, column=0, sticky="ew")
-    menu_layout(menu_frame)
+    def create_widgets(self):
+        """sets the structure for the different modes"""
+        tabview = ctk.CTkTabview(self)
+        tabview.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
-    window.mainloop()
+        # tab formatting
+        tab1 = tabview.add("      Manual Mode      ")
+        frame = ManualModeFrame(tab1)
+        frame.pack(expand=1, fill="both")
+
+        tab2 = tabview.add("      Single Band Mode      ")
+        frame = SingleModeFrame(tab2)
+        frame.pack(expand=1, fill="both")
+
+        tab3 = tabview.add("      Multi Band Mode      ")
+        frame = MultiModeFrame(tab3)
+        frame.pack(expand=1, fill="both")
+
+
+class MainApp(ctk.CTk):
+    # Window creation
+    def __init__(self):
+        super().__init__()
+        self.title("Autosa Tkinter")
+        window_width = 1200
+        window_height = 800
+        self.geometry(f"{window_width}x{window_height}")
+        self.create_widgets()
+        self.iconbitmap("images/autosa_logo.ico")
+
+    def create_widgets(self):
+        top_frame = HeaderFrame(self)
+        top_frame.pack(fill="x")
+
+        menu_frame = MenuFrame(self)
+        menu_frame.pack(fill=ctk.BOTH, expand=True)
 
 
 if __name__ == "__main__":
-    main()
+    app = MainApp()
+    app.mainloop()
