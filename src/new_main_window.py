@@ -1,9 +1,13 @@
 import customtkinter as ctk
-
+import json, os
 from ui.new_manual_mode import ManualModeFrame
 from ui.new_single_band_mode import SingleModeFrame
 from ui.new_multi_band_mode import MultiModeFrame
-from ui.new_settings_window import get_settings_window
+from ui.new_settings_window import SettingsWindow
+from ui.new_utils import write_json, read_json
+
+global SETTINGS_FILE_PATH
+SETTINGS_FILE_PATH = os.path.join(os.getenv("LOCALAPPDATA"), "Autosa")
 
 ctk.set_appearance_mode("light")
 ctk.set_widget_scaling(1.5)
@@ -23,12 +27,9 @@ class HeaderFrame(ctk.CTkFrame):
         title_label.grid(row=0, column=0, sticky="W", padx=10, pady=10)
 
         settings_button = ctk.CTkButton(
-            self, text="Settings", command=lambda: get_settings_window(self)
+            self, text="Settings", command=lambda: SettingsWindow(self)
         )
         settings_button.grid(row=0, column=1, sticky="E", padx=10, pady=10)
-
-        run_note_text = ctk.CTkEntry(self, placeholder_text="[run note]")
-        run_note_text.grid(row=1, column=1, padx=10, pady=10, sticky="E")
 
         info_label = ctk.CTkLabel(
             self,
@@ -83,6 +84,7 @@ class MainApp(ctk.CTk):
         self.iconbitmap("images/autosa_logo.ico")
 
     def create_widgets(self):
+        """sets up the window to have the header and the mode window"""
         top_frame = HeaderFrame(self)
         top_frame.pack(fill="x")
 
@@ -91,5 +93,8 @@ class MainApp(ctk.CTk):
 
 
 if __name__ == "__main__":
+    # if os.path.exists(SETTINGS_FILE_PATH):
+    #     print(json.dumps(read_json(), indent=4))
+
     app = MainApp()
     app.mainloop()

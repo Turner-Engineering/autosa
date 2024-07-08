@@ -31,8 +31,8 @@ class SingleModeFrame(ctk.CTkFrame):
         )
         tab2_header.grid(row=0, column=0, padx=5, pady=5, sticky="W")
 
-        # run_note_text = ctk.CTkEntry(header_frame, placeholder_text="[run note]")
-        # run_note_text.grid(row=0, column=1, padx=5, pady=5, sticky="E")
+        run_note_text = ctk.CTkEntry(header_frame, placeholder_text="[run note]")
+        run_note_text.grid(row=0, column=1, padx=5, pady=5, sticky="E")
 
     # FRAME 2: Button Frame
     def get_button_frame(self):
