@@ -1,4 +1,3 @@
-import json, os
 import customtkinter as ctk
 import datetime
 from ui.new_utils import read_settings_from_file
@@ -117,10 +116,7 @@ class ConfirmWindow(ctk.CTkToplevel):
         local_date = f"{DATE.month}{DATE.day:02}-{year}"
 
         settings = read_settings_from_file()
-
-        for keys in settings:
-            if "Sweep Duration" in keys:
-                sweep_dur = settings["Sweep Duration:"]
+        sweep_dur = settings["sweep_dur"]
 
         run_num = (
             5

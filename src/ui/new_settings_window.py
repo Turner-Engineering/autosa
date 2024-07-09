@@ -94,15 +94,15 @@ class CorrSettingFrame(ctk.CTkFrame):
 
 
 class PrimaryFrame(ctk.CTkFrame):
-    def __init__(self, parent, settings_vars):
+    def __init__(self, parent, settings_vars, settings_labels):
         super().__init__(parent)
         self.columnconfigure(0, weight=1)
-        self.create_widgets(settings_vars)
+        self.create_widgets(settings_vars, settings_labels)
 
-    def create_widgets(self, settings_vars):
-        self.create_primary_frame(settings_vars)
+    def create_widgets(self, settings_vars, settings_labels):
+        self.create_primary_frame(settings_vars, settings_labels)
 
-    def create_primary_frame(self, settings_vars):
+    def create_primary_frame(self, settings_vars, settings_labels):
         """creates and sets up the frame for the folders"""
         primary_frame = ctk.CTkFrame(self)
         primary_frame.grid(row=0, column=0, sticky="EW")
@@ -111,28 +111,28 @@ class PrimaryFrame(ctk.CTkFrame):
 
         self.path_entries = []  # storing user input folders
 
-        for r, (label, input) in enumerate(settings_vars.items()):
-            ctk.CTkLabel(primary_frame, text=label, justify="left").grid(
+        for r, (key, settings_var) in enumerate(settings_vars.items()):
+            text = settings_labels[key] + ":"
+            ctk.CTkLabel(primary_frame, text=text, justify="left").grid(
                 row=r, column=0, padx=5, pady=5, sticky="W"
             )
-
-            path_entry = ctk.CTkEntry(primary_frame, textvariable=input, width=500)
+            path_entry = ctk.CTkEntry(
+                primary_frame, textvariable=settings_var, width=500
+            )
             path_entry.grid(row=r, column=2, padx=5, pady=5, sticky="EW")
             self.path_entries.append(path_entry)  # collect the inputs
 
         ctk.CTkButton(
             primary_frame,
             text="Browse",
-            command=lambda: SettingsWindow.browse_files(
-                settings_vars["Correction Files Folder:"]
-            ),
+            command=lambda: SettingsWindow.browse_files(settings_vars["corr_folder"]),
         ).grid(row=1, column=3, padx=5, pady=5, sticky="W")
 
         ctk.CTkButton(
             primary_frame,
             text="Browse",
             command=lambda: SettingsWindow.browse_files(
-                settings_vars["Local Output Folder:"]
+                settings_vars["local_out_folder"]
             ),
         ).grid(row=3, column=3, padx=5, pady=5, sticky="W")
 
@@ -163,24 +163,25 @@ class SettingsWindow(ctk.CTkToplevel):
         # if folder exists:
         settings = read_settings_from_file()
         # TODO: don't use colons, use good keys instead (with underscores hopefully)
-        state_folder = settings["State Files Folder:"]
-        corr_folder = settings["Correction Files Folder:"]
-        inst_out_folder = settings["Instrument Output Folder:"]
-        local_out_folder = settings["Local Output Folder:"]
-        sweep_dur = settings["Sweep Duration:"]
-        self.corr_choice = settings.get("Correction Choice:", {})
+        self.corr_choice = settings.get("corr_choice", {})
 
         # title frame
         settings_header_label = ctk.CTkLabel(self, text="Settings", justify="left")
         settings_header_label.grid(row=0, column=0, padx=5, pady=5, sticky="W")
 
+        self.settings_labels = {
+            "state_folder": "State Files Folder",
+            "corr_folder": "Correction Files Folder",
+            "inst_out_folder": "Instrument Output Folder",
+            "local_out_folder": "Local Output Folder",
+            "sweep_dur": "Sweep Duration",
+        }
+
         self.corr_dropdowns = []
         self.settings_vars = {
-            "State Files Folder:": ctk.StringVar(value=state_folder),
-            "Correction Files Folder:": ctk.StringVar(value=corr_folder),
-            "Instrument Output Folder:": ctk.StringVar(value=inst_out_folder),
-            "Local Output Folder:": ctk.StringVar(value=local_out_folder),
-            "Sweep Duration:": ctk.StringVar(value=sweep_dur),
+            key: ctk.StringVar(value=value)
+            for key, value in settings.items()
+            if key != "corr_choice"
         }
 
         self.create_widgets()
@@ -212,13 +213,13 @@ class SettingsWindow(ctk.CTkToplevel):
         tabview.rowconfigure([0, 1, 2, 3], weight=1)
 
         tab1 = tabview.add("      Primary      ")
-        frame = PrimaryFrame(tab1, self.settings_vars)
+        frame = PrimaryFrame(tab1, self.settings_vars, self.settings_labels)
         frame.pack(expand=1, fill="both")
 
         tab2 = tabview.add("      Amplitude Correction      ")
         frame = CorrSettingFrame(
             tab2,
-            self.settings_vars["Correction Files Folder:"],
+            self.settings_vars["corr_folder"],
             self.corr_dropdowns,
             self.corr_choice,
         )
@@ -229,7 +230,7 @@ class SettingsWindow(ctk.CTkToplevel):
         settings = {}
         for label, settings_var in self.settings_vars.items():
             settings[label] = settings_var.get()
-        settings["Correction Choice:"] = self.corr_choice
+        settings["corr_choice"] = self.corr_choice
 
         write_settings_to_file(settings)
 

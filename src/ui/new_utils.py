@@ -1,12 +1,12 @@
 import json, os
 
 default_settings = {
-    "State Files Folder:": "D:/Users/Instrument/Desktop/State Files",
-    "Correction Files Folder:": "D:/Users/Instrument/Desktop/Correction Files",
-    "Instrument Output Folder:": "D:/Users/Instrument/Desktop/Test Data",
-    "Local Output Folder:": "",
-    "Sweep Duration:": "5",
-    "Correction Choice:": {},
+    "state_folder": "D:/Users/Instrument/Desktop/State Files",
+    "corr_folder": "D:/Users/Instrument/Desktop/Correction Files",
+    "inst_out_folder": "D:/Users/Instrument/Desktop/Test Data",
+    "local_out_folder": "",
+    "sweep_dur": "5",
+    "corr_choice": {},
 }
 
 
