@@ -29,7 +29,7 @@ class CorrSettingFrame(ctk.CTkFrame):
 
     def create_correction_tab(self, corr_path_var):
         corr_frame = ctk.CTkFrame(self)
-        corr_frame.grid(row=0, column=0, sticky="EW")
+        corr_frame.grid(row=0, column=0, sticky="ew")
         corr_frame.columnconfigure([0, 1, 2, 3], weight=1)
         corr_frame.rowconfigure([0, 1, 2, 3], weight=1)
 
@@ -37,7 +37,7 @@ class CorrSettingFrame(ctk.CTkFrame):
         band_labels = [(0, 0), (0, 2), (1, 0), (1, 2), (2, 0), (2, 2), (3, 0), (3, 2)]
         for b, (row, col) in enumerate(band_labels):
             ctk.CTkLabel(corr_frame, text=f"B{b}").grid(
-                row=row, column=col, padx=15, pady=15, sticky="E"
+                row=row, column=col, padx=15, pady=15, sticky="e"
             )
 
         # row and column of the option menu
@@ -47,7 +47,7 @@ class CorrSettingFrame(ctk.CTkFrame):
                 corr_frame, values=self.corr_file_options
             )
             corr_band_dropdown.set(self.corr_choice.get(f"B{b}", "No Correction"))
-            corr_band_dropdown.grid(row=row, column=col, padx=15, pady=15, sticky="W")
+            corr_band_dropdown.grid(row=row, column=col, padx=15, pady=15, sticky="w")
             corr_band_dropdown.configure(
                 command=lambda choice, band=f"B{b}": self.update_corr_choice(
                     band, choice
@@ -56,7 +56,7 @@ class CorrSettingFrame(ctk.CTkFrame):
             self.corr_dropdowns.append(corr_band_dropdown)  # Store dropdowns
 
         test_label = ctk.CTkLabel(corr_frame, textvariable=corr_path_var)
-        test_label.grid(row=4, column=0, padx=15, pady=15, sticky="EW", columnspan=3)
+        test_label.grid(row=4, column=0, padx=15, pady=15, sticky="ew", columnspan=3)
 
     def update_corr_choice(self, band, choice):
         self.corr_choice[band] = choice
@@ -105,7 +105,7 @@ class PrimaryFrame(ctk.CTkFrame):
     def create_primary_frame(self, settings_vars, settings_labels):
         """creates and sets up the frame for the folders"""
         primary_frame = ctk.CTkFrame(self)
-        primary_frame.grid(row=0, column=0, sticky="EW")
+        primary_frame.grid(row=0, column=0, sticky="ew")
         primary_frame.rowconfigure([0, 1, 2, 3, 4], weight=1)
         primary_frame.columnconfigure([0, 1, 2], weight=1)
 
@@ -114,19 +114,19 @@ class PrimaryFrame(ctk.CTkFrame):
         for r, (key, settings_var) in enumerate(settings_vars.items()):
             text = settings_labels[key] + ":"
             ctk.CTkLabel(primary_frame, text=text, justify="left").grid(
-                row=r, column=0, padx=5, pady=5, sticky="W"
+                row=r, column=0, padx=5, pady=5, sticky="w"
             )
             path_entry = ctk.CTkEntry(
                 primary_frame, textvariable=settings_var, width=500
             )
-            path_entry.grid(row=r, column=2, padx=5, pady=5, sticky="EW")
+            path_entry.grid(row=r, column=2, padx=5, pady=5, sticky="ew")
             self.path_entries.append(path_entry)  # collect the inputs
 
         ctk.CTkButton(
             primary_frame,
             text="Browse",
             command=lambda: SettingsWindow.browse_files(settings_vars["corr_folder"]),
-        ).grid(row=1, column=3, padx=5, pady=5, sticky="W")
+        ).grid(row=1, column=3, padx=5, pady=5, sticky="w")
 
         ctk.CTkButton(
             primary_frame,
@@ -134,7 +134,7 @@ class PrimaryFrame(ctk.CTkFrame):
             command=lambda: SettingsWindow.browse_files(
                 settings_vars["local_out_folder"]
             ),
-        ).grid(row=3, column=3, padx=5, pady=5, sticky="W")
+        ).grid(row=3, column=3, padx=5, pady=5, sticky="w")
 
         ctk.CTkLabel(
             primary_frame,
@@ -144,7 +144,7 @@ class PrimaryFrame(ctk.CTkFrame):
                 "This can be used for location, test type, or any other information."
             ),
             justify="left",
-        ).grid(row=5, column=0, padx=5, pady=2, columnspan=3, sticky="W")
+        ).grid(row=5, column=0, padx=5, pady=2, columnspan=3, sticky="w")
 
 
 class SettingsWindow(ctk.CTkToplevel):
@@ -167,7 +167,7 @@ class SettingsWindow(ctk.CTkToplevel):
 
         # title frame
         settings_header_label = ctk.CTkLabel(self, text="Settings", justify="left")
-        settings_header_label.grid(row=0, column=0, padx=5, pady=5, sticky="W")
+        settings_header_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         self.settings_labels = {
             "state_folder": "State Files Folder",
@@ -193,23 +193,23 @@ class SettingsWindow(ctk.CTkToplevel):
     def create_button_frame(self):
         """Creates the save and cancel buttons"""
         button_frame = ctk.CTkFrame(self)
-        button_frame.grid(row=3, column=0, sticky="EW")
+        button_frame.grid(row=3, column=0, sticky="ew")
 
         save_button = ctk.CTkButton(
             button_frame,
             text="Save",
             command=lambda: self.save_settings(),
         )
-        save_button.grid(row=0, column=0, padx=10, pady=10, sticky="W")
+        save_button.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
         cancel_button = ctk.CTkButton(
             button_frame, text="Cancel", command=lambda: self.destroy()
         )
-        cancel_button.grid(row=0, column=1, padx=10, pady=10, sticky="W")
+        cancel_button.grid(row=0, column=1, padx=10, pady=10, sticky="w")
 
     def create_settings_menu_layout(self):
         tabview = ctk.CTkTabview(self)
-        tabview.grid(row=1, column=0, padx=5, pady=5, sticky="EW")
+        tabview.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
         tabview.rowconfigure([0, 1, 2, 3], weight=1)
 
         tab1 = tabview.add("      Primary      ")
