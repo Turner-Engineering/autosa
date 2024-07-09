@@ -1,10 +1,7 @@
 import customtkinter as ctk
 from tkinter import filedialog as fd
-from ui.new_utils import write_settings_to_json, read_settings_from_json
+from ui.new_utils import write_settings_to_file, read_settings_from_file
 import os
-
-global SETTINGS_FILE_PATH
-SETTINGS_FILE_PATH = os.path.join(os.getenv("LOCALAPPDATA"), "Autosa")
 
 
 # TODO :
@@ -164,22 +161,14 @@ class SettingsWindow(ctk.CTkToplevel):
         self.rowconfigure([0, 1, 2, 3], weight=1)
 
         # if folder exists:
-        if os.path.exists(SETTINGS_FILE_PATH):
-            data = read_settings_from_json()
-
-            state_folder = data["State Files Folder:"]
-            corr_folder = data["Correction Files Folder:"]
-            inst_out_folder = data["Instrument Output Folder:"]
-            local_out_folder = data["Local Output Folder:"]
-            sweep_dur = data["Sweep Duration:"]
-            self.corr_choice = data.get("Correction Choice:", {})
-        else:
-            state_folder = "D:/Users/Instrument/Desktop/State Files"
-            corr_folder = "D:/Users/Instrument/Desktop/Correction Files"
-            inst_out_folder = "D:/Users/Instrument/Desktop/Test Data"
-            local_out_folder = ""
-            sweep_dur = "5"
-            self.corr_choice = {}
+        settings = read_settings_from_file()
+        # TODO: don't use colons, use good keys instead (with underscores hopefully)
+        state_folder = settings["State Files Folder:"]
+        corr_folder = settings["Correction Files Folder:"]
+        inst_out_folder = settings["Instrument Output Folder:"]
+        local_out_folder = settings["Local Output Folder:"]
+        sweep_dur = settings["Sweep Duration:"]
+        self.corr_choice = settings.get("Correction Choice:", {})
 
         # title frame
         settings_header_label = ctk.CTkLabel(self, text="Settings", justify="left")
@@ -237,19 +226,12 @@ class SettingsWindow(ctk.CTkToplevel):
 
     def save_settings(self):
         """write to the json file"""
-        json_data = {
-            label: settings_var.get()
-            for label, settings_var in self.settings_vars.items()
-        }
-        json_data["Correction Choice:"] = self.corr_choice
-
-        if not os.path.exists(SETTINGS_FILE_PATH):
-            os.mkdir(SETTINGS_FILE_PATH)
-
+        settings = {}
         for label, settings_var in self.settings_vars.items():
-            json_data[label] = settings_var.get()
+            settings[label] = settings_var.get()
+        settings["Correction Choice:"] = self.corr_choice
 
-        write_settings_to_json(json_data)
+        write_settings_to_file(settings)
 
         self.destroy()  # close settings window after saving
 

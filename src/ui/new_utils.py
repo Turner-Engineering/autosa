@@ -1,27 +1,30 @@
 import json, os
 
-SETTINGS_FILE_PATH = os.path.join(os.getenv("LOCALAPPDATA"), "Autosa")
+default_settings = {
+    "State Files Folder:": "D:/Users/Instrument/Desktop/State Files",
+    "Correction Files Folder:": "D:/Users/Instrument/Desktop/Correction Files",
+    "Instrument Output Folder:": "D:/Users/Instrument/Desktop/Test Data",
+    "Local Output Folder:": "",
+    "Sweep Duration:": "5",
+    "Correction Choice:": {},
+}
 
 
-def write_settings_to_json(data, json_file="settings.json"):
-    if not os.path.exists(SETTINGS_FILE_PATH):
-        os.mkdir(SETTINGS_FILE_PATH)
-
-    json_path = os.path.join(SETTINGS_FILE_PATH, json_file)
-
-    """write to the json file"""
-    with open(json_path, "w") as writer:
-        writer.write(json.dumps(data, indent=4))
+def get_settings_file_path():
+    return os.path.join(os.getenv("LOCALAPPDATA"), "Autosa", "settings.json")
 
 
-def read_settings_from_json(json_file="settings.json"):
-    if not os.path.exists(SETTINGS_FILE_PATH):
-        print("ERROR. Folder does not exist.")
+def write_settings_to_file(settings):
+    # this will overwrite the file if it exists and create it if it doesn't
+    with open(get_settings_file_path(), "w") as f:
+        json.dump(settings, f, ensure_ascii=False, indent=2)
 
-    json_path = os.path.join(SETTINGS_FILE_PATH, json_file)
 
-    if os.path.exists(json_path):
-        with open(json_path, "r") as reader:
-            return json.load(reader)
+def read_settings_from_file():
+    if not os.path.exists(get_settings_file_path()):
+        # TODO: this should raise a user-facing error
+        print("ERROR. Settings file does not exist. Using default settings.")
+        return default_settings
 
-    return {}
+    with open(get_settings_file_path(), "r") as reader:
+        return json.load(reader)

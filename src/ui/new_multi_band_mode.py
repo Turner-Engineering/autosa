@@ -1,12 +1,10 @@
 import json, os
 import customtkinter as ctk
 import datetime
-from ui.new_utils import write_settings_to_json, read_settings_from_json
+from ui.new_utils import read_settings_from_file
 
 
 DATE = datetime.date.today()
-global SETTINGS_FILE_PATH
-SETTINGS_FILE_PATH = os.path.join(os.getenv("LOCALAPPDATA"), "Autosa", "settings.json")
 
 
 def orient_callback(range_var, orientation_range):
@@ -118,12 +116,11 @@ class ConfirmWindow(ctk.CTkToplevel):
         year = str(DATE.year)[-2:]  # don't need to abbreviate four letters
         local_date = f"{DATE.month}{DATE.day:02}-{year}"
 
-        data = read_settings_from_json()
-        print(data)
+        settings = read_settings_from_file()
 
-        for keys in data:
+        for keys in settings:
             if "Sweep Duration" in keys:
-                sweep_dur = data["Sweep Duration:"]  # TODO: keys should not have colons
+                sweep_dur = settings["Sweep Duration:"]
 
         run_num = (
             5
@@ -264,10 +261,7 @@ class MultiModeFrame(ctk.CTkFrame):
 
     # the main purpose here is to run the sweeps, not check settings
     def open_confirm_window(self):
-        if os.path.exists(SETTINGS_FILE_PATH):
-            ConfirmWindow(self)
-        else:
-            print("Settings file not found!")
+        ConfirmWindow(self)
 
     # def measure_prog_bar(self):
     #     """presents the progress bar of runs"""
