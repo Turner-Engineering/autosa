@@ -3,7 +3,7 @@ import json, os
 SETTINGS_FILE_PATH = os.path.join(os.getenv("LOCALAPPDATA"), "Autosa")
 
 
-def write_json(data, json_file="settings.json"):
+def write_settings_to_json(data, json_file="settings.json"):
     if not os.path.exists(SETTINGS_FILE_PATH):
         os.mkdir(SETTINGS_FILE_PATH)
 
@@ -14,7 +14,7 @@ def write_json(data, json_file="settings.json"):
         writer.write(json.dumps(data, indent=4))
 
 
-def read_json(json_file="settings.json"):
+def read_settings_from_json(json_file="settings.json"):
     if not os.path.exists(SETTINGS_FILE_PATH):
         print("ERROR. Folder does not exist.")
 

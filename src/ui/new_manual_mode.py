@@ -11,12 +11,14 @@ class ManualModeFrame(ctk.CTkFrame):
         self.create_widgets()
 
     def create_widgets(self):
-        self.get_button_frame()
-        self.get_measure_frame()
-        self.get_time_frame()
+        # kind of subjective, but "get" functions should "get" something and return it
+        # these functions aren't getting things, they're creating things
+        self.create_prep_band_frame()
+        self.create_measure_frame()
+        self.create_details_frame()
 
-    # FRAME 1: Buttons
-    def get_button_frame(self):
+    # FRAME 1: Prepare Band Frame
+    def create_prep_band_frame(self):
         """1st frame is the bands B0-B7"""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
         button_frame.grid(row=0, column=0, padx=10, pady=10, sticky="EW")
@@ -36,12 +38,12 @@ class ManualModeFrame(ctk.CTkFrame):
             ("B7", lambda: print("B7"), 2, 3),
         ]
 
-        for band, cmd, r, c in band_buttons:
-            band_button = ctk.CTkButton(button_frame, text=band, command=cmd)
+        for band_key, cmd, r, c in band_buttons:
+            band_button = ctk.CTkButton(button_frame, text=band_key, command=cmd)
             band_button.grid(row=r, column=c, padx=2, pady=2)
 
-    # FRAME 2: Measurement Buttons
-    def get_measure_frame(self):
+    # FRAME 2: Record and Save Frame
+    def create_measure_frame(self):
         """2nd frame is the measurement buttons"""
         measurement_frame = ctk.CTkFrame(self, fg_color="transparent")
         measurement_frame.grid(row=1, column=0, padx=10, pady=10, sticky="W")
@@ -66,8 +68,8 @@ class ManualModeFrame(ctk.CTkFrame):
             )
             img_button.grid(row=4, column=c, padx=2, pady=2)
 
-    # FRAME 3: Stopwatch Frame
-    def get_time_frame(self):
+    # FRAME 3: Details Frame (stopwatch, last prepped band, last start time)
+    def create_details_frame(self):
         """3rd frame is the time and band information"""
         time_frame = ctk.CTkFrame(self, fg_color="transparent")
         time_frame.grid(row=2, column=0, padx=10, pady=10, sticky="W")

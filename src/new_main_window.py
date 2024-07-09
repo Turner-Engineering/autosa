@@ -4,7 +4,7 @@ from ui.new_manual_mode import ManualModeFrame
 from ui.new_single_band_mode import SingleModeFrame
 from ui.new_multi_band_mode import MultiModeFrame
 from ui.new_settings_window import SettingsWindow
-from ui.new_utils import write_json, read_json
+from ui.new_utils import write_settings_to_json, read_settings_from_json
 
 global SETTINGS_FILE_PATH
 SETTINGS_FILE_PATH = os.path.join(os.getenv("LOCALAPPDATA"), "Autosa")
@@ -89,12 +89,16 @@ class MainApp(ctk.CTk):
         top_frame.pack(fill="x")
 
         menu_frame = MenuFrame(self)
-        menu_frame.pack(fill=ctk.BOTH, expand=True)
+        # use a string for "both" to match the fill="x" above
+        menu_frame.pack(fill="both", expand=True)
 
 
 if __name__ == "__main__":
     # if os.path.exists(SETTINGS_FILE_PATH):
-    #     print(json.dumps(read_json(), indent=4))
+    #     print(json.dumps(read_settings_from_json(), indent=4))
 
     app = MainApp()
+
+    # make it non-resizable, Autosa is a simple app and with decent design it shouldn't need to be resized
+    app.resizable(False, False)
     app.mainloop()

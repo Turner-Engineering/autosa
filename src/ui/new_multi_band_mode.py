@@ -1,7 +1,7 @@
 import json, os
 import customtkinter as ctk
 import datetime
-from ui.new_utils import write_json, read_json
+from ui.new_utils import write_settings_to_json, read_settings_from_json
 
 
 DATE = datetime.date.today()
@@ -97,7 +97,7 @@ def orient_callback(range_var, orientation_range):
 class ConfirmWindow(ctk.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title("Confirm Run")
+        self.title("Confirm Runs")
         window_width = 600
         window_height = 275
         self.geometry(f"{window_width}x{window_height}")
@@ -105,56 +105,60 @@ class ConfirmWindow(ctk.CTkToplevel):
         self.columnconfigure(0, weight=1)
 
         # vars:
-        rng_choice = parent.range_var.get()
+        band_range = parent.band_range_var.get()
         run_note = parent.run_note_var.get()
 
-        self.create_widgets(rng_choice, run_note)
+        self.create_widgets(band_range, run_note)
 
-    def create_widgets(self, rng_choice, run_note):
-        self.confirm_run(rng_choice, run_note)
+    def create_widgets(self, band_range, run_note):
+        self.confirm_run(band_range, run_note)
 
-    def confirm_run(self, rng_choice, run_note):
+    def confirm_run(self, band_range, run_note):
         # format the date
-        yr = str(DATE.year)[-2:]
-        local_date = f"{DATE.month}{DATE.day:02}-{yr}"
+        year = str(DATE.year)[-2:]  # don't need to abbreviate four letters
+        local_date = f"{DATE.month}{DATE.day:02}-{year}"
 
-        data = read_json()
+        data = read_settings_from_json()
+        print(data)
 
         for keys in data:
             if "Sweep Duration" in keys:
-                sweep_dur = data["Sweep Duration:"]
+                sweep_dur = data["Sweep Duration:"]  # TODO: keys should not have colons
 
         run_num = (
             5
-            if rng_choice == "B0 - B4 (monopole)"
-            else 3 if rng_choice == "B5 - B7 (bilogical)" else 8
+            if band_range == "B0 - B4 (monopole)"
+            else 3 if band_range == "B5 - B7 (bilogical)" else 8
         )
 
-        ctk.CTkLabel(
+        confirm_label = ctk.CTkLabel(
             self,
             text=(
                 "Please confirm that you would like to run bands\n"
-                f"{rng_choice} ({run_num} runs total)\n"
+                f"{band_range} ({run_num} runs total)\n"
                 f"for {sweep_dur} seconds each\n"
                 "and that the first filename should be:\n"
                 f"{local_date} {run_note} B0\n"
                 "(the rest will be numbered sequentially)"
             ),
-        ).grid(row=0, column=0, padx=10, pady=10)
+        )
+        confirm_label.grid(row=0, column=0, padx=10, pady=10)
 
-        button_frm = ctk.CTkFrame(self)
-        button_frm.grid(row=1, column=0, padx=10, pady=10)
+        button_frame = ctk.CTkFrame(self)
+        button_frame.grid(row=1, column=0, padx=10, pady=10)
 
-        ctk.CTkButton(
-            button_frm,
+        okay_button = ctk.CTkButton(
+            button_frame,
             text="Okay",
             # command=lambda: measure_prog_bar(self, prog_bar, prog_amt, run_num),
             command=lambda: self.measure_prog_bar(),
-        ).grid(row=0, column=0, padx=10, pady=10)
-
-        ctk.CTkButton(button_frm, text="Cancel", command=lambda: self.destroy()).grid(
-            row=0, column=1, padx=10, pady=10
         )
+        okay_button.grid(row=0, column=0, padx=10, pady=10)
+
+        cancel_button = ctk.CTkButton(
+            button_frame, text="Cancel", command=lambda: self.destroy()
+        )
+        cancel_button.grid(row=0, column=1, padx=10, pady=10)
 
     def measure_prog_bar(self):
         """presents the progress bar of runs"""
@@ -169,10 +173,9 @@ class ConfirmWindow(ctk.CTkToplevel):
 class MultiModeFrame(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.button_padding = 5
         self.columnconfigure(0, weight=1)
         self.configure(border_width=2)
-        self.range_var = ctk.StringVar(value="B5 - B7 (bilogical")
+        self.band_range_var = ctk.StringVar(value="B5 - B7 (bilogical")
         self.run_note_var = ctk.StringVar(value="[run note]")
         self.create_widgets()
 
@@ -205,26 +208,31 @@ class MultiModeFrame(ctk.CTkFrame):
         orient_range_label = ctk.CTkLabel(dropdown_frame, text="Orientation: ")
         orient_range_label.grid(row=1, column=0, padx=5, pady=5)
 
-        orient_range = ctk.CTkOptionMenu(
+        # subjective again, but "orient" as an abbreviation for orientation has the issue of also being a verb
+        # "orient_range" could also mean a function that is orienting something
+        # ori is shorter and doesn't have that issue
+        ori_dropdown = ctk.CTkOptionMenu(
             dropdown_frame, values=["Horizontal", "Vertical"]
         )
-        orient_range.grid(row=1, column=1, padx=2, pady=2, sticky="EW")
+        ori_dropdown.grid(row=1, column=1, padx=2, pady=2, sticky="EW")
 
         #   Band Range:
         band_range_label = ctk.CTkLabel(dropdown_frame, text="Band Range: ")
         band_range_label.grid(row=0, column=0, padx=5, pady=5)
 
-        range_menu = ctk.CTkOptionMenu(
+        band_ranges = [
+            "B0 - B4 (monopole)",
+            "B5 - B7 (bilogical)",
+            "B0 - B7 (calibration)",
+        ]
+
+        band_range_dropdown = ctk.CTkOptionMenu(
             dropdown_frame,
-            values=[
-                "B0 - B4 (monopole)",
-                "B5 - B7 (bilogical)",
-                "B0 - B7 (calibration)",
-            ],
-            variable=self.range_var,
-            command=lambda event: orient_callback(self.range_var, orient_range),
+            values=band_ranges,
+            variable=self.band_range_var,
+            command=lambda event: orient_callback(self.band_range_var, ori_dropdown),
         )
-        range_menu.grid(row=0, column=1, padx=2, pady=2)
+        band_range_dropdown.grid(row=0, column=1, padx=2, pady=2)
 
         # FRAME 3:
         run_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -232,15 +240,15 @@ class MultiModeFrame(ctk.CTkFrame):
         run_frame.columnconfigure([0, 1], weight=1)
         run_frame.rowconfigure(0, weight=1)
 
-        run_sweep = ctk.CTkButton(
+        run_sweeps_button = ctk.CTkButton(
             run_frame,
             text="Run Sweeps",
             # command=lambda: confirm_run(
             #     self, range_var, progress_bar, prog_amt, run_note_entry
             # ),
-            command=lambda: self.check_settings(),
+            command=lambda: self.open_confirm_window(),
         )
-        run_sweep.grid(row=0, column=0, padx=5, pady=5, sticky="W")
+        run_sweeps_button.grid(row=0, column=0, padx=5, pady=5, sticky="W")
 
         progress_bar = ctk.CTkProgressBar(run_frame)
         progress_bar.set(0)  # start at 0
@@ -249,16 +257,17 @@ class MultiModeFrame(ctk.CTkFrame):
         prog_amt = ctk.CTkLabel(run_frame, text="num")
         prog_amt.grid(row=0, column=4, padx=10, pady=5, sticky="W")
 
-        cancel_sweep = ctk.CTkButton(
+        cancel_button = ctk.CTkButton(
             run_frame, text="Cancel Sweep", command=lambda: progress_bar.stop()
         )
-        cancel_sweep.grid(row=0, column=5, padx=5, pady=5, sticky="W")
+        cancel_button.grid(row=0, column=5, padx=5, pady=5, sticky="W")
 
-    def check_settings(self):
+    # the main purpose here is to run the sweeps, not check settings
+    def open_confirm_window(self):
         if os.path.exists(SETTINGS_FILE_PATH):
             ConfirmWindow(self)
         else:
-            print("INVALID SETTINGS")
+            print("Settings file not found!")
 
     # def measure_prog_bar(self):
     #     """presents the progress bar of runs"""

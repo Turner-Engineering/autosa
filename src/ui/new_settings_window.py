@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import filedialog as fd
-from ui.new_utils import write_json, read_json
+from ui.new_utils import write_settings_to_json, read_settings_from_json
 import os
 
 global SETTINGS_FILE_PATH
@@ -12,25 +12,25 @@ SETTINGS_FILE_PATH = os.path.join(os.getenv("LOCALAPPDATA"), "Autosa")
 #   BUT when settings is opened again, the dropdown is not available, <-- TODO
 #   despite the choice appearing
 class CorrSettingFrame(ctk.CTkFrame):
-    def __init__(self, parent, corr_var, corr_menus, corr_choice):
+    def __init__(self, parent, corr_path_var, corr_dropdowns, corr_choice):
         super().__init__(parent)
         self.columnconfigure(0, weight=1)
 
         # interaction with the entry bar for "correction files folder"
-        self.corr_var = corr_var
-        self.corr_var.trace_add("write", self.update_dropdown)
+        self.corr_path_var = corr_path_var
+        self.corr_path_var.trace_add("write", self.update_dropdown)
 
         # interaction with the choices in the dropdown menu
-        self.corr_menus = corr_menus
+        self.corr_dropdowns = corr_dropdowns
         self.corr_choice = corr_choice
         self.corr_file_options = ["No Correction"]
 
-        self.create_widgets(corr_var)
+        self.create_widgets(corr_path_var)
 
     def create_widgets(self, corr_var):
-        self.get_correction_tab(corr_var)
+        self.create_correction_tab(corr_var)
 
-    def get_correction_tab(self, corr_var):
+    def create_correction_tab(self, corr_path_var):
         corr_frame = ctk.CTkFrame(self)
         corr_frame.grid(row=0, column=0, sticky="EW")
         corr_frame.columnconfigure([0, 1, 2, 3], weight=1)
@@ -46,19 +46,19 @@ class CorrSettingFrame(ctk.CTkFrame):
         # row and column of the option menu
         place_menu = [(0, 1), (0, 3), (1, 1), (1, 3), (2, 1), (2, 3), (3, 1), (3, 3)]
         for b, (row, col) in enumerate(place_menu):
-            corr_band_menu = ctk.CTkOptionMenu(
+            corr_band_dropdown = ctk.CTkOptionMenu(
                 corr_frame, values=self.corr_file_options
             )
-            corr_band_menu.set(self.corr_choice.get(f"B{b}", "No Correction"))
-            corr_band_menu.grid(row=row, column=col, padx=15, pady=15, sticky="W")
-            corr_band_menu.configure(
+            corr_band_dropdown.set(self.corr_choice.get(f"B{b}", "No Correction"))
+            corr_band_dropdown.grid(row=row, column=col, padx=15, pady=15, sticky="W")
+            corr_band_dropdown.configure(
                 command=lambda choice, band=f"B{b}": self.update_corr_choice(
                     band, choice
                 )
             )
-            self.corr_menus.append(corr_band_menu)  # Store dropdowns
+            self.corr_dropdowns.append(corr_band_dropdown)  # Store dropdowns
 
-        test_label = ctk.CTkLabel(corr_frame, textvariable=corr_var)
+        test_label = ctk.CTkLabel(corr_frame, textvariable=corr_path_var)
         test_label.grid(row=4, column=0, padx=15, pady=15, sticky="EW", columnspan=3)
 
     def update_corr_choice(self, band, choice):
@@ -67,80 +67,80 @@ class CorrSettingFrame(ctk.CTkFrame):
     def update_dropdown(self, corr_var, index, mode):
         self.corr_file_options = ["No Correction"]
 
-        for menu in self.corr_menus:
-            if self.corr_var.get() == "":
-                menu.configure(state="disabled")
+        for dropdown in self.corr_dropdowns:
+            if self.corr_path_var.get() == "":
+                dropdown.configure(state="disabled")
             else:
-                menu.configure(state="normal")
+                dropdown.configure(state="normal")
 
-        if not os.path.exists(self.corr_var.get()):
-            for menu in self.corr_menus:
-                menu.configure(state="disabled")
-            print(f"correction folder '{self.corr_var.get()}' DOES NOT EXIST")
-        elif not os.listdir(self.corr_var.get()):
-            for menu in self.corr_menus:
-                menu.configure(state="disabled")
-            print(f"Correction folder '{self.corr_var.get()}' IS EMPTY")
+        if not os.path.exists(self.corr_path_var.get()):
+            for dropdown in self.corr_dropdowns:
+                dropdown.configure(state="disabled")
+            print(f"correction folder '{self.corr_path_var.get()}' DOES NOT EXIST")
+        elif not os.listdir(self.corr_path_var.get()):
+            for dropdown in self.corr_dropdowns:
+                dropdown.configure(state="disabled")
+            print(f"Correction folder '{self.corr_path_var.get()}' IS EMPTY")
         else:
-            menu.configure(state="normal")
+            dropdown.configure(state="normal")
 
             # for each file in the found directory, check csv
-            for file in os.listdir(self.corr_var.get()):
+            for file in os.listdir(self.corr_path_var.get()):
                 if file.endswith(".csv"):
                     self.corr_file_options.append(file)
 
-            for menu in self.corr_menus:
+            for dropdown in self.corr_dropdowns:
                 print("FILE IS HERE!")
-                menu.configure(values=self.corr_file_options)
-                menu.set(
-                    "No Correction"
-                )  # if another file is selected, reset dropdown to "No correction"
+                dropdown.configure(values=self.corr_file_options)
+                # if another file is selected, reset dropdown to "No correction"
+                dropdown.set("No Correction")
 
 
 class PrimaryFrame(ctk.CTkFrame):
-    def __init__(self, parent, input_labels):
+    def __init__(self, parent, settings_vars):
         super().__init__(parent)
         self.columnconfigure(0, weight=1)
-        self.create_widgets(input_labels)
+        self.create_widgets(settings_vars)
 
-    def create_widgets(self, input_labels):
-        self.get_folder_frame(input_labels)
+    def create_widgets(self, settings_vars):
+        self.create_primary_frame(settings_vars)
 
-    def get_folder_frame(self, input_labels):
+    def create_primary_frame(self, settings_vars):
         """creates and sets up the frame for the folders"""
-        prmry_frm = ctk.CTkFrame(self)
-        prmry_frm.grid(row=0, column=0, sticky="EW")
-        prmry_frm.rowconfigure([0, 1, 2, 3, 4], weight=1)
-        prmry_frm.columnconfigure([0, 1, 2], weight=1)
+        primary_frame = ctk.CTkFrame(self)
+        primary_frame.grid(row=0, column=0, sticky="EW")
+        primary_frame.rowconfigure([0, 1, 2, 3, 4], weight=1)
+        primary_frame.columnconfigure([0, 1, 2], weight=1)
 
-        self.input = []  # storing user input files
+        self.path_entries = []  # storing user input folders
 
-        for r, (label, input) in enumerate(input_labels.items()):
-            ctk.CTkLabel(prmry_frm, text=label, justify="left").grid(
+        for r, (label, input) in enumerate(settings_vars.items()):
+            ctk.CTkLabel(primary_frame, text=label, justify="left").grid(
                 row=r, column=0, padx=5, pady=5, sticky="W"
             )
 
-            path = ctk.CTkEntry(prmry_frm, textvariable=input, width=500)
-            path.grid(row=r, column=2, padx=5, pady=5, sticky="EW")
-            self.input.append(path)  # collect the inputs
+            path_entry = ctk.CTkEntry(primary_frame, textvariable=input, width=500)
+            path_entry.grid(row=r, column=2, padx=5, pady=5, sticky="EW")
+            self.path_entries.append(path_entry)  # collect the inputs
+
         ctk.CTkButton(
-            prmry_frm,
+            primary_frame,
             text="Browse",
             command=lambda: SettingsWindow.browse_files(
-                input_labels["Correction Files Folder:"]
+                settings_vars["Correction Files Folder:"]
             ),
         ).grid(row=1, column=3, padx=5, pady=5, sticky="W")
 
         ctk.CTkButton(
-            prmry_frm,
+            primary_frame,
             text="Browse",
             command=lambda: SettingsWindow.browse_files(
-                input_labels["Local Output Folder:"]
+                settings_vars["Local Output Folder:"]
             ),
         ).grid(row=3, column=3, padx=5, pady=5, sticky="W")
 
         ctk.CTkLabel(
-            prmry_frm,
+            primary_frame,
             text=(
                 "The run note is the text placed after the run id and band name in filename.\n"
                 'Files will be saved as "808-13 B3 [run note].csv" and "808-13 B3 [run note].png"\n'
@@ -165,7 +165,7 @@ class SettingsWindow(ctk.CTkToplevel):
 
         # if folder exists:
         if os.path.exists(SETTINGS_FILE_PATH):
-            data = read_json()
+            data = read_settings_from_json()
 
             state_folder = data["State Files Folder:"]
             corr_folder = data["Correction Files Folder:"]
@@ -182,11 +182,11 @@ class SettingsWindow(ctk.CTkToplevel):
             self.corr_choice = {}
 
         # title frame
-        settings_header = ctk.CTkLabel(self, text="Settings", justify="left")
-        settings_header.grid(row=0, column=0, padx=5, pady=5, sticky="W")
+        settings_header_label = ctk.CTkLabel(self, text="Settings", justify="left")
+        settings_header_label.grid(row=0, column=0, padx=5, pady=5, sticky="W")
 
-        self.corr_menus = []
-        self.input_labels = {
+        self.corr_dropdowns = []
+        self.settings_vars = {
             "State Files Folder:": ctk.StringVar(value=state_folder),
             "Correction Files Folder:": ctk.StringVar(value=corr_folder),
             "Instrument Output Folder:": ctk.StringVar(value=inst_out_folder),
@@ -197,10 +197,10 @@ class SettingsWindow(ctk.CTkToplevel):
         self.create_widgets()
 
     def create_widgets(self):
-        self.get_button_frame()  # Button frame
-        self.get_settings_menu_layout()
+        self.create_button_frame()  # Button frame
+        self.create_settings_menu_layout()
 
-    def get_button_frame(self):
+    def create_button_frame(self):
         """Creates the save and cancel buttons"""
         button_frame = ctk.CTkFrame(self)
         button_frame.grid(row=3, column=0, sticky="EW")
@@ -217,39 +217,42 @@ class SettingsWindow(ctk.CTkToplevel):
         )
         cancel_button.grid(row=0, column=1, padx=10, pady=10, sticky="W")
 
-    def get_settings_menu_layout(self):
+    def create_settings_menu_layout(self):
         tabview = ctk.CTkTabview(self)
         tabview.grid(row=1, column=0, padx=5, pady=5, sticky="EW")
         tabview.rowconfigure([0, 1, 2, 3], weight=1)
 
         tab1 = tabview.add("      Primary      ")
-        frame = PrimaryFrame(tab1, self.input_labels)
+        frame = PrimaryFrame(tab1, self.settings_vars)
         frame.pack(expand=1, fill="both")
 
         tab2 = tabview.add("      Amplitude Correction      ")
         frame = CorrSettingFrame(
             tab2,
-            self.input_labels["Correction Files Folder:"],
-            self.corr_menus,
+            self.settings_vars["Correction Files Folder:"],
+            self.corr_dropdowns,
             self.corr_choice,
         )
         frame.pack(expand=1, fill="both")
 
     def save_settings(self):
         """write to the json file"""
-        json_data = {label: input.get() for label, input in self.input_labels.items()}
+        json_data = {
+            label: settings_var.get()
+            for label, settings_var in self.settings_vars.items()
+        }
         json_data["Correction Choice:"] = self.corr_choice
 
         if not os.path.exists(SETTINGS_FILE_PATH):
             os.mkdir(SETTINGS_FILE_PATH)
 
-        for label, input in self.input_labels.items():
-            json_data[label] = input.get()
+        for label, settings_var in self.settings_vars.items():
+            json_data[label] = settings_var.get()
 
-        write_json(json_data)
+        write_settings_to_json(json_data)
 
         self.destroy()  # close settings window after saving
 
-    def browse_files(folder):
-        folder_name = fd.askdirectory()
-        folder.set(folder_name)
+    def browse_files(path_var):
+        folder_path = fd.askdirectory()
+        path_var.set(folder_path)

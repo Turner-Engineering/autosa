@@ -4,23 +4,22 @@ import customtkinter as ctk
 class SingleModeFrame(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.button_padding = 5
         self.columnconfigure(0, weight=1)
         self.configure(border_width=2)
         self.create_widgets()
 
     def create_widgets(self):
-        self.get_header_frame()
-        self.get_button_frame()
+        self.create_header_frame()
+        self.create_band_button_frame()
 
     # FRAME 1: header and run note
-    def get_header_frame(self):
+    def create_header_frame(self):
         """1st frame is the header"""
         header_frame = ctk.CTkFrame(self, fg_color="transparent")
         header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="EW")
         header_frame.columnconfigure([0, 1], weight=1)
 
-        tab2_header = ctk.CTkLabel(
+        tab2_label = ctk.CTkLabel(
             header_frame,
             text=(
                 "Single Band Mode lets you run one band at a time.\n"
@@ -29,13 +28,13 @@ class SingleModeFrame(ctk.CTkFrame):
             justify="left",
             anchor="w",
         )
-        tab2_header.grid(row=0, column=0, padx=5, pady=5, sticky="W")
+        tab2_label.grid(row=0, column=0, padx=5, pady=5, sticky="W")
 
-        run_note_text = ctk.CTkEntry(header_frame, placeholder_text="[run note]")
-        run_note_text.grid(row=0, column=1, padx=5, pady=5, sticky="E")
+        run_note_entry = ctk.CTkEntry(header_frame, placeholder_text="[run note]")
+        run_note_entry.grid(row=0, column=1, padx=5, pady=5, sticky="E")
 
     # FRAME 2: Button Frame
-    def get_button_frame(self):
+    def create_band_button_frame(self):
         """2nd frame creates and sets up bands B0-B4, B5h-B7h, B5v-B7v"""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
         button_frame.grid(row=1, column=0, padx=10, pady=10, sticky="EW")
@@ -58,6 +57,6 @@ class SingleModeFrame(ctk.CTkFrame):
             ("B7v", lambda: print("B7v"), 3, 3),
         ]
 
-        for band, cmd, r, c in band_buttons:
-            band_button = ctk.CTkButton(button_frame, text=band, command=cmd)
+        for band_key, cmd, r, c in band_buttons:
+            band_button = ctk.CTkButton(button_frame, text=band_key, command=cmd)
             band_button.grid(row=r, column=c, padx=2, pady=2)
