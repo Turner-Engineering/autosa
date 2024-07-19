@@ -121,4 +121,7 @@ if __name__ == "__main__":
 
     # make it non-resizable, Autosa is a simple app and with decent design it shouldn't need to be resized
     app.resizable(False, False)
+
+    # good for debugging, seems not to be recommended for production code
+    app.eval("tk::PlaceWindow . center")  # TODO: remove this if it causes issues
     app.mainloop()
