@@ -3,10 +3,10 @@ import re
 
 
 def run_index_to_id(run_index):
-    run_number = "%02d" % run_index  # TODO confirm will work with 100s of runs
+    run_number = "%02d" % run_index
     d = datetime.datetime.now()
     month = str(int(d.strftime("%m")))
-    date = d.strftime("%d")  # TODO make this shorter like medhashree's code
+    date = d.strftime("%d")
     run_id = f"{month}{date}-{run_number}"
     return run_id
 
