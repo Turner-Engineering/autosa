@@ -1,371 +1,269 @@
-import os
-import re
-
-import PySimpleGUI as sg
-
-from instrument.folders import get_folder_info, get_folder_files
-
-FOLDER_FIELDS = [
-    {
-        "key": "-STATE FOLDER-",
-        "label": "State Files Folder",
-        "validation": ["exists", "not_empty"],
-    },
-    {
-        "key": "-CORR FOLDER-",
-        "label": "Correction Files Folder",
-        "validation": ["exists", "not_empty"],
-        "events": True,
-    },
-    {
-        "key": "-INST OUT FOLDER-",
-        "label": "Instrument Output Folder",
-        "validation": ["exists"],
-    },
-    {
-        "key": "-LOCAL OUT FOLDER-",
-        "label": "Local Output Folder",
-        "validation": ["exists_local"],
-        "browse": True,
-    },
-]
+import customtkinter as ctk
+from tkinter import filedialog as fd
+from instrument.folders import get_folder_info
+from ui.get_resource_path import resource_path
+from utils.settings import write_settings_to_file, read_settings_from_file
 
 
-DEFAULT_SETTINGS = {
-    "-STATE FOLDER-": "D:/Users/Instrument/Desktop/State Files",
-    "-CORR FOLDER-": "D:/Users/Instrument/Desktop/Correction Files",
-    "-INST OUT FOLDER-": "D:/Users/Instrument/Desktop/Test Data",
-    "-LOCAL OUT FOLDER-": "",
-    "-B0 CORR-": ['"Rod A kHz.csv"'],
-    "-B1 CORR-": ["Rod A 10 kHz.csv"],
-    "-B2 CORR-": ["Rod A 10 kHz.csv"],
-    "-B3 CORR-": ["Rod A 10 kHz.csv"],
-    "-B4 CORR-": ["Rod A 100 kHz.csv"],
-    "-B5 CORR-": ["Bilogic 100.csv"],
-    "-B6 CORR-": ["Bilogic 300.csv"],
-    "-B7 CORR-": ["Bilogic 300.csv"],
-    "-B0 STATE-": "State_B0.state",
-    "-B1 STATE-": "State_B1.state",
-    "-B2 STATE-": "State_B2.state",
-    "-B3 STATE-": "State_B3.state",
-    "-B4 STATE-": "State_B4.state",
-    "-B5 STATE-": "State_B5.state",
-    "-B6 STATE-": "State_B6.state",
-    "-B7 STATE-": "State_B7.state",
-    "-SWEEP DUR-": 5,
-    "-RUN NOTE-": "Philadelphia",
-}
+class CorrSettingFrame(ctk.CTkFrame):
+    def __init__(self, parent, corr_path_var, corr_dropdowns, corr_choice, inst):
+        super().__init__(parent)
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
 
-BAND_KEYS = ["B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7"]
+        # interaction with the entry bar for "correction files folder"
+        self.corr_path_var = corr_path_var
+        self.corr_path_var.trace_add("write", self.update_dropdown)
 
+        # interaction with the choices in the dropdown menu
+        self.corr_dropdowns = corr_dropdowns
+        self.corr_choice = corr_choice
+        self.corr_file_options = ["No Correction"]
+        self.inst = inst
 
-def get_state_filenames(settings):
-    regex = r"^-B\d STATE-$"
-    state_filenames = [settings[key] for key in settings if re.match(regex, key)]
-    state_filenames = list(set(state_filenames))
-    state_filenames.sort()
-    return state_filenames
+        self.create_widgets()
+        self.get_init_corr()
 
+    def create_widgets(self):
+        self.create_correction_tab()
 
-def get_missing_files(expected_filenames, actual_filenames):
-    return set(expected_filenames).difference(set(actual_filenames))
+    def create_correction_tab(self):
+        corr_frame = ctk.CTkFrame(self)
+        corr_frame.grid(row=0, column=0, sticky="nsew")
+        corr_frame.columnconfigure([0, 1, 2, 3], weight=1)
+        corr_frame.rowconfigure([0, 1, 2, 3], weight=1)
 
-
-def get_folder_exists_local(folder_path):
-    return os.path.isdir(folder_path)
-
-
-def validate_folders(inst, settings, folder_fields):
-    state_filenames = get_state_filenames(settings)
-    for folder_field in folder_fields:
-        # get folder label and path
-        folder_key = folder_field["key"]
-        folder_label = folder_field["label"]
-        folder_validation = folder_field["validation"]
-        folder_path = settings[folder_key]
-        if "validation" not in folder_field:
-            continue
-
-        exists_local = get_folder_exists_local(folder_path)
-        expect_exists_local = "exists_local" in folder_validation
-        if expect_exists_local:
-            if not exists_local:
-                return f'{folder_label} "{folder_path}" does not exist on this computer'
-            else:
-                continue
-
-        exists, empty, filenames = get_folder_info(inst, folder_path)
-        expect_exists = "exists" in folder_validation
-        expect_not_empty = "not_empty" in folder_validation
-        error_message = ""
-
-        if expect_exists and not exists:
-            return f'{folder_label} "{folder_path}" does not exist on the instrument'
-
-        if expect_not_empty and empty:
-            return f'{folder_label} "{folder_path}" does is empty'
-
-        # make sure all the expected files are present
-        missing_state_files = get_missing_files(state_filenames, filenames)
-        if "STATE" in folder_key and missing_state_files:
-            error_message = (
-                f'{folder_label} "{folder_path}" is missing following file(s):\n\n'
-                + "\n".join(missing_state_files)
+        # label's row, column
+        band_labels = [(0, 0), (0, 2), (1, 0), (1, 2), (2, 0), (2, 2), (3, 0), (3, 2)]
+        for b, (row, col) in enumerate(band_labels):
+            ctk.CTkLabel(corr_frame, text=f"B{b}").grid(
+                row=row, column=col, padx=15, pady=15, sticky="e"
             )
-            return error_message
-    return error_message
 
+        # row and column of the option menu
+        place_menu = [(0, 1), (0, 3), (1, 1), (1, 3), (2, 1), (2, 3), (3, 1), (3, 3)]
+        for b, (row, col) in enumerate(place_menu):
+            corr_band_dropdown = ctk.CTkOptionMenu(
+                corr_frame, values=self.corr_file_options
+            )
+            corr_band_dropdown.set(self.corr_choice.get(f"B{b}", "No Correction"))
+            corr_band_dropdown.grid(row=row, column=col, padx=15, pady=15, sticky="w")
+            corr_band_dropdown.configure(
+                command=lambda choice, band=f"B{b}": self.update_corr_choice(
+                    band, choice
+                )
+            )
+            self.corr_dropdowns.append(corr_band_dropdown)  # Store dropdowns
 
-def validate_corr_files(settings):
-    def get_error_message(band_key):
-        return f"No amplitude correction files have been selected for band {band_key}"
+    def update_corr_choice(self, band, choice):
+        self.corr_choice[band] = choice
 
-    error_message = ""
-    for band_key in BAND_KEYS:
-        key = f"-{band_key} CORR-"
-        corr_filenames = settings[key]
-        if len(corr_filenames) == 0:
-            error_message = get_error_message(band_key)
-            break
-    return error_message
-
-
-def validate_sweep_dur(settings):
-    sweep_dur = settings["-SWEEP DUR-"]
-    error_message = ""
-    if float(sweep_dur) <= 0:
-        error_message = "Sweep duration must be greater than 0"
-    return error_message
-
-
-def validate_run_note(settings):
-    run_note = settings["-RUN NOTE-"]
-    error_message = ""
-    if run_note == "":
-        error_message = "Run note cannot be empty"
-    # should be something that is valid to use as a filename
-    forbidden_chars = ["\\", "/", ":", "*", "?", '"', "<", ">", "|"]
-    for char in forbidden_chars:
-        if char in run_note:
-            error_message = f'Run note cannot contain the following characters: {", ".join(forbidden_chars)}'
-            break
-
-    return error_message
-
-
-def validate_settings(inst, settings=None):
-    settings = sg.user_settings() if settings is None else settings
-    settings = {key: settings[key] for key in DEFAULT_SETTINGS}
-
-    # validate saved user settings
-    folders_error = validate_folders(inst, settings, FOLDER_FIELDS)
-    if folders_error:
-        return folders_error
-    sweep_dur_error = validate_sweep_dur(settings)
-    if sweep_dur_error:
-        return sweep_dur_error
-    run_note_error = validate_run_note(settings)
-    if run_note_error:
-        return run_note_error
-    corr_files_error = validate_corr_files(settings)
-    if corr_files_error:
-        return corr_files_error
-    return ""
-
-
-def get_folder_setting(folder_field):
-    folder_key = folder_field["key"]
-    folder_label = folder_field["label"]
-    events = folder_field["events"] if "events" in folder_field else False
-    default_value = DEFAULT_SETTINGS[folder_key]
-    detault_text = sg.user_settings_get_entry(folder_key, default_value)
-
-    folder_setting = [
-        sg.Text(folder_label + ":"),
-        sg.Input(
-            key=folder_key, default_text=detault_text, size=60, enable_events=events
-        ),
-    ]
-    if "browse" in folder_field:
-        folder_setting.append(sg.FolderBrowse())
-    return folder_setting
-
-
-def get_folder_settings():
-    folder_settings = [[sg.Text("Folders", font=("", 15))]]
-    for folder_field in FOLDER_FIELDS:
-        folder_setting = get_folder_setting(folder_field)
-        folder_settings.append(folder_setting)
-    return folder_settings
-
-
-def get_other_settings():
-    sweep_dur_default = sg.user_settings_get_entry("-SWEEP DUR-", 5)
-    run_note_default = sg.user_settings_get_entry("-RUN NOTE-", "Philadelphia")
-    layout = [
-        [sg.Text("Other", font=("", 15))],
-        [
-            sg.Text("Sweep Duration (s):"),
-            sg.Input(key="-SWEEP DUR-", default_text=sweep_dur_default, size=60),
-        ],
-        [
-            sg.Text("Run Note:"),
-            sg.Input(key="-RUN NOTE-", default_text=run_note_default, size=60),
-        ],
-        [
-            sg.Text(
-                "The run note is the text placed after the run id and band name in a filename.",
-                expand_x=True,
-            ),
-        ],
-        [
-            sg.Text(
-                'Files will be saved as "808-13 B3 [run note].csv and "808-13 B3 [run note].png".',
-                expand_x=True,
-            ),
-        ],
-        [
-            sg.Text(
-                "This can be used for location, test type, or any other information.",
-                expand_x=True,
-            ),
-        ],
-    ]
-    return layout
-
-
-def get_filenames_frame_layout(filename_type):
-    layout = []
-    for band_key in BAND_KEYS:
-        key = f"-{band_key} {filename_type}-"
-        default_text = sg.user_settings_get_entry(key, DEFAULT_SETTINGS[key])
-        layout.append(
-            [
-                sg.Text(band_key, size=5),
-                sg.Input(key=key, default_text=default_text, expand_x=True),
-            ]
+    def update_dropdown(self, *args):
+        self.corr_file_options = ["No Correction"]
+        corr_exists, corr_empty, corr_filenames = get_folder_info(
+            self.inst, self.corr_path_var.get()
         )
-    return layout
 
-
-def get_state_files_section():
-    frame1 = sg.Frame("State Files", get_filenames_frame_layout("STATE"), expand_x=True)
-    return [[frame1]]
-
-
-def get_multiselect(band_key, filenames):
-    key = f"-{band_key} CORR-"
-    select_mode = sg.LISTBOX_SELECT_MODE_MULTIPLE
-    default_values = sg.user_settings_get_entry(key, DEFAULT_SETTINGS[key])
-    return sg.Listbox(
-        filenames,
-        select_mode=select_mode,
-        key=key,
-        # expand_y=True,
-        default_values=default_values,
-        # set width
-        size=(70, 10),
-    )
-
-
-def get_corr_frame(band_key, filenames):
-    title = f"  {band_key}   "
-    layout = [[get_multiselect(band_key, filenames)]]
-    return sg.Frame(title, layout, expand_x=True, expand_y=True, font=("", 11, "bold"))
-
-
-def get_band_setup_section(inst, corr_folder=None):
-    corr_folder = (
-        sg.user_settings_get_entry("-CORR FOLDER-")
-        if corr_folder is None
-        else corr_folder
-    )
-    filenames = get_folder_files(inst, corr_folder)
-
-    row1 = []
-    for band_key in BAND_KEYS[0:3]:
-        row1.append(get_corr_frame(band_key, filenames))
-    row2 = []
-    for band_key in BAND_KEYS[3:6]:
-        row2.append(get_corr_frame(band_key, filenames))
-    row3 = []
-    for band_key in BAND_KEYS[6:8]:
-        row3.append(get_corr_frame(band_key, filenames))
-
-    layout = [row1, row2, row3]
-
-    # frame = sg.Frame("Amplitude Correction Files", layout, expand_x=True)
-    return layout
-
-
-def get_settings_window(inst):
-    folder_settings = get_folder_settings()
-    other_settings = get_other_settings()
-
-    main_section = [
-        *folder_settings,
-        [sg.HorizontalSeparator()],
-        *other_settings,
-    ]
-
-    sate_files_section = get_state_files_section()
-    band_setup_section = get_band_setup_section(inst)
-
-    tabs = [
-        sg.Tab("     Primary     ", main_section),
-        sg.Tab("     State Files     ", sate_files_section),
-        sg.Tab("     Amplitude Corrections     ", band_setup_section),
-    ]
-
-    layout = [
-        [sg.Text("Settings", font=("_ 25"))],
-        [sg.TabGroup([tabs])],
-        [sg.Button("Save"), sg.Button("Cancel")],
-    ]
-
-    window = sg.Window(
-        "Settings", layout, default_element_size=(20, 1), auto_size_text=False
-    )
-    return window
-
-
-def save_settings(values):
-    for key in DEFAULT_SETTINGS:
-        sg.user_settings_set_entry(key, values[key])
-
-
-def add_default_settings(settings):
-    # add any missing settings
-    # if new settings are added, this will add them in before they cause issues
-    # if this is the first time the program is run, this will add the default settings
-    for key in DEFAULT_SETTINGS:
-        if key not in settings:
-            settings[key] = DEFAULT_SETTINGS[key]
-    return settings
-
-
-def launch_settings_window(inst):
-    window = get_settings_window(inst)
-    settings_changed = False
-    while True:
-        event, values = window.read()
-        if event in (sg.WIN_CLOSED, "Cancel"):
-            break
-        if event == "-CORR FOLDER-":
-            filenames = get_folder_files(inst, values["-CORR FOLDER-"])
-            for band_key in BAND_KEYS:
-                key = f"-{band_key} CORR-"
-                window[key].update(values=filenames)
-        elif event == "Save":
-            # save first so we can validate from the saved settings
-            settings_error_message = validate_settings(inst, values)
-            if settings_error_message:
-                sg.popup_error(settings_error_message, title="Settings Error")
+        for dropdown in self.corr_dropdowns:
+            if self.corr_path_var.get() == "":
+                dropdown.configure(state="disabled")
             else:
-                save_settings(values)
-                settings_changed = True  # used as flag to update main window
-                break
+                dropdown.configure(state="normal")
 
-    window.close()
+        if not corr_exists or corr_empty:
+            for dropdown in self.corr_dropdowns:
+                dropdown.set("No Correction")
+                dropdown.configure(state="disabled")
+        else:
+            dropdown.configure(state="normal")
 
-    return settings_changed
+            self.corr_file_options = ["No Correction"] + [
+                file for file in corr_filenames if file.endswith(".csv")
+            ]
+
+            for dropdown in self.corr_dropdowns:
+                dropdown.configure(values=self.corr_file_options)
+                # if another file is selected, reset dropdown to "No correction"
+                dropdown.set("No Correction")
+
+    def get_init_corr(self):
+        """Loads initial dropdown choices from settings if they exist."""
+        corr_exists, _, corr_filenames = get_folder_info(
+            self.inst, self.corr_path_var.get()
+        )
+
+        # loads the dropdown
+        if self.corr_path_var.get():
+            self.update_dropdown()
+
+        # if path exists upon loading, load corr choices from settings
+        if corr_exists:
+            self.corr_file_options = ["No Correction"] + [
+                file for file in corr_filenames if file.endswith(".csv")
+            ]
+
+            # Set the dropdown values based on corr_choice settings
+            for i, dropdown in enumerate(self.corr_dropdowns):
+                band = f"B{i}"
+                corr_choice = self.corr_choice.get(band, "No Correction")
+                if corr_choice in self.corr_file_options:
+                    dropdown.set(corr_choice)
+                else:
+                    dropdown.set("No Correction")
+
+
+class PrimaryFrame(ctk.CTkFrame):
+    def __init__(self, parent, settings_vars, settings_labels):
+        super().__init__(parent)
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.create_widgets(settings_vars, settings_labels)
+
+    def create_widgets(self, settings_vars, settings_labels):
+        self.create_primary_frame(settings_vars, settings_labels)
+
+    def create_primary_frame(self, settings_vars, settings_labels):
+        """creates and sets up the frame for the folders"""
+        primary_frame = ctk.CTkFrame(self)
+        primary_frame.grid(row=0, column=0, sticky="nsew")
+        primary_frame.rowconfigure([0, 1, 2, 3, 4], weight=1)
+        primary_frame.columnconfigure([0, 1, 2], weight=1)
+
+        self.path_entries = []  # storing user input folders
+
+        for r, (key, settings_var) in enumerate(settings_vars.items()):
+            text = settings_labels[key] + ":"
+            ctk.CTkLabel(primary_frame, text=text, justify="left").grid(
+                row=r, column=0, padx=5, pady=5, sticky="w"
+            )
+            path_entry = ctk.CTkEntry(
+                primary_frame, textvariable=settings_var, width=500
+            )
+            path_entry.grid(row=r, column=2, padx=5, pady=5, sticky="ew")
+            self.path_entries.append(path_entry)  # collect the inputs
+
+        # ctk.CTkButton(
+        #     primary_frame,
+        #     text="Browse",
+        #     command=lambda: SettingsWindow.browse_files(settings_vars["-CORR FOLDER-"]),
+        # ).grid(row=1, column=3, padx=5, pady=5, sticky="w")
+
+        ctk.CTkButton(
+            primary_frame,
+            text="Browse",
+            command=lambda: SettingsWindow.browse_files(
+                self.master, settings_vars["-LOCAL OUT FOLDER-"]
+            ),
+        ).grid(row=3, column=3, padx=5, pady=5, sticky="w")
+
+        ctk.CTkLabel(
+            primary_frame,
+            text=(
+                "The run note is the text placed after the run id and band name in filename.\n"
+                'Files will be saved as "808-13 B3 [run note].csv" and "808-13 B3 [run note].png"\n'
+                "This can be used for location, test type, or any other information."
+            ),
+            justify="left",
+        ).grid(row=5, column=0, padx=5, pady=2, columnspan=3, sticky="w")
+
+
+class SettingsWindow(ctk.CTkToplevel):
+    """opens a new window and sets it up for settings"""
+
+    def __init__(self, parent, inst, update_valid, inst_found):
+        super().__init__(parent)
+        self.title("Settings")
+        window_width = 1300
+        window_height = 600
+        self.geometry(f"{window_width}x{window_height}")
+        self.resizable(False, False)
+        self.logo = resource_path("images/autosa_logo.ico")
+        self.iconbitmap(self.logo)
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure([0, 1, 2], weight=0)
+        self.inst = inst
+        self.inst_found = inst_found
+        self.update_valid = update_valid
+        self.transient(parent)
+
+        # if folder exists:
+        settings = read_settings_from_file()
+        self.corr_choice = settings.get("-CORR CHOICES-", {})
+
+        # title frame
+        settings_header_label = ctk.CTkLabel(self, text="Settings", justify="left")
+        settings_header_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+
+        self.settings_labels = {
+            "-STATE FOLDER-": "State Files Folder",
+            "-CORR FOLDER-": "Correction Files Folder",
+            "-INST OUT FOLDER-": "Instrument Output Folder",
+            "-LOCAL OUT FOLDER-": "Local Output Folder",
+            "-SWEEP DUR-": "Sweep Duration",
+        }
+
+        self.corr_dropdowns = []
+        self.settings_vars = {
+            key: ctk.StringVar(value=value)
+            for key, value in settings.items()
+            if key != "-CORR CHOICES-"
+        }
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.create_button_frame()  # Button frame
+        self.create_settings_menu_layout()
+
+    def create_button_frame(self):
+        """Creates the save and cancel buttons"""
+        button_frame = ctk.CTkFrame(self)
+        button_frame.grid(row=3, column=0, sticky="e", padx=5, pady=5)
+
+        save_button = ctk.CTkButton(
+            button_frame,
+            text="Save",
+            command=lambda: self.save_settings(),
+        )
+        save_button.grid(row=0, column=0, padx=10, pady=10, sticky="e")
+
+        cancel_button = ctk.CTkButton(
+            button_frame, text="Cancel", command=lambda: self.destroy()
+        )
+        cancel_button.grid(row=0, column=1, padx=10, pady=10, sticky="e")
+
+    def create_settings_menu_layout(self):
+        tabview = ctk.CTkTabview(self)
+        tabview.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        tabview.rowconfigure([0, 1, 2, 3], weight=1)
+        tabview.columnconfigure(0, weight=1)
+
+        tab1 = tabview.add("      Primary      ")
+        primary_frame = PrimaryFrame(tab1, self.settings_vars, self.settings_labels)
+        primary_frame.pack(expand=True, fill="both")
+
+        tab2 = tabview.add("      Amplitude Correction      ")
+        corr_frame = CorrSettingFrame(
+            tab2,
+            self.settings_vars["-CORR FOLDER-"],
+            self.corr_dropdowns,
+            self.corr_choice,
+            self.inst,
+        )
+        corr_frame.pack(expand=True, fill="both")
+
+    def save_settings(self):
+        """write to the json file"""
+        settings = {}
+        for label, settings_var in self.settings_vars.items():
+            settings[label] = settings_var.get()
+        settings["-CORR CHOICES-"] = self.corr_choice
+
+        write_settings_to_file(settings)
+        self.update_valid()
+
+        self.destroy()  # close settings window after saving
+
+    def browse_files(parent, path_var):
+        folder_path = fd.askdirectory(parent=parent)
+        path_var.set(folder_path)

@@ -1,10 +1,10 @@
 import time
-
 import pyvisa
 
 from instrument.file_transfer import copy_file_to_local
 from instrument.folders import get_folder_files
 from utils.run_ids import run_index_to_id, get_todays_run_ids
+from utils.settings import read_settings_from_file
 
 
 def get_run_id(inst, inst_out_folder):
@@ -20,7 +20,8 @@ def get_run_id(inst, inst_out_folder):
 def get_resource_name(resource_manager, emulator_mode):
     resource_names = resource_manager.list_resources()
     if emulator_mode:
-        resource_names = [r for r in resource_names if "inst0" in r]
+        resource_names = ["TCPIP0::localhost::inst0::INSTR"]
+        # resource_names = [r for r in resource_names if "inst0" in r]
     else:
         resource_names = [r for r in resource_names if "USB" in r]
     resource_names = [r for r in resource_names if "::INSTR" in r]
@@ -176,13 +177,12 @@ def record_and_adjust(inst, sweep_dur):
     # adjust_ref_level(inst)
 
 
-def recall_cors(inst, corr_folder, filenames):
+def recall_cors(inst, corr_folder, corr_filename):
     for i in range(16):
         idx = i + 1
-        # inst.write(f":SENS:CORR:CSET{idx} OFF")
-    for i, filename in enumerate(filenames):
-        inst.write(f":MMEM:LOAD:CORR {i+1},'{corr_folder}/{filename}'")
-    return
+        inst.write(f":SENS:CORR:CSET{idx} OFF")
+
+    inst.write(f":MMEM:LOAD:CORR 1, '{corr_folder}/{corr_filename}'")
 
 
 def create_run_filename(run_id, run_note, band_name):
@@ -190,9 +190,8 @@ def create_run_filename(run_id, run_note, band_name):
     return filename
 
 
-def get_run_filename(inst, settings, band_key, band_ori=""):
-    inst_out_folder = settings["-INST OUT FOLDER-"]
-    run_note = settings["-RUN NOTE-"]
+def get_run_filename(inst, band_key, run_note, band_ori=""):
+    inst_out_folder = read_settings_from_file()["-INST OUT FOLDER-"]
     run_id = get_run_id(inst, inst_out_folder)
     band_name = band_key + band_ori
     filename = create_run_filename(run_id, run_note, band_name)
@@ -211,15 +210,23 @@ def get_inst_info(inst):
     return f"{manufacturer} - {model} - {serial}"
 
 
-def prep_band(inst, settings, band_key):
+def get_state_file(inst, state_folder, band_key):
+    state_filenames = get_folder_files(inst, state_folder)
+    for filename in state_filenames:
+        if band_key in filename:
+            return filename
+
+
+def prep_band(inst, band_key):
     error_message = ""
-    state_folder = settings["-STATE FOLDER-"]
-    corr_folder = settings["-CORR FOLDER-"]
-    state_filename = settings[f"-{band_key} STATE-"]
-    corr_filenames = settings[f"-{band_key} CORR-"]
+    state_folder = read_settings_from_file()["-STATE FOLDER-"]
+    corr_folder = read_settings_from_file()["-CORR FOLDER-"]
+    state_filename = get_state_file(inst, state_folder, band_key)
+    corr_filename = read_settings_from_file()["-CORR CHOICES-"][f"{band_key}"]
     try:
         recall_state(inst, state_folder, state_filename)
-        recall_cors(inst, corr_folder, corr_filenames)
+        if corr_filename != "No Correction":
+            recall_cors(inst, corr_folder, corr_filename)
         rename_screen(inst, band_key)
         disable_ref_level_offset(inst)
         round_ref_level(inst)
@@ -230,10 +237,10 @@ def prep_band(inst, settings, band_key):
     return error_message
 
 
-def run_band(inst, settings, band_key, run_filename, save=True):
-    inst_out_folder = settings["-INST OUT FOLDER-"]
-    local_out_folder = settings["-LOCAL OUT FOLDER-"]
-    sweep_dur = float(settings["-SWEEP DUR-"])
+def run_band(inst, band_key, run_filename, save=True):
+    inst_out_folder = read_settings_from_file()["-INST OUT FOLDER-"]
+    local_out_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
+    sweep_dur = float(read_settings_from_file()["-SWEEP DUR-"])
 
     # GET THE FILENAME AND CHECK FOR CONFLICTS
     if save:
@@ -242,7 +249,7 @@ def run_band(inst, settings, band_key, run_filename, save=True):
             return error_message
 
     # PREPARE THE INSTRUMENT
-    error_message = prep_band(inst, settings, band_key)
+    error_message = prep_band(inst, band_key)
 
     # RECORD, ADJUST, AND SAVE
     record_and_adjust(inst, sweep_dur)

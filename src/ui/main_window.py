@@ -1,171 +1,184 @@
-import PySimpleGUI as sg
+import customtkinter as ctk
+from ui.invalid_frame import InvalidFrame
+from ui.manual_mode import ManualModeFrame
+from ui.single_band_mode import SingleModeFrame
+from ui.multi_band_mode import MultiModeFrame
+from ui.settings_window import SettingsWindow
 from ui.get_resource_path import resource_path
-from ui.manual_mode import get_manual_mode_layout
-from ui.run_buttons import BAND_KEYS
-from ui.single_band_mode import get_single_band_layout
-from ui.multi_band_mode import get_multi_band_layout
+from utils.settings import is_settings_valid
 
-INST_FOUND_KEY = "-INST FOUND-"
-INST_NOT_FOUND_KEY = "-INST NOT FOUND-"
-SETTINGS_VALIDITY_KEY = "-SETTINGS VALIDITY-"
-INST_FOUND_INFO_KEY = "-INST INFO-"
+ctk.set_appearance_mode("light")
+ctk.set_widget_scaling(1.5)
+# ctk.set_default_color_theme("theme.json")
 
 
-def get_top_layout():
-    return [
-        [
-            sg.Text("Autosa by Tenco", font=("", 15)),
-            sg.Text("", expand_x=True),  # This will push the button to the right
-            sg.B("Settings", button_color=("black", "light gray"), size=(10, 2)),
-        ],
-        [sg.Text("", text_color="green", key=INST_FOUND_INFO_KEY, expand_x=True)],
-        [sg.Text("", text_color="green", key=SETTINGS_VALIDITY_KEY, expand_x=True)],
-        [
-            sg.Text(
-                "Make sure to check the settings before running anything!",
-                expand_x=True,
+class HeaderFrame(ctk.CTkFrame):
+    def __init__(self, parent, inst_found, inst):
+        super().__init__(parent)
+        self.frame_color = parent.frame_color if parent.debug else "#dbdbdb"
+        self.label_color = parent.label_color
+        self.configure(fg_color=self.frame_color, bg_color=self.frame_color)
+        self.columnconfigure(0, weight=1)
+        self.inst_found = inst_found
+        self.inst = inst
+
+        self.valid_settings_label = ctk.CTkLabel(self)
+        self.settings_error_var = ctk.StringVar()
+        self.settings_error_color = None
+        self.update_valid()
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.columnconfigure([0, 1], weight=1)
+
+        ctk.CTkLabel(
+            self,
+            text="Autosa",
+            font=("", 18),
+            fg_color=self.label_color,
+        ).grid(row=0, column=0, sticky="w", padx=10, pady=10)
+
+        ctk.CTkButton(
+            self,
+            text="Settings",
+            command=lambda: self.settings_window(),
+        ).grid(row=0, column=1, sticky="ne", padx=10, pady=10, rowspan=3)
+
+        inst_found_var = ctk.StringVar(
+            value=(
+                "✅ Instrument Detected - " + str(self.inst)
+                if self.inst_found
+                else "❌ Instrument NOT Detected"
             )
-        ],
-    ]
-
-
-def get_release_layout():
-    text1 = "Instrument Released!"
-    text2 = "You can now control the instrument using the front panel."
-    col1 = sg.Column(
-        [[sg.Text(text1, font=("Any", 30, "bold"), text_color="green")]],
-        justification="center",
-    )
-    col2 = sg.Column(
-        [[sg.Text(text2, font=("", 15), size=(50, 1))]],
-        justification="center",
-    )
-    layout = [
-        [sg.Text("")],
-        [col1],
-        [col2],
-        [
-            sg.Column(
-                [
-                    [
-                        sg.Image(
-                            resource_path("./images/N9010B_front_panel.png"),
-                            subsample=2,
-                        )
-                    ]
-                ],
-                justification="center",
-            )
-        ],
-    ]
-    return layout
-
-
-def get_defuault_layout():
-    top_section = get_top_layout()
-
-    multi_band_layout = get_multi_band_layout()
-
-    single_band_layout = get_single_band_layout()
-
-    manual_mode_layout = get_manual_mode_layout()
-
-    release_layout = get_release_layout()
-
-    tabs = [
-        sg.Tab("   Manual Mode   ", manual_mode_layout),
-        sg.Tab("   Single Band Mode   ", single_band_layout),
-        sg.Tab("   Multi Band Mode   ", multi_band_layout),
-        sg.Tab("  --- Release ---  ", release_layout, title_color="light green"),
-    ]
-
-    tab_group_layout = [[sg.TabGroup([tabs], enable_events=True, key="-TAB GROUP-")]]
-
-    layout = top_section + tab_group_layout
-
-    return layout
-
-
-def get_inst_not_found_layout():
-    steps = [
-        "1. The instrument is plugged in to power and turned on",
-        "2. The instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable",
-        '3. The signal analyzer program is running on the device (called "LaunchXSA" on the desktop)',
-    ]
-
-    layout = [
-        [
-            sg.Text(
-                "Instrument Not Detected",
-                size=(40, 1),
-                text_color="red",
-                font=("Helvetica", 16, "bold"),
-            )
-        ],
-        [sg.Text("Make sure:", size=(40, 1))],
-        *[[sg.Text(step, size=(80, 1))] for step in steps],
-    ]
-
-    return layout
-
-
-def get_main_layout(inst_found):
-    # only one of these will be visible at a time
-    default_col = sg.Column(
-        get_defuault_layout(),
-        visible=inst_found,
-        key=INST_FOUND_KEY,
-    )
-
-    inst_not_fount_col = sg.Column(
-        get_inst_not_found_layout(),
-        visible=not inst_found,
-        key=INST_NOT_FOUND_KEY,
-    )
-
-    return [[sg.pin(default_col)], [sg.pin(inst_not_fount_col)]]
-
-
-def update_main_window(window, inst_found, inst_info, settings_error, values=None):
-    settings_validity_text = (
-        "✅ Settings Valid"
-        if not settings_error
-        else f'❎ Settings Invalid. Please open settings and click "Save" to see error.'
-    )
-    settings_validity_color = "red" if settings_error else "green"
-    inst_found_info_text = "✅ Instrument Detected - " + inst_info
-
-    window[INST_FOUND_KEY].update(visible=inst_found)
-    window[INST_NOT_FOUND_KEY].update(visible=not inst_found)
-    if not inst_found:
-        return
-    window[SETTINGS_VALIDITY_KEY].update(settings_validity_text)
-    window[SETTINGS_VALIDITY_KEY].update(text_color=settings_validity_color)
-    window[INST_FOUND_INFO_KEY].update(inst_found_info_text)
-    # check if the band range is B5-B7, if so, show the orientation option
-
-    if values is not None:
-        window["-ORIENTATION-"].update(
-            disabled=values["-BAND RANGE-"] == "B0 - B4 (monopole)"
         )
-    else:
-        window["-ORIENTATION-"].update(disabled=True)
+        inst_found_color = "green" if self.inst_found else "red"
 
-    return
+        ctk.CTkLabel(
+            self,
+            textvariable=inst_found_var,
+            text_color=inst_found_color,
+            justify="left",
+            anchor="w",
+            fg_color=self.label_color,
+            font=("", 12),
+            height=20,
+        ).grid(row=1, column=0, sticky="w", padx=10)
+
+        self.valid_settings_label = ctk.CTkLabel(
+            self,
+            textvariable=self.settings_error_var,
+            text_color=self.settings_error_color,
+            justify="left",
+            anchor="w",
+            fg_color=self.label_color,
+            font=("", 12),
+            height=20,
+        )
+        self.valid_settings_label.grid(row=2, column=0, sticky="w", padx=10)
+
+    def is_valid_settings(self):
+        is_valid = is_settings_valid(self.inst)
+        return is_valid
+
+    def update_valid(self):
+        is_valid = self.is_valid_settings()
+        self.settings_error_var.set(
+            value=(
+                "✅ Settings Valid"
+                if is_valid
+                else "❌ Settings Invalid. Please change settings."
+            )
+        )
+        self.settings_error_color = "green" if is_valid else "red"
+        self.valid_settings_label.configure(text_color=self.settings_error_color)
+
+    def settings_window(self):
+        SettingsWindow(self, self.inst, self.update_valid, self.inst_found)
 
 
-def get_main_mindow(inst_found, inst_info, settings_error):
-    layout = get_main_layout(inst_found)
+class MenuFrame(ctk.CTkFrame):
+    def __init__(self, parent, inst_found, inst):
+        super().__init__(parent)
+        self.columnconfigure(0, weight=1)  # format to center
+        self.rowconfigure(0, weight=1)
+        self.inst_found = inst_found
+        self.inst = inst
+        self.frame_color = parent.frame_color
+        self.label_color = parent.label_color
 
-    # Create the window
-    window = sg.Window(
-        "Autosa by Tenco",
-        layout,
-        margins=(20, 20),
-        default_element_size=(20, 1),
-        auto_size_text=False,
-        finalize=True,
-    )
-    update_main_window(window, inst_found, inst_info, settings_error)
+        self.create_widgets()
 
-    return window
+    def create_widgets(self):
+        """sets the structure for the different modes"""
+        tabview = ctk.CTkTabview(self)
+        tabview.grid(row=0, column=0, padx=0, pady=0, sticky="ewns")
+        tabview.configure(border_width=2)
+
+        # tab formatting
+        tab1 = tabview.add("      Manual Mode      ")
+        frame = ManualModeFrame(
+            tab1,
+            self.inst_found,
+            self.inst,
+            self.frame_color,
+            self.label_color,
+        )
+        frame.pack(expand=1, fill="both")
+
+        tab2 = tabview.add("      Single Band Mode      ")
+        frame = SingleModeFrame(
+            tab2,
+            self.inst_found,
+            self.inst,
+            self.frame_color,
+            self.label_color,
+        )
+        frame.pack(expand=1, fill="both")
+
+        tab3 = tabview.add("      Multi Band Mode      ")
+        frame = MultiModeFrame(
+            tab3,
+            self.inst_found,
+            self.inst,
+            self.frame_color,
+            self.label_color,
+        )
+        frame.pack(expand=1, fill="both")
+
+
+class MainApp(ctk.CTk):
+    # Window creation
+    def __init__(self, inst_found, inst):
+        super().__init__()
+        self.title("Autosa Tkinter")
+        window_width = 1170
+        window_height = 760
+        self.debug = True
+        self.debug = False
+        if self.debug:
+            self.frame_color = "pink"
+            self.label_color = "white"
+        else:
+            self.frame_color = "transparent"
+            self.label_color = "transparent"
+        self.geometry(f"{window_width}x{window_height}")
+        self.logo = resource_path("images/autosa_logo.ico")
+        self.iconbitmap(self.logo)
+
+        self.inst_found = inst_found
+        self.inst = inst
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        """sets up the window to have the header and the mode window"""
+        if self.inst_found:
+            top_frame = HeaderFrame(self, self.inst_found, self.inst)
+            top_frame.pack(fill="x")
+
+            # use a string for "both" to match the fill="x" above
+            menu_frame = MenuFrame(self, self.inst_found, self.inst)
+            menu_frame.pack(fill="both", expand=True)
+        else:
+            InvalidFrame.invalid_frame(self)
