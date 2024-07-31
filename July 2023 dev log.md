@@ -172,5 +172,3 @@ Notes:
 ### State File Ispector
 
 I think we want some kind of tool that says if the state files are set up correctly
-
-Settings file location: "C:\Users\USERNAME\AppData\Local\Autosa\settings.json"
