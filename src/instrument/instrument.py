@@ -31,6 +31,7 @@ def get_resource_name(resource_manager, emulator_mode):
 
 def get_inst():
     emulator_mode = False
+    # emulator_mode = True  # Set to True for emulator mode, False for real instrument
     resource_manager = pyvisa.ResourceManager()
     resource_name = get_resource_name(resource_manager, emulator_mode)
     inst = None

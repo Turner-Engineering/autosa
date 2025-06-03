@@ -35,6 +35,7 @@ try:
         "C:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\agvisa\\agbin\\visa32.dll"
     )
     my_inst = rm.open_resource("TCPIP0::156.140.157.6::inst0::INSTR")
+    # my_inst = rm.open_resource("TCPIP0::localhost::inst0::INSTR") # emulator mode address
 
     # Set Timeout - 10 seconds
     my_inst.timeout = 10000
