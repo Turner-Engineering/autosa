@@ -4,7 +4,7 @@ install_folder = "install/"
 build_folder = "install/build"
 dist_folder = "install/dist"
 program_name = "Autosa"
-python_file_path = "src/new_main.py"
+python_file_path = "src/main.py"
 datas = "../src/images;./images"
 
 PyInstaller.__main__.run(
