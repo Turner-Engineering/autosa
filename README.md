@@ -44,6 +44,15 @@ To be written. Roughly:
 
 - It is best to set the local output folder to a cloud-synced folder like Dropbox or OneDrive so that the data is backed up automatically.
 
+## Emulator Mode
+
+To run Autosa in Emulator mode:
+* Toggle `emulator_mode` to `true` in the `get_inst` function in [`instrument.py`](https://github.com/Turner-Engineering/autosa/blob/657f55e7287631352ad06e940d7c862862807254/src/instrument/instrument.py#L34C12-L34C79). This sets the `resource_name` to `TCPIP0::localhost::inst0::INSTR`
+* Set the `resource_name` to `TCPIP0::localhost::inst0::INSTR` in [`pyvisa_pxa_screenshot.py`](https://github.com/Turner-Engineering/autosa/blob/657f55e7287631352ad06e940d7c862862807254/src/instrument/pyvisa_pxa_screenshot.py#L37)
+
+This will be simplified in future versions of autosa (written while v0.4.0 was in pre-release)
+
+
 ## Development
 
 ### Guiding Principles
