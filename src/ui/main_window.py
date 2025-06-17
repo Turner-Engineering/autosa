@@ -3,9 +3,11 @@ from ui.invalid_frame import InvalidFrame
 from ui.manual_mode import ManualModeFrame
 from ui.single_band_mode import SingleModeFrame
 from ui.multi_band_mode import MultiModeFrame
+from ui.release_mode import ReleaseMode
 from ui.settings_window import SettingsWindow
 from ui.get_resource_path import resource_path
 from utils.settings import is_settings_valid
+from instrument.instrument import release_inst
 
 ctk.set_appearance_mode("light")
 ctk.set_widget_scaling(1.5)
@@ -111,12 +113,12 @@ class MenuFrame(ctk.CTkFrame):
 
     def create_widgets(self):
         """sets the structure for the different modes"""
-        tabview = ctk.CTkTabview(self)
-        tabview.grid(row=0, column=0, padx=0, pady=0, sticky="ewns")
-        tabview.configure(border_width=2)
+        self.tabview = ctk.CTkTabview(self, command=self.on_tab_change)
+        self.tabview.grid(row=0, column=0, padx=0, pady=0, sticky="ewns")
+        self.tabview.configure(border_width=2)
 
         # tab formatting
-        tab1 = tabview.add("      Manual Mode      ")
+        tab1 = self.tabview.add("      Manual Mode      ")
         frame = ManualModeFrame(
             tab1,
             self.inst_found,
@@ -126,7 +128,7 @@ class MenuFrame(ctk.CTkFrame):
         )
         frame.pack(expand=1, fill="both")
 
-        tab2 = tabview.add("      Single Band Mode      ")
+        tab2 = self.tabview.add("      Single Band Mode      ")
         frame = SingleModeFrame(
             tab2,
             self.inst_found,
@@ -136,7 +138,7 @@ class MenuFrame(ctk.CTkFrame):
         )
         frame.pack(expand=1, fill="both")
 
-        tab3 = tabview.add("      Multi Band Mode      ")
+        tab3 = self.tabview.add("      Multi Band Mode      ")
         frame = MultiModeFrame(
             tab3,
             self.inst_found,
@@ -145,6 +147,22 @@ class MenuFrame(ctk.CTkFrame):
             self.label_color,
         )
         frame.pack(expand=1, fill="both")
+
+        self.release_tab_label = "      Release Mode      "
+        tab4 = self.tabview.add(self.release_tab_label)
+        frame = ReleaseMode(
+            tab4,
+            self.inst_found,
+            self.inst,
+            self.frame_color,
+            self.label_color,
+        )
+        frame.pack(expand=1, fill="both")
+
+    def on_tab_change(self):
+        current_tab = self.tabview.get()
+        if current_tab == self.release_tab_label:
+            release_inst(self.inst)
 
 
 class MainApp(ctk.CTk):
