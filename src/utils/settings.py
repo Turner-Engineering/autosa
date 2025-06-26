@@ -2,7 +2,7 @@ import json, os
 from instrument.folders import get_folder_info
 
 
-filename = "\\settings.json"
+filename = "\\settings_v0.4.2.json"
 default_settings = {
     "-STATE FOLDER-": "D:/Users/Instrument/Desktop/State Files",
     "-CORR FOLDER-": "D:/Users/Instrument/Desktop/Correction Files",
