@@ -146,14 +146,23 @@ class MultiModeFrame(ctk.CTkFrame):
         self.run_filename = None
         self.is_cancel = False
 
+        self.saved_files = []
+        self.cur_file_var = ctk.StringVar()
+        # self.trace_file_var = ctk.StringVar()
+        # self.screen_file_var = ctk.StringVar()
+        # self.run_note_var.trace_add("write", self.trace_screen_filename)
+        # self.band_var.trace_add("write", self.trace_screen_filename)
+
         self.create_widgets()
 
     def create_widgets(self):
         frame1 = self.init_frame1()
         frame2 = self.init_frame2()
+        frame3 = self.init_frame3()
 
         self.fill_frame1(frame1)
         self.fill_frame2(frame2)
+        self.fill_frame3(frame3)
 
     def init_frame1(self):
         frame1 = ctk.CTkFrame(self, fg_color=self.frame_color)
@@ -166,6 +175,12 @@ class MultiModeFrame(ctk.CTkFrame):
         frame2.columnconfigure([1], weight=1)
         frame2.rowconfigure(0, weight=1)
         return frame2
+
+    def init_frame3(self):
+        frame3 = ctk.CTkFrame(self, fg_color=self.frame_color)
+        frame3.grid(row=3, column=0, padx=5, pady = 5, sticky="ew")
+        frame3.columnconfigure([1], weight=1)
+        return frame3
 
     def fill_frame1(self, frame1):
         # Run Note Label
@@ -250,6 +265,27 @@ class MultiModeFrame(ctk.CTkFrame):
             hover_color="#646a6e",
         ).grid(row=0, column=3, padx=5, pady=5, sticky="e")
 
+    def fill_frame3(self, frame3):
+        ctk.CTkLabel(
+            frame3,
+            text="Files Saved: ",
+            fg_color=self.label_color,
+            width=80,
+            anchor="w",
+        ).grid(row=0, column=0, padx=5, pady=5, sticky="w")
+
+        self.cur_file_label = ctk.CTkLabel(frame3, textvariable=self.cur_file_var)
+        self.cur_file_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        # saving_label = ctk.CTkLabel(frame3, textvariable=self.run_note_var)
+        # saving_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+
+        # run note, band, csv/png
+        # trace_label = ctk.CTkLabel(frame2, textvariable=self.trace_file_var)
+        # trace_label.grid(row=0, column=1, padx=5, sticky="W")
+
+        # row 0 - Recently saved files - label
+        # row 1 - list of saved files updates as measures - updating label? reference manual mode save window
+
     def update_ori_dropdown(self):
         """disables and enables the orientation based on the selected range"""
         band_range = self.band_range_var.get()
@@ -301,6 +337,9 @@ class MultiModeFrame(ctk.CTkFrame):
             self.enable_buttons()
 
     def run_multiple_bands(self):
+        self.saved_files = []
+        self.cur_file_var.set("")
+
         self.disable_buttons()
         self.ori_dropdown.configure(state="disabled")
         band_ori = "" if self.ori_var.get() == "None" else self.ori_var.get()
@@ -330,12 +369,22 @@ class MultiModeFrame(ctk.CTkFrame):
             )
             run_band(self.inst, band_key, self.run_filename)
 
+            # SHOW SAVED FILES
+            saved_csv = f"{self.run_filename}.csv"
+            saved_png = f"{self.run_filename}.png"
+
+            self.saved_files.append(saved_csv)
+            self.saved_files.append(saved_png)
+            self.cur_file_var.set("\n".join(self.saved_files))
+            self.update_idletasks()
+
             # PROGRESS BAR
             self.pbar.set(prog_step)
             self.pbar_label.configure(text=f"{i+1}/{num_bands}")
 
             prog_step += run_times
             self.update_idletasks()
+
 
             self.run_filename = None
 
