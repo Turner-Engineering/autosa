@@ -32,39 +32,45 @@ def write_settings_to_file(settings):
     if not os.path.exists(folder):
         os.mkdir(folder)
 
-    with open(get_settings_folder_path() + filename, "w") as f:
+    with open(folder + filename, "w") as f:
         json.dump(settings, f, ensure_ascii=False, indent=2)
 
 
 def read_settings_from_file():
-    if not os.path.exists(get_settings_folder_path() + filename):
+    folder = get_settings_folder_path()
+
+    if not os.path.exists(folder + filename):
         return default_settings
 
-    with open(get_settings_folder_path() + filename, "r") as reader:
+    with open(folder + filename, "r") as reader:
         return json.load(reader)
 
 
 def is_settings_valid(inst):
-    if not os.path.exists(get_settings_folder_path() + filename):
+    folder = get_settings_folder_path()
+    settings = read_settings_from_file()
+
+    if not os.path.exists(folder + filename):
         return False
 
     # settings = read_settings_from_file()
     state_exists, state_empty, _ = get_folder_info(
-        inst, read_settings_from_file()["-STATE FOLDER-"]
+        inst, settings["-STATE FOLDER-"]
     )
     corr_exists, corr_empty, _ = get_folder_info(
-        inst, read_settings_from_file()["-CORR FOLDER-"]
+        inst, settings["-CORR FOLDER-"]
     )
     inst_exists, _, _ = get_folder_info(
-        inst, read_settings_from_file()["-INST OUT FOLDER-"]
+        inst, settings["-INST OUT FOLDER-"]
     )
-    local_exists = os.path.exists(read_settings_from_file()["-LOCAL OUT FOLDER-"])
+    local_exists = os.path.exists(settings["-LOCAL OUT FOLDER-"])
 
-    state_blank = read_settings_from_file()["-STATE FOLDER-"].strip()
-    corr_blank = read_settings_from_file()["-CORR FOLDER-"].strip()
-    inst_blank = read_settings_from_file()["-INST OUT FOLDER-"].strip()
-    local_blank = read_settings_from_file()["-LOCAL OUT FOLDER-"].strip()
-    sweep_blank = read_settings_from_file()["-SWEEP DUR-"].strip()
+    # .strip() ensures any empty spaces are not considered an input
+    state_blank = settings["-STATE FOLDER-"].strip()
+    corr_blank = settings["-CORR FOLDER-"].strip()
+    inst_blank = settings["-INST OUT FOLDER-"].strip()
+    local_blank = settings["-LOCAL OUT FOLDER-"].strip()
+    sweep_blank = settings["-SWEEP DUR-"].strip()
     if sweep_blank:
         valid_sweep = float(sweep_blank) > 0
 
