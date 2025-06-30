@@ -256,7 +256,7 @@ class SettingsWindow(ctk.CTkToplevel):
         """write to the json file"""
         settings = {}
         for label, settings_var in self.settings_vars.items():
-            settings[label] = settings_var.get()
+            settings[label] = settings_var.get().strip()
         settings["-CORR CHOICES-"] = self.corr_choice
 
         write_settings_to_file(settings)
