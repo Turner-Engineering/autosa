@@ -7,6 +7,7 @@ from ui.get_resource_path import resource_path
 from instrument.instrument import (
     get_run_filename,
     run_band,
+    get_run_id
 )
 
 
@@ -124,13 +125,14 @@ class MultiModeFrame(ctk.CTkFrame):
         self.inst = inst
         self.frame_color = frame_color
         self.label_color = label_color
+        self.check_color = "#2d1a03"
 
         self.settings = read_settings_from_file()
         self.state_folder = read_settings_from_file()["-STATE FOLDER-"]
         self.corr_folder = read_settings_from_file()["-CORR FOLDER-"]
         self.inst_output_folder = read_settings_from_file()["-INST OUT FOLDER-"]
         self.local_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
-        self.sweep_dur = self.settings["-SWEEP DUR-"]
+        self.sweep_dur = int(self.settings["-SWEEP DUR-"])
         
         self.band_ranges = [
             "B0 - B4 (monopole)",
@@ -150,24 +152,17 @@ class MultiModeFrame(ctk.CTkFrame):
 
         self.run_filename = None
         self.is_cancel = False
-
         self.saved_files = []
-        self.cur_file_var = ctk.StringVar()
-        # self.trace_file_var = ctk.StringVar()
-        # self.screen_file_var = ctk.StringVar()
-        # self.run_note_var.trace_add("write", self.trace_screen_filename)
-        # self.band_var.trace_add("write", self.trace_screen_filename)
 
         self.create_widgets()
 
     def create_widgets(self):
         frame1 = self.init_frame1()
         frame2 = self.init_frame2()
-        frame3 = self.init_frame3()
+        self.frame3 = self.init_frame3()
 
         self.fill_frame1(frame1)
         self.fill_frame2(frame2)
-        self.fill_frame3(frame3)
 
     def init_frame1(self):
         frame1 = ctk.CTkFrame(self, fg_color=self.frame_color)
@@ -351,13 +346,11 @@ class MultiModeFrame(ctk.CTkFrame):
 
         # PROGRESS BAR
         run_times = 1 / num_bands
-        prog_step = run_times
 
         # updates progress bar to reset
         self.pbar.set(0)
         self.pbar_label.configure(text=f"0/{num_bands}")
         self.update_idletasks()
-        # self.pbar.start() // using start makes it loop
 
         for i in range(num_bands):
             if self.is_cancel:
@@ -378,7 +371,6 @@ class MultiModeFrame(ctk.CTkFrame):
 
             self.saved_files.append(saved_csv)
             self.saved_files.append(saved_png)
-            self.cur_file_var.set("\n".join(self.saved_files))
             self.update_idletasks()
 
             # PROGRESS BAR
@@ -386,9 +378,7 @@ class MultiModeFrame(ctk.CTkFrame):
             self.pbar.set(progress)
             self.pbar_label.configure(text=f"{i+1}/{num_bands}")
 
-            prog_step += run_times
             self.update_idletasks()
-
 
             self.run_filename = None
 
