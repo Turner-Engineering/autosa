@@ -1,3 +1,4 @@
+import datetime
 import threading
 import customtkinter as ctk
 from ui.save_window_popups import CompletedWindow, PopupWindow
@@ -10,7 +11,7 @@ from instrument.instrument import (
 
 
 class ConfirmWindow(ctk.CTkToplevel):
-    def __init__(self, parent, run_multiple_bands):
+    def __init__(self, parent, run_multiple_bands, sweep_dur):
         super().__init__(parent)
         self.title("Confirm Runs")
         self.parent = parent
@@ -22,6 +23,7 @@ class ConfirmWindow(ctk.CTkToplevel):
         self.transient(parent)
         self.center()  # center on screen, otherwise it will be in the top left corner
         self.run_multiple_bands = run_multiple_bands
+        self.sweep_dur = sweep_dur
         self.create_widgets()
 
     def create_widgets(self):
@@ -65,18 +67,20 @@ class ConfirmWindow(ctk.CTkToplevel):
         band_range = self.parent.band_range_var.get()
         run_count = self.get_run_count(band_range)
         run_note = self.parent.run_note_var.get()
-        band_ori = (
+        band_ori_full = (
             "" if self.parent.ori_var.get() == "None" else self.parent.ori_var.get()
         )
-        sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
+        band_ori = band_ori_full[0].lower() if band_ori_full else ""
         run_id = "XYZ-AB"
+        first_band = band_range[:2]
+        cur_time = datetime.datetime.now().strftime("%H_%M_%S")
 
         text = (
             "Please confirm that you would like to run bands\n"
             f"{band_range} ({run_count} runs total)\n"
-            f"for {sweep_dur} seconds each\n"
+            f"for {self.sweep_dur} seconds each\n"
             "and that the first filename should be:\n"
-            f"{run_id} {run_note} B0{band_ori}\n"
+            f"{run_id} {run_note} {self.sweep_dur}s {first_band}{band_ori} {cur_time}\n"
             "(the rest will be numbered sequentially)"
         )
         return text
@@ -126,7 +130,8 @@ class MultiModeFrame(ctk.CTkFrame):
         self.corr_folder = read_settings_from_file()["-CORR FOLDER-"]
         self.inst_output_folder = read_settings_from_file()["-INST OUT FOLDER-"]
         self.local_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
-
+        self.sweep_dur = self.settings["-SWEEP DUR-"]
+        
         self.band_ranges = [
             "B0 - B4 (monopole)",
             "B5 - B7 (bilogical)",
@@ -333,13 +338,11 @@ class MultiModeFrame(ctk.CTkFrame):
             self.enable_buttons()
         else:
             self.disable_buttons()
-            self.wait_window(ConfirmWindow(self, self.run_multiple_bands))
+            self.wait_window(ConfirmWindow(self, self.run_multiple_bands, self.sweep_dur))
             self.enable_buttons()
 
     def run_multiple_bands(self):
         self.saved_files = []
-        self.cur_file_var.set("")
-
         self.disable_buttons()
         self.ori_dropdown.configure(state="disabled")
         band_ori = "" if self.ori_var.get() == "None" else self.ori_var.get()
@@ -354,7 +357,7 @@ class MultiModeFrame(ctk.CTkFrame):
         self.pbar.set(0)
         self.pbar_label.configure(text=f"0/{num_bands}")
         self.update_idletasks()
-        self.pbar.start()
+        # self.pbar.start() // using start makes it loop
 
         for i in range(num_bands):
             if self.is_cancel:
@@ -365,7 +368,7 @@ class MultiModeFrame(ctk.CTkFrame):
             run_note = self.run_note_var.get()
 
             self.run_filename = get_run_filename(
-                self.inst, band_key, run_note, band_ori
+                self.inst, band_key, run_note, self.sweep_dur, band_ori
             )
             run_band(self.inst, band_key, self.run_filename)
 
@@ -379,7 +382,8 @@ class MultiModeFrame(ctk.CTkFrame):
             self.update_idletasks()
 
             # PROGRESS BAR
-            self.pbar.set(prog_step)
+            progress = (i + 1) / num_bands
+            self.pbar.set(progress)
             self.pbar_label.configure(text=f"{i+1}/{num_bands}")
 
             prog_step += run_times

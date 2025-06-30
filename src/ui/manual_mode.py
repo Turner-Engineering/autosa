@@ -31,6 +31,8 @@ class ManualModeFrame(ctk.CTkFrame):
         self.frame_color = frame_color
         self.label_color = label_color
         self.stopwatch = Stopwatch()
+        self.sweep_dur_var = ctk.StringVar()
+        self.sweep_dur_var = "0" # Initializing with a default value
 
         self.state_folder = read_settings_from_file()["-STATE FOLDER-"]
         self.corr_folder = read_settings_from_file()["-CORR FOLDER-"]
@@ -238,6 +240,10 @@ class ManualModeFrame(ctk.CTkFrame):
         self.time_elapased.configure(text=self.stopwatch.get_time_str())
         self.after(100, self.update_stopwatch_time)
 
+        raw_time = self.stopwatch.get_time_str()
+        seconds = raw_time.split(":")[1]
+        self.sweep_dur_var = seconds.split(".")[0]
+
     def reset_stopwatch(self):
         self.inst.write(":INIT:REST")
         self.stopwatch.reset()
@@ -251,14 +257,16 @@ class ManualModeFrame(ctk.CTkFrame):
             run_id,
             self.frame_color,
             self.label_color,
+            self.sweep_dur_var
         )
 
         self.wait_window(run_file)
         self.run_filename = run_file.get_filename()
+        band_key = run_file.get_band()
 
         if self.run_filename != None:
             save_trace_and_screen(
-                self.inst, self.run_filename, self.inst_output_folder, self.local_folder
+                self.inst, self.run_filename, self.inst_output_folder, self.local_folder, band_key
             )
             run_error_message = ""
 

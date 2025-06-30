@@ -31,6 +31,7 @@ class SingleModeFrame(ctk.CTkFrame):
         self.corr_folder = self.settings["-CORR FOLDER-"]
         self.inst_output_folder = self.settings["-INST OUT FOLDER-"]
         self.local_folder = self.settings["-LOCAL OUT FOLDER-"]
+        self.sweep_dur = self.settings["-SWEEP DUR-"]
 
         self.is_paused = True
         self.run_filename = None
@@ -137,12 +138,12 @@ class SingleModeFrame(ctk.CTkFrame):
 
         # GET FILENAME
         run_note = self.run_note_var.get()
-        self.run_filename = get_run_filename(self.inst, band_name, run_note)
+        self.run_filename = get_run_filename(self.inst, band_name, run_note, self.sweep_dur)
 
         # SAVE
         if self.run_filename != None:
             save_trace_and_screen(
-                self.inst, self.run_filename, self.inst_output_folder, self.local_folder
+                self.inst, self.run_filename, self.inst_output_folder, self.local_folder, band_name
             )
 
         # AFTER RUN
