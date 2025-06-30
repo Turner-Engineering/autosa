@@ -266,25 +266,52 @@ class MultiModeFrame(ctk.CTkFrame):
         ).grid(row=0, column=3, padx=5, pady=5, sticky="e")
 
     def fill_frame3(self, frame3):
-        ctk.CTkLabel(
-            frame3,
-            text="Files Saved: ",
-            fg_color=self.label_color,
-            width=80,
-            anchor="w",
-        ).grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        for widget in frame3.winfo_children():
+            widget.destroy()
 
-        self.cur_file_label = ctk.CTkLabel(frame3, textvariable=self.cur_file_var)
-        self.cur_file_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
-        # saving_label = ctk.CTkLabel(frame3, textvariable=self.run_note_var)
-        # saving_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        self.band_checkbox = {}
+        self.band_filenames = {}
+        run_note = self.run_note_var.get()
+        band_ori_full = "" if self.ori_var.get() == "None" else self.ori_var.get()
+        band_ori = band_ori_full[0].lower() if band_ori_full else ""
+        self.run_id_counter = None
+        cur_time = datetime.datetime.now().strftime("%H_%M_%S")
+        
+        for i, band_key in enumerate(self.band_keys):
+            run_id = self.get_next_run_id()
+            cur_filename = f"{run_id} {run_note} {self.sweep_dur}s {band_key}{band_ori} {cur_time}"
+            self.band_filenames[band_key] = cur_filename
 
-        # run note, band, csv/png
-        # trace_label = ctk.CTkLabel(frame2, textvariable=self.trace_file_var)
-        # trace_label.grid(row=0, column=1, padx=5, sticky="W")
+            check_var = ctk.BooleanVar(value=False)
+            checkbox = ctk.CTkCheckBox(
+                frame3,
+                text=cur_filename,
+                variable=check_var,
+                state="disabled",
+                corner_radius=3,
+                border_width=1.5,
+                border_color=self.check_color,
+                text_color_disabled=self.check_color,
+                checkbox_height=12,
+                checkbox_width=12
+            )
+            checkbox.grid(row=i + 1, column=0, padx=5, pady=2, sticky="w")
 
-        # row 0 - Recently saved files - label
-        # row 1 - list of saved files updates as measures - updating label? reference manual mode save window
+            self.band_checkbox[band_key] = (checkbox, check_var)
+
+    # helps get next run_id becasue `get_run_id` will return the same ID (e.g. 622-01 run_note B0, 622-01 run_note B1)
+    # only used to display
+    def get_next_run_id(self):
+        if self.run_id_counter is None:
+            base_run_id = get_run_id(self.inst, self.inst_output_folder)
+            date_part, count_part = base_run_id.split("-")
+            self.run_id_date = date_part
+            self.run_id_counter = int(count_part)
+        else:
+            self.run_id_counter += 1
+
+        return f"{self.run_id_date}-{self.run_id_counter:02}"
+
 
     def update_ori_dropdown(self):
         """disables and enables the orientation based on the selected range"""
@@ -340,9 +367,14 @@ class MultiModeFrame(ctk.CTkFrame):
         self.saved_files = []
         self.disable_buttons()
         self.ori_dropdown.configure(state="disabled")
-        band_ori = "" if self.ori_var.get() == "None" else self.ori_var.get()
+        band_ori_full = "" if self.ori_var.get() == "None" else self.ori_var.get()
+        band_ori = band_ori_full[0].lower() if band_ori_full else ""
         num_bands = len(self.band_keys)
         self.is_cancel = False
+
+        # Now grid it (show it), then fill it
+        self.frame3.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+        self.fill_frame3(self.frame3)
 
         # PROGRESS BAR
         run_times = 1 / num_bands
@@ -365,6 +397,10 @@ class MultiModeFrame(ctk.CTkFrame):
             )
             run_band(self.inst, band_key, self.run_filename)
 
+            # Mark checkbox complete
+            checkbox, check_var = self.band_checkbox[band_key]
+            check_var.set(True)
+
             # SHOW SAVED FILES
             saved_csv = f"{self.run_filename}.csv"
             saved_png = f"{self.run_filename}.png"
@@ -385,6 +421,7 @@ class MultiModeFrame(ctk.CTkFrame):
         # RUNS COMPLETE
         self.pbar.stop()
         CompletedWindow(self)
+        self.frame3.grid_forget()  # hide the frame after completion, .destroy() doesn't work here
         self.run_filename = None
         self.after(1, self.enable_buttons())
         self.after(1, self.update_ori_dropdown())
