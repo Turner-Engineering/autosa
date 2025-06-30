@@ -71,6 +71,11 @@ def release_inst(inst):
     inst.control_ren(pyvisa.constants.VI_GPIB_REN_DEASSERT_GTL)
 
 
+def update_state(inst, state_folder, filename):
+    inst.write(f":MMEM:STOR:STAT '{state_folder}/{filename}'")
+    # inst.write(f":MEMM:STOR:STAT '{state_folder}/{filename}'")
+
+
 def recall_state(inst, state_folder, filename):
     inst.write(f":MMEM:LOAD:STAT '{state_folder}/{filename}'")
 
