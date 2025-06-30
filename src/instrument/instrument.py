@@ -163,8 +163,8 @@ def save_trace_and_screen(
     png_path = f"{inst_out_folder}/{filename}.png"
     save_trace(inst, csv_path)
     save_screen(inst, png_path)
-    copy_file_to_local(inst, png_path, local_out_folder)
-    copy_file_to_local(inst, csv_path, local_out_folder)
+    copy_file_to_local(inst, png_path, local_out_folder, band)
+    copy_file_to_local(inst, csv_path, local_out_folder, band)
 
 
 def record_and_adjust(inst, sweep_dur):
@@ -186,8 +186,9 @@ def recall_cors(inst, corr_folder, corr_filename):
     inst.write(f":MMEM:LOAD:CORR 1, '{corr_folder}/{corr_filename}'")
 
 
-def create_run_filename(run_id, run_note, band_name):
-    filename = f"{run_id} {run_note} {band_name}"
+def create_run_filename(run_id, run_note, band_name, sweep_dur):
+    cur_time = datetime.datetime.now().strftime("%H_%M_%S")
+    filename = f"{run_id} {run_note} {sweep_dur}s {band_name} {cur_time}"
     return filename
 
 
