@@ -6,6 +6,7 @@ Autosa is Tenco software used to automate data acquisition using a signal analyz
 
 Windows is the recommended operating system for AutosaVersion 2022 Q3. It has not been tested on other operating systems.
 
+
 ### Autosa Installation
 
 **Autosa has only been tested on Windows 10 and Windows 11 devices**
