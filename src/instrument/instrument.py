@@ -22,7 +22,6 @@ def get_resource_name(resource_manager, emulator_mode):
     resource_names = resource_manager.list_resources()
     if emulator_mode:
         resource_names = ["TCPIP0::localhost::inst0::INSTR"]
-        # resource_names = [r for r in resource_names if "inst0" in r]
     else:
         resource_names = [r for r in resource_names if "USB" in r]
     resource_names = [r for r in resource_names if "::INSTR" in r]
@@ -73,7 +72,6 @@ def release_inst(inst):
 
 def update_state(inst, state_folder, filename):
     inst.write(f":MMEM:STOR:STAT '{state_folder}/{filename}'")
-    # inst.write(f":MEMM:STOR:STAT '{state_folder}/{filename}'")
 
 
 def recall_state(inst, state_folder, filename):

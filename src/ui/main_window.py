@@ -12,7 +12,6 @@ from instrument.instrument import release_inst
 
 ctk.set_appearance_mode("light")
 ctk.set_widget_scaling(1.5)
-# ctk.set_default_color_theme("theme.json")
 
 
 class HeaderFrame(ctk.CTkFrame):
