@@ -132,7 +132,7 @@ class MultiModeFrame(ctk.CTkFrame):
         self.corr_folder = read_settings_from_file()["-CORR FOLDER-"]
         self.inst_output_folder = read_settings_from_file()["-INST OUT FOLDER-"]
         self.local_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
-        self.sweep_dur = int(self.settings["-SWEEP DUR-"])
+        self.sweep_dur = self.settings["-SWEEP DUR-"]
         
         self.band_ranges = [
             "B0 - B4 (monopole)",
