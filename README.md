@@ -58,7 +58,7 @@ Different levels of automation are available for differing comfort levels and us
 
 The following packages are required for development:
 
-- [tkinter](https://tkdocs.com/) - creating user interface
+- [CustomTkinter](https://customtkinter.tomschimansky.com/) - creating user interface
 - [pyinstaller](https://pyinstaller.org/en/stable/) - compiling python scripts `.exe` file
 - [pyvisa](https://pyvisa.readthedocs.io/en/latest/) - communicating with the instrument over USB
 
