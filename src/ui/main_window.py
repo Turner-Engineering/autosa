@@ -96,7 +96,7 @@ class HeaderFrame(ctk.CTkFrame):
         self.valid_settings_label.configure(text_color=self.settings_error_color)
 
     def settings_window(self):
-        SettingsWindow(self, self.inst, self.update_valid, self.inst_found)
+        SettingsWindow(self, self.inst, self.update_valid, self.inst_found, self.frame_color, self.label_color)
 
 
 class MenuFrame(ctk.CTkFrame):
