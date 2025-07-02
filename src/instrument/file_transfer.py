@@ -1,3 +1,6 @@
+import os
+
+
 def binblock_raw(data_in):
     # This function interprets the header for a definite binary block
     # and returns the raw binary data for both definite and indefinite binary blocks
@@ -24,16 +27,15 @@ def binblock_raw(data_in):
 def copy_file_to_local(inst, file_path, out_folder):
     # Read the contents of the screen image
     file_path = file_path.replace("/", "\\")
-    out_folder = out_folder.replace("/", "\\")
+    out_filename = file_path.split("\\")[-1]
+    full_path = os.path.join(out_folder, out_filename)
+
     inst.write(f':MMEM:DATA? "{file_path}"')
 
     raw_data = inst.read_raw()
 
     # Interpret Header and Return Raw DATA
     raw_data = binblock_raw(raw_data)
-    # Save Screen Image to File
-
-    out_filename = file_path.split("\\")[-1]
-    target = open(out_folder + "\\" + out_filename, "wb")
-    target.write(raw_data)
-    target.close()
+    
+    with open(full_path, "wb") as target_file:
+        target_file.write(raw_data)

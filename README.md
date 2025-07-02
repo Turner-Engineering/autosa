@@ -6,6 +6,7 @@ Autosa is Tenco software used to automate data acquisition using a signal analyz
 
 Windows is the recommended operating system for AutosaVersion 2022 Q3. It has not been tested on other operating systems.
 
+
 ### Autosa Installation
 
 **Autosa has only been tested on Windows 10 and Windows 11 devices**
@@ -36,11 +37,12 @@ Required USB-B to USB-A cable
 
 To be written. Roughly:
 
-1. There are three modes: manual, semi-automatic, and automatic
-2. Manual mode is for when you want to start and stop the instrument manually
-3. Semi-automatic mode is for when you want to run a band at a time automatically
-4. Automatic mode is for when you want to run multiple bands in a row automatically
-5. The main things Autosa does is load the state file, load the correction file, and save the trace and screenshot with the correct name
+There are three modes:
+1. Manual Mode is for when you want to start and stop the instrument manually
+2. Single-band Mode is for when you want to run a band at a time automatically
+3. Multi-band Mode is for when you want to run multiple bands in a row automatically
+
+Autosa simplifies the process of loading the state file, loading the correction file, and saving the trace and screenshot with the correct name. The Manual Mode will require the user to do this process. The Single-Band Mode does this process for the selected band. The Multi-Band Mode does the process for an entire range of band.
 
 - It is best to set the local output folder to a cloud-synced folder like Dropbox or OneDrive so that the data is backed up automatically.
 
@@ -65,14 +67,14 @@ Different levels of automation are available for differing comfort levels and us
 
 The following packages are required for development:
 
-- [pysimplegui](https://www.pysimplegui.org/en/latest/) - creating user interface
+- [CustomTkinter](https://customtkinter.tomschimansky.com/) - creating user interface
 - [pyinstaller](https://pyinstaller.org/en/stable/) - compiling python scripts `.exe` file
 - [pyvisa](https://pyvisa.readthedocs.io/en/latest/) - communicating with the instrument over USB
 
-Install all three with pip:
+Tkinter is included in Python, so install "pyinstaller" and "pyvisa" with pip:
 
 ```bash
-pip install pysimplegui pyinstaller pyvisa
+pip install pyinstaller pyvisa
 ```
 
 ### Building
