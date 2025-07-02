@@ -153,7 +153,7 @@ def save_screen(inst, png_path):
 
 
 def save_trace_and_screen(
-    inst, filename: str, inst_out_folder: str, local_out_folder: str, band = str
+    inst, filename: str, inst_out_folder: str, local_out_folder: str, band: str
 ):
     """Save the trace to a csv file and the screen to a png file on the instrument, then copy both to the local computer
 
@@ -269,6 +269,8 @@ def run_band(inst, band_key, run_filename, band_ori, save=True):
 
     if save:
         band_name = band_key + band_ori
-        save_trace_and_screen(inst, run_filename, inst_out_folder, local_out_folder, band_name)
+        save_trace_and_screen(
+            inst, run_filename, inst_out_folder, local_out_folder, band_name
+        )
 
     return error_message

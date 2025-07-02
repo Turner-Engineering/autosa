@@ -139,12 +139,18 @@ class SingleModeFrame(ctk.CTkFrame):
 
         # GET FILENAME
         run_note = self.run_note_var.get()
-        self.run_filename = get_run_filename(self.inst, band_name, run_note, self.sweep_dur)
+        self.run_filename = get_run_filename(
+            self.inst, band_name, run_note, self.sweep_dur
+        )
 
         # SAVE
-        if self.run_filename != None:
+        if self.run_filename is not None:
             save_trace_and_screen(
-                self.inst, self.run_filename, self.inst_output_folder, self.local_folder, band_name
+                self.inst,
+                self.run_filename,
+                self.inst_output_folder,
+                self.local_folder,
+                band_name,
             )
 
         # AFTER RUN

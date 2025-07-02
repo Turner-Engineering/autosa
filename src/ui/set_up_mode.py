@@ -1,16 +1,16 @@
 import threading
 import customtkinter as ctk
-from PIL import Image
 from ui.get_resource_path import resource_path
 from ui.large_button import LargeButton
 from utils.settings import read_settings_from_file
 from instrument.instrument import (
-    get_ref_level, 
-    set_ref_level, 
-    recall_state, 
-    get_state_file, 
-    update_state
-    )
+    get_ref_level,
+    set_ref_level,
+    recall_state,
+    get_state_file,
+    update_state,
+)
+
 
 class ArrowButton(ctk.CTkButton):
     def __init__(self, parent, *args, **kwargs):
@@ -20,12 +20,9 @@ class ArrowButton(ctk.CTkButton):
             **kwargs,
         )
         self.configure(
-            height=30, 
-            width=30, 
-            font=("", 16),
-            text_color="black",
-            anchor="center"
-            )
+            height=30, width=30, font=("", 16), text_color="black", anchor="center"
+        )
+
 
 class ConfirmStateChangePopup(ctk.CTkToplevel):
     def __init__(self, parent, update_ref_level, state_filename):
@@ -53,7 +50,7 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
     def init_frame(self):
         frame = ctk.CTkFrame(self, fg_color=self.window_color)
         frame.grid(row=0, column=0, padx=10, pady=10)
-        frame.columnconfigure([0,1], weight=1)
+        frame.columnconfigure([0, 1], weight=1)
         frame.rowconfigure([0, 1, 2], weight=1)
         return frame
 
@@ -61,11 +58,11 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
         # Warning Symbol
         ctk.CTkLabel(
             frame,
-            text="\u26A0 \u26A0 \u26A0",
+            text="\u26a0 \u26a0 \u26a0",
             anchor="center",
             font=("Arial", 24, "bold"),
             text_color="#ffcc00",
-            ).grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+        ).grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         # Confirmation Text
         ctk.CTkLabel(
@@ -73,7 +70,7 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
             text="Please confirm that you would like to overwrite",
             justify="center",
             font=("", 14),
-            text_color="white"
+            text_color="white",
         ).grid(row=1, column=0, columnspan=2, padx=5, sticky="nsew")
 
         ctk.CTkLabel(
@@ -81,7 +78,7 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
             text=f"{self.state_filename}",
             justify="center",
             font=("", 16, "bold"),
-            text_color="white"
+            text_color="white",
         ).grid(row=2, column=0, columnspan=2, padx=5, sticky="nsew")
 
         ctk.CTkLabel(
@@ -90,15 +87,15 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
             text="This cannot be reversed.",
             justify="center",
             font=("", 14),
-            text_color="white"
+            text_color="white",
         ).grid(row=3, column=0, columnspan=2, padx=5, sticky="nsew")
 
         # Okay Button
         ctk.CTkButton(
             frame,
-            text=f"Overwrite",
+            text="Overwrite",
             command=lambda: self.confirmation_callback(),
-            anchor="center"
+            anchor="center",
         ).grid(row=4, column=0, padx=5, pady=5)
 
         # Cancel Button
@@ -108,12 +105,12 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
             command=lambda: self.destroy(),
             fg_color="#939ba2",
             hover_color="#646a6e",
-            anchor="center"
+            anchor="center",
         ).grid(row=4, column=1, padx=5, pady=5)
 
         # pop up a scary dialog to confirm the ref level update will overwrite the current state
         # are you sure you want to update [dropdown] state file? make the band changeable
-    
+
     def confirmation_callback(self):
         # create new thread
         self.destroy()  # close confirm window
@@ -173,12 +170,12 @@ class SetUpModeFrame(ctk.CTkFrame):
         frame1 = ctk.CTkFrame(self, fg_color=self.frame_color)
         frame1.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
         return frame1
-    
+
     def init_frame2(self):
         frame2 = ctk.CTkFrame(self, fg_color=self.frame_color)
         frame2.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
         return frame2
-    
+
     # def init_frame3(self):
     #     frame3 = ctk.CTkFrame(self, fg_color=self.frame_color)
     #     frame3.grid(row=2, column=0, padx=5, pady=5, sticky="w")
@@ -231,7 +228,7 @@ class SetUpModeFrame(ctk.CTkFrame):
     #         fg_color=self.label_color,
     #     ).grid(row=0, column=0, padx=5, sticky="w")
 
-    #     # Inner Button Frame for Ref Level Controls 
+    #     # Inner Button Frame for Ref Level Controls
     #     ref_button_frame = ctk.CTkFrame(frame3)
     #     ref_button_frame.grid(row=1, column=0, columnspan=3, pady=5, sticky="w")
 
@@ -250,7 +247,7 @@ class SetUpModeFrame(ctk.CTkFrame):
     #         anchor="center"
     #     )
     #     self.cur_ref_level_label.pack(side="left", padx=5)
-        
+
     #     self.increase_ref_button = ArrowButton(
     #         ref_button_frame,
     #         text="\u25B2",
@@ -272,13 +269,14 @@ class SetUpModeFrame(ctk.CTkFrame):
         )
         self.update_button.grid(row=0, column=0, padx=5, pady=5)
 
-
     def setup_files(self, band_key):
         self.band_selected = band_key
         self.last_band_prepped.configure(text=self.band_selected)
         self.update_button.configure(text=f"Update State {self.band_selected}")
-        
-        self.state_filename = get_state_file(self.inst, self.state_folder, self.band_selected)
+
+        self.state_filename = get_state_file(
+            self.inst, self.state_folder, self.band_selected
+        )
         recall_state(self.inst, self.state_folder, self.state_filename)
 
         updated_ref_level = get_ref_level(self.inst)
@@ -293,23 +291,27 @@ class SetUpModeFrame(ctk.CTkFrame):
             self.ref_level_double_var.set(get_ref_level(self.inst))
             cur_rev_level = self.ref_level_double_var.get()
 
-        decresed_ref = self.ref_level_double_var.get() - 10 
+        decresed_ref = self.ref_level_double_var.get() - 10
         self.ref_level_double_var.set(decresed_ref)
         set_ref_level(self.inst, decresed_ref)
         self.cur_ref_level_label.configure(text=f"{decresed_ref:.2f} dBm")
 
     def increse_ref_level(self):
-        increased_ref = self.ref_level_double_var.get() + 10 
+        increased_ref = self.ref_level_double_var.get() + 10
         self.ref_level_double_var.set(increased_ref)
         set_ref_level(self.inst, increased_ref)
         self.cur_ref_level_label.configure(text=f"{increased_ref:.2f} dBm")
 
     def confirm_window(self):
-        self.wait_window(ConfirmStateChangePopup(self, self.update_ref_level, self.state_filename))
+        self.wait_window(
+            ConfirmStateChangePopup(self, self.update_ref_level, self.state_filename)
+        )
 
     def update_ref_level(self):
         print(f"Updating state file {self.band_selected}...")
-        self.state_filename = get_state_file(self.inst, self.state_folder, self.band_selected)
+        self.state_filename = get_state_file(
+            self.inst, self.state_folder, self.band_selected
+        )
         print(f"State folder: {self.state_folder}")
         print(f"State filename: {self.state_filename}")
         print(f"saving state to {self.state_folder}/{self.state_filename}")

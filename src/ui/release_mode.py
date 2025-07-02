@@ -2,6 +2,7 @@ import customtkinter as ctk
 from PIL import Image
 from ui.get_resource_path import resource_path
 
+
 class ReleaseMode(ctk.CTkFrame):
     def __init__(
         self,
@@ -39,7 +40,7 @@ class ReleaseMode(ctk.CTkFrame):
             width=80,
             anchor="center",
         ).grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-        
+
         panel_img = ctk.CTkImage(Image.open(self.panel_img), size=(600, 250))
         label_img = ctk.CTkLabel(self, text="", image=panel_img)
         label_img.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
