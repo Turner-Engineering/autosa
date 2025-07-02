@@ -247,7 +247,7 @@ def prep_band(inst, band_key):
     return error_message
 
 
-def run_band(inst, band_key, run_filename, save=True):
+def run_band(inst, band_key, run_filename, band_ori, save=True):
     inst_out_folder = read_settings_from_file()["-INST OUT FOLDER-"]
     local_out_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
     sweep_dur = float(read_settings_from_file()["-SWEEP DUR-"])
@@ -268,6 +268,7 @@ def run_band(inst, band_key, run_filename, save=True):
     time.sleep(5)
 
     if save:
-        save_trace_and_screen(inst, run_filename, inst_out_folder, local_out_folder, band_key)
+        band_name = band_key + band_ori
+        save_trace_and_screen(inst, run_filename, inst_out_folder, local_out_folder, band_name)
 
     return error_message
