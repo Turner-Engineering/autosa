@@ -1,4 +1,5 @@
-import json, os
+import json
+import os
 from json_repair import repair_json
 from instrument.folders import get_folder_info
 
@@ -61,15 +62,9 @@ def is_settings_valid(inst):
         return False
 
     # settings = read_settings_from_file()
-    state_exists, state_empty, _ = get_folder_info(
-        inst, settings["-STATE FOLDER-"]
-    )
-    corr_exists, corr_empty, _ = get_folder_info(
-        inst, settings["-CORR FOLDER-"]
-    )
-    inst_exists, _, _ = get_folder_info(
-        inst, settings["-INST OUT FOLDER-"]
-    )
+    state_exists, state_empty, _ = get_folder_info(inst, settings["-STATE FOLDER-"])
+    corr_exists, corr_empty, _ = get_folder_info(inst, settings["-CORR FOLDER-"])
+    inst_exists, _, _ = get_folder_info(inst, settings["-INST OUT FOLDER-"])
     local_exists = os.path.exists(settings["-LOCAL OUT FOLDER-"])
 
     # .strip() ensures any empty spaces are not considered an input
@@ -95,7 +90,6 @@ def is_settings_valid(inst):
         or not sweep_blank
         or not valid_sweep
     ):
-
         return False
 
     return True

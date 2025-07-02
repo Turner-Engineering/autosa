@@ -4,11 +4,7 @@ import customtkinter as ctk
 from ui.save_window_popups import CompletedWindow, PopupWindow
 from utils.settings import read_settings_from_file
 from ui.get_resource_path import resource_path
-from instrument.instrument import (
-    get_run_filename,
-    run_band,
-    get_run_id
-)
+from instrument.instrument import get_run_filename, run_band, get_run_id
 
 
 class ConfirmWindow(ctk.CTkToplevel):
@@ -133,7 +129,7 @@ class MultiModeFrame(ctk.CTkFrame):
         self.inst_output_folder = read_settings_from_file()["-INST OUT FOLDER-"]
         self.local_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
         self.sweep_dur = self.settings["-SWEEP DUR-"]
-        
+
         self.band_ranges = [
             "B0 - B4 (monopole)",
             "B5 - B7 (bilogical)",
@@ -178,7 +174,7 @@ class MultiModeFrame(ctk.CTkFrame):
 
     def init_frame3(self):
         frame3 = ctk.CTkFrame(self, fg_color=self.frame_color)
-        frame3.grid(row=3, column=0, padx=5, pady = 5, sticky="ew")
+        frame3.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
         frame3.columnconfigure([1], weight=1)
         return frame3
 
@@ -276,10 +272,12 @@ class MultiModeFrame(ctk.CTkFrame):
         band_ori = band_ori_full[0].lower() if band_ori_full else ""
         self.run_id_counter = None
         cur_time = datetime.datetime.now().strftime("%H_%M_%S")
-        
+
         for i, band_key in enumerate(self.band_keys):
             run_id = self.get_next_run_id()
-            cur_filename = f"{run_id} {run_note} {self.sweep_dur}s {band_key}{band_ori} {cur_time}"
+            cur_filename = (
+                f"{run_id} {run_note} {self.sweep_dur}s {band_key}{band_ori} {cur_time}"
+            )
             self.band_filenames[band_key] = cur_filename
 
             check_var = ctk.BooleanVar(value=False)
@@ -293,7 +291,7 @@ class MultiModeFrame(ctk.CTkFrame):
                 border_color=self.check_color,
                 text_color_disabled=self.check_color,
                 checkbox_height=12,
-                checkbox_width=12
+                checkbox_width=12,
             )
             checkbox.grid(row=i + 1, column=0, padx=5, pady=2, sticky="w")
 
@@ -311,7 +309,6 @@ class MultiModeFrame(ctk.CTkFrame):
             self.run_id_counter += 1
 
         return f"{self.run_id_date}-{self.run_id_counter:02}"
-
 
     def update_ori_dropdown(self):
         """disables and enables the orientation based on the selected range"""
@@ -361,7 +358,9 @@ class MultiModeFrame(ctk.CTkFrame):
             self.enable_buttons()
         else:
             self.disable_buttons()
-            self.wait_window(ConfirmWindow(self, self.run_multiple_bands, self.sweep_dur))
+            self.wait_window(
+                ConfirmWindow(self, self.run_multiple_bands, self.sweep_dur)
+            )
             self.enable_buttons()
 
     def run_multiple_bands(self):
@@ -410,7 +409,7 @@ class MultiModeFrame(ctk.CTkFrame):
             # PROGRESS BAR
             progress = (i + 1) / num_bands
             self.pbar.set(progress)
-            self.pbar_label.configure(text=f"{i+1}/{num_bands}")
+            self.pbar_label.configure(text=f"{i + 1}/{num_bands}")
 
             self.update_idletasks()
 

@@ -3,7 +3,11 @@ import subprocess
 from tkinter import filedialog as fd
 from instrument.folders import get_folder_info
 from ui.get_resource_path import resource_path
-from utils.settings import get_version_path, write_settings_to_file, read_settings_from_file
+from utils.settings import (
+    get_version_path,
+    write_settings_to_file,
+    read_settings_from_file,
+)
 
 
 class CorrSettingFrame(ctk.CTkFrame):
@@ -165,7 +169,9 @@ class PrimaryFrame(ctk.CTkFrame):
 class SettingsWindow(ctk.CTkToplevel):
     """opens a new window and sets it up for settings"""
 
-    def __init__(self, parent, inst, update_valid, inst_found, frame_color, label_color):
+    def __init__(
+        self, parent, inst, update_valid, inst_found, frame_color, label_color
+    ):
         super().__init__(parent)
         self.title("Settings")
         window_width = 1300
@@ -205,9 +211,9 @@ class SettingsWindow(ctk.CTkToplevel):
         self.create_widgets()
 
     def create_widgets(self):
-        frame1 = self.init_frame1() # "Settings", settings location
-        frame2 = self.init_frame2() # tabview
-        frame3 = self.init_frame3() # update or cancel
+        frame1 = self.init_frame1()  # "Settings", settings location
+        frame2 = self.init_frame2()  # tabview
+        frame3 = self.init_frame3()  # update or cancel
 
         self.fill_header_frame1(frame1)
         self.fill_tabview_frame2(frame2)
@@ -216,7 +222,7 @@ class SettingsWindow(ctk.CTkToplevel):
     def init_frame1(self):
         header_frame = ctk.CTkFrame(self, fg_color=self.label_color)
         header_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-        header_frame.columnconfigure([0,1], weight=1)
+        header_frame.columnconfigure([0, 1], weight=1)
         return header_frame
 
     def init_frame2(self):
@@ -285,13 +291,17 @@ class SettingsWindow(ctk.CTkToplevel):
 
     def open_to_json(self):
         json_filepath = get_version_path()
-        subprocess.run(['explorer', '/select,', json_filepath])
+        subprocess.run(["explorer", "/select,", json_filepath])
 
     def save_settings(self):
         """write to the json file"""
         settings = {}
         for label, settings_var in self.settings_vars.items():
-            settings[label] = (settings_var.get().lstrip("0") if label == "-SWEEP DUR-" else settings_var.get()).strip()
+            settings[label] = (
+                settings_var.get().lstrip("0")
+                if label == "-SWEEP DUR-"
+                else settings_var.get()
+            ).strip()
 
         settings["-CORR CHOICES-"] = self.corr_choice
 

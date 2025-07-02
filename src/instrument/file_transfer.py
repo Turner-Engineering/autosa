@@ -36,6 +36,6 @@ def copy_file_to_local(inst, file_path, out_folder):
 
     # Interpret Header and Return Raw DATA
     raw_data = binblock_raw(raw_data)
-    
+
     with open(full_path, "wb") as target_file:
         target_file.write(raw_data)

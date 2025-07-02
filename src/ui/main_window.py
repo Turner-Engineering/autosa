@@ -96,7 +96,14 @@ class HeaderFrame(ctk.CTkFrame):
         self.valid_settings_label.configure(text_color=self.settings_error_color)
 
     def settings_window(self):
-        SettingsWindow(self, self.inst, self.update_valid, self.inst_found, self.frame_color, self.label_color)
+        SettingsWindow(
+            self,
+            self.inst,
+            self.update_valid,
+            self.inst_found,
+            self.frame_color,
+            self.label_color,
+        )
 
 
 class MenuFrame(ctk.CTkFrame):
@@ -150,7 +157,7 @@ class MenuFrame(ctk.CTkFrame):
 
         tab4 = self.tabview.add("      Set Up Mode     ")
         frame = SetUpModeFrame(
-            tab4, 
+            tab4,
             self.inst_found,
             self.inst,
             self.frame_color,

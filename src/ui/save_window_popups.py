@@ -3,6 +3,7 @@ from instrument.instrument import get_run_filename
 from ui.get_resource_path import resource_path
 import datetime
 
+
 class CompletedWindow(ctk.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
@@ -63,14 +64,7 @@ class ManualSaveWindow(ctk.CTkToplevel):
     """opens a new window and sets it up for settings"""
 
     def __init__(
-        self,
-        parent,
-        run_filename,
-        inst,
-        run_id,
-        frame_color,
-        label_color,
-        sweep_dur
+        self, parent, run_filename, inst, run_id, frame_color, label_color, sweep_dur
     ):
         super().__init__(parent)
         self.title("Save Trace and Screen")
@@ -147,7 +141,9 @@ class ManualSaveWindow(ctk.CTkToplevel):
         self.run_note_entry.grid(row=1, column=1, padx=5, sticky="w")
 
         # Sweep Duration
-        ctk.CTkLabel(frame1, text="Sweep Dur", width=50).grid(row=0, column=2, padx=5, sticky="w")
+        ctk.CTkLabel(frame1, text="Sweep Dur", width=50).grid(
+            row=0, column=2, padx=5, sticky="w"
+        )
         self.sweep_dur_label = ctk.CTkLabel(frame1, text=f"{self.sweep_dur}s", width=50)
         self.sweep_dur_label.grid(row=1, column=2, padx=5, sticky="w")
 
@@ -225,7 +221,9 @@ class ManualSaveWindow(ctk.CTkToplevel):
             self.lower()
             PopupWindow(self)
         else:
-            self.run_filename = get_run_filename(self.inst, band, run_note, self.sweep_dur)
+            self.run_filename = get_run_filename(
+                self.inst, band, run_note, self.sweep_dur
+            )
             self.destroy()
 
     def get_filename(self):

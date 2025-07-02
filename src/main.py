@@ -3,7 +3,12 @@ import os
 from ui.invalid_frame import PyVisaError
 from ui.main_window import MainApp
 from instrument.instrument import get_inst
-from utils.settings import default_settings, get_version_path, read_settings_from_file, write_settings_to_file
+from utils.settings import (
+    default_settings,
+    get_version_path,
+    read_settings_from_file,
+    write_settings_to_file,
+)
 
 
 def assert_ni_visa_installed(pyvisa):
@@ -49,15 +54,15 @@ def main():
     ni_visa_installed = assert_ni_visa_installed(pyvisa)
     if not ni_visa_installed:
         return
-    
-    # Assert that settings JSON file exists correctly 
+
+    # Assert that settings JSON file exists correctly
     filepath = get_version_path()
     if os.path.exists(filepath):
         valid_settings = make_json_valid()
-        write_settings_to_file(valid_settings) # overwrite settings json
+        write_settings_to_file(valid_settings)  # overwrite settings json
     else:
-        write_settings_to_file(default_settings) # make default settings
-    
+        write_settings_to_file(default_settings)  # make default settings
+
     inst, inst_found = get_inst()
 
     app = MainApp(inst_found, inst)
