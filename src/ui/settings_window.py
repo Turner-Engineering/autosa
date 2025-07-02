@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import subprocess
 from tkinter import filedialog as fd
 from instrument.folders import get_folder_info
 from ui.get_resource_path import resource_path
@@ -142,12 +143,6 @@ class PrimaryFrame(ctk.CTkFrame):
             path_entry.grid(row=r, column=2, padx=5, pady=5, sticky="ew")
             self.path_entries.append(path_entry)  # collect the inputs
 
-        # ctk.CTkButton(
-        #     primary_frame,
-        #     text="Browse",
-        #     command=lambda: SettingsWindow.browse_files(settings_vars["-CORR FOLDER-"]),
-        # ).grid(row=1, column=3, padx=5, pady=5, sticky="w")
-
         ctk.CTkButton(
             primary_frame,
             text="Browse",
@@ -210,17 +205,18 @@ class SettingsWindow(ctk.CTkToplevel):
         self.create_widgets()
 
     def create_widgets(self):
-        frame1 = self.init_frame1()
+        frame1 = self.init_frame1() # "Settings", settings location
         frame2 = self.init_frame2() # tabview
         frame3 = self.init_frame3() # update or cancel
 
-        self.fill_header_frame1(frame1) # "Settings", settings location
+        self.fill_header_frame1(frame1)
         self.fill_tabview_frame2(frame2)
         self.fill_button_frame3(frame3)
 
     def init_frame1(self):
         header_frame = ctk.CTkFrame(self, fg_color=self.label_color)
         header_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        header_frame.columnconfigure([0,1], weight=1)
         return header_frame
 
     def init_frame2(self):
@@ -240,8 +236,18 @@ class SettingsWindow(ctk.CTkToplevel):
         settings_header_label = ctk.CTkLabel(frame1, text="Settings")
         settings_header_label.grid(row=0, column=0, padx=5, sticky="w")
 
-        folderpath_label = ctk.CTkLabel(frame1, text=get_version_path(), font=("", 10))
-        folderpath_label.grid(row=1, column=0, padx=5, sticky="w")
+        view_json_button = ctk.CTkButton(
+            frame1, 
+            text="Open Settings JSON", 
+            font = ("", 8),
+            width=16,
+            height=10,
+            anchor="center",
+            fg_color="#73777B",
+            hover_color="#3D3F41",
+            command=lambda: self.open_to_json()
+        )
+        view_json_button.grid(row=1, column=0, padx=5, sticky="w")
 
     def fill_tabview_frame2(self, frame2):
         tab1 = frame2.add("      Primary      ")
@@ -277,6 +283,9 @@ class SettingsWindow(ctk.CTkToplevel):
         )
         cancel_button.grid(row=0, column=1, padx=5, pady=5, sticky="e")
 
+    def open_to_json(self):
+        json_filepath = get_version_path()
+        subprocess.run(['explorer', '/select,', json_filepath])
 
     def save_settings(self):
         """write to the json file"""
