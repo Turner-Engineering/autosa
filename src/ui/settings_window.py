@@ -169,7 +169,7 @@ class SettingsWindow(ctk.CTkToplevel):
         super().__init__(parent)
         self.title("Settings")
         window_width = 1300
-        window_height = 650
+        window_height = 613
         self.geometry(f"{window_width}x{window_height}")
         self.resizable(False, False)
         self.logo = resource_path("images/autosa_logo.ico")
@@ -225,7 +225,7 @@ class SettingsWindow(ctk.CTkToplevel):
         tabview_frame.columnconfigure(0, weight=1)
         tabview_frame.rowconfigure(0, weight=1)
         return tabview_frame
-    
+
     def init_frame3(self):
         button_frame = ctk.CTkFrame(self, fg_color=self.label_color)
         button_frame.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
@@ -233,19 +233,19 @@ class SettingsWindow(ctk.CTkToplevel):
         return button_frame
 
     def fill_header_frame1(self, frame1):
-        settings_header_label = ctk.CTkLabel(frame1, text="Settings")
+        settings_header_label = ctk.CTkLabel(frame1, text="Settings", font=("", 16))
         settings_header_label.grid(row=0, column=0, padx=5, sticky="w")
 
         view_json_button = ctk.CTkButton(
-            frame1, 
-            text="Open Settings JSON", 
-            font = ("", 8),
+            frame1,
+            text="Open Settings File",
+            font=("", 8),
             width=16,
             height=10,
             anchor="center",
-            fg_color="#73777B",
-            hover_color="#3D3F41",
-            command=lambda: self.open_to_json()
+            fg_color="#979da2",
+            hover_color="#676b6e",
+            command=lambda: self.open_to_json(),
         )
         view_json_button.grid(row=1, column=0, padx=5, sticky="w")
 
