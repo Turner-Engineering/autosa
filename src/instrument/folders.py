@@ -4,7 +4,7 @@ import os
 
 
 def get_folder_info(inst, folder_path):
-    folder_path = folder_path.replace("/", "\\").strip()
+    folder_path = folder_path.replace("/", "\\")
 
     # CAT is short for Catalog and lists out the files in a folder
     resp = inst.query(f'MMEM:CAT? "{folder_path}"')

@@ -1,4 +1,5 @@
 import json, os
+from json_repair import repair_json
 from instrument.folders import get_folder_info
 
 
@@ -26,6 +27,10 @@ def get_settings_folder_path():
     return os.path.join(os.getenv("LOCALAPPDATA"), "Autosa")
 
 
+def get_version_path():
+    return get_settings_folder_path() + filename
+
+
 def write_settings_to_file(settings):
     folder = get_settings_folder_path()
 
@@ -43,7 +48,9 @@ def read_settings_from_file():
         return default_settings
 
     with open(folder + filename, "r") as reader:
-        return json.load(reader)
+        json_content = reader.read()
+        fixed = repair_json(json_content)
+        return json.loads(fixed)
 
 
 def is_settings_valid(inst):
