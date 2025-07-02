@@ -95,13 +95,14 @@ Autosa was written to work with the N9010B signal analyzer. The [User's and Prog
 
 ### October 2023
 
-Tenco used Autosa in the field for the first time on October 18th 2023 for railcar tests.
+- used Autosa in the field for the first time on October 18th 2023 for railcar tests.
+- used Autosa in January 2024 for the NYCT Crane Car Test in New York City.
+- used Autosa in January 2024 for the Toshiba Electric Locomotive Commissioning Tests in Taiwan.
+- used Autosa in April 2024 for P2250 Railcar Tests in Pueblo, Colorado.
+- used Autosa in June 2024 for PCEP survey
+- used Autosa in June 2025 for PCEP survey 2
 
-Tenco used Autosa in January 2024 for the NYCT Crane Car Test in New York City.
 
-Tenco used Autosa in January 2024 for the Toshiba Electric Locomotive Commissioning Tests in Taiwan.
-
-Tenco used Autosa In April 2024 for P2250 Railcar Tests in Pueblo, Colorado.
 
 ## Notes
 
