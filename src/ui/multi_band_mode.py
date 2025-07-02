@@ -318,7 +318,8 @@ class MultiModeFrame(ctk.CTkFrame):
         band_range = self.band_range_var.get()
         if band_range == "B5 - B7 (bilogical)":
             self.ori_dropdown.configure(state="normal")
-            self.ori_dropdown.set("Horizontal")
+            if self.ori_var.get() not in ["Horizontal", "Vertical"]:
+                self.ori_dropdown.set("Horizontal")
         else:
             self.ori_dropdown.configure(state="disabled")
             self.ori_dropdown.set("None")
@@ -376,9 +377,6 @@ class MultiModeFrame(ctk.CTkFrame):
         self.frame3.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
         self.fill_frame3(self.frame3)
 
-        # PROGRESS BAR
-        run_times = 1 / num_bands
-
         # updates progress bar to reset
         self.pbar.set(0)
         self.pbar_label.configure(text=f"0/{num_bands}")
@@ -395,7 +393,7 @@ class MultiModeFrame(ctk.CTkFrame):
             self.run_filename = get_run_filename(
                 self.inst, band_key, run_note, self.sweep_dur, band_ori
             )
-            run_band(self.inst, band_key, self.run_filename)
+            run_band(self.inst, band_key, self.run_filename, band_ori)
 
             # Mark checkbox complete
             checkbox, check_var = self.band_checkbox[band_key]
@@ -421,6 +419,8 @@ class MultiModeFrame(ctk.CTkFrame):
         # RUNS COMPLETE
         self.pbar.stop()
         CompletedWindow(self)
+        self.band_checkbox.clear()
+        self.band_filenames.clear()
         self.frame3.grid_forget()  # hide the frame after completion, .destroy() doesn't work here
         self.run_filename = None
         self.after(1, self.enable_buttons())

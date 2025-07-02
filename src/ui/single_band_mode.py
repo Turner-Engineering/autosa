@@ -134,7 +134,8 @@ class SingleModeFrame(ctk.CTkFrame):
     def run_single_band(self, band_name):
         # PREPARE, RECORD, ADJUST
         band_key = band_name[:2]
-        error_message = run_band(self.inst, band_key, "", save=False)
+        band_ori = band_name[2] if len(band_name) == 3 else ""
+        error_message = run_band(self.inst, band_key, "", band_ori, save=False)
 
         # GET FILENAME
         run_note = self.run_note_var.get()
