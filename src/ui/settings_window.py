@@ -2,7 +2,7 @@ import customtkinter as ctk
 from tkinter import filedialog as fd
 from instrument.folders import get_folder_info
 from ui.get_resource_path import resource_path
-from utils.settings import write_settings_to_file, read_settings_from_file
+from utils.settings import get_version_path, write_settings_to_file, read_settings_from_file
 
 
 class CorrSettingFrame(ctk.CTkFrame):
@@ -170,11 +170,11 @@ class PrimaryFrame(ctk.CTkFrame):
 class SettingsWindow(ctk.CTkToplevel):
     """opens a new window and sets it up for settings"""
 
-    def __init__(self, parent, inst, update_valid, inst_found):
+    def __init__(self, parent, inst, update_valid, inst_found, frame_color, label_color):
         super().__init__(parent)
         self.title("Settings")
         window_width = 1300
-        window_height = 600
+        window_height = 650
         self.geometry(f"{window_width}x{window_height}")
         self.resizable(False, False)
         self.logo = resource_path("images/autosa_logo.ico")
@@ -184,15 +184,13 @@ class SettingsWindow(ctk.CTkToplevel):
         self.inst = inst
         self.inst_found = inst_found
         self.update_valid = update_valid
+        self.frame_color = frame_color
+        self.label_color = label_color
         self.transient(parent)
 
         # if folder exists:
         settings = read_settings_from_file()
         self.corr_choice = settings.get("-CORR CHOICES-", {})
-
-        # title frame
-        settings_header_label = ctk.CTkLabel(self, text="Settings", justify="left")
-        settings_header_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         self.settings_labels = {
             "-STATE FOLDER-": "State Files Folder",
@@ -212,37 +210,51 @@ class SettingsWindow(ctk.CTkToplevel):
         self.create_widgets()
 
     def create_widgets(self):
-        self.create_button_frame()  # Button frame
-        self.create_settings_menu_layout()
+        frame1 = self.init_frame1()
+        frame2 = self.init_frame2() # tabview
+        frame3 = self.init_frame3() # update or cancel
 
-    def create_button_frame(self):
-        """Creates the save and cancel buttons"""
-        button_frame = ctk.CTkFrame(self)
-        button_frame.grid(row=3, column=0, sticky="e", padx=5, pady=5)
+        self.fill_header_frame1(frame1) # "Settings", settings location
+        self.fill_tabview_frame2(frame2)
+        self.fill_button_frame3(frame3)
 
-        save_button = ctk.CTkButton(
-            button_frame,
-            text="Save",
-            command=lambda: self.save_settings(),
-        )
-        save_button.grid(row=0, column=0, padx=10, pady=10, sticky="e")
+    def init_frame1(self):
+        header_frame = ctk.CTkFrame(self, fg_color=self.label_color)
+        header_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        return header_frame
 
-        cancel_button = ctk.CTkButton(
-            button_frame, text="Cancel", command=lambda: self.destroy()
-        )
-        cancel_button.grid(row=0, column=1, padx=10, pady=10, sticky="e")
+    def init_frame2(self):
+        tabview_frame = ctk.CTkTabview(self)
+        tabview_frame.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
+        tabview_frame.columnconfigure(0, weight=1)
+        tabview_frame.rowconfigure(0, weight=1)
+        return tabview_frame
+    
+    def init_frame3(self):
+        button_frame = ctk.CTkFrame(self, fg_color=self.label_color)
+        button_frame.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
+        button_frame.columnconfigure(0, weight=1)
+        return button_frame
 
-    def create_settings_menu_layout(self):
-        tabview = ctk.CTkTabview(self)
-        tabview.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
-        tabview.rowconfigure([0, 1, 2, 3], weight=1)
-        tabview.columnconfigure(0, weight=1)
+    def fill_header_frame1(self, frame1):
+        settings_header_label = ctk.CTkLabel(frame1, text="Settings")
+        settings_header_label.grid(row=0, column=0, padx=5, sticky="w")
 
-        tab1 = tabview.add("      Primary      ")
+        folderpath_label = ctk.CTkLabel(frame1, text=get_version_path(), font=("", 10))
+        folderpath_label.grid(row=1, column=0, padx=5, sticky="w")
+
+    def fill_tabview_frame2(self, frame2):
+        tab1 = frame2.add("      Primary      ")
+        tab1.grid_rowconfigure(0, weight=1)
+        tab1.grid_columnconfigure(0, weight=1)
+
         primary_frame = PrimaryFrame(tab1, self.settings_vars, self.settings_labels)
         primary_frame.pack(expand=True, fill="both")
 
-        tab2 = tabview.add("      Amplitude Correction      ")
+        tab2 = frame2.add("      Amplitude Correction      ")
+        tab2.grid_rowconfigure(0, weight=1)
+        tab2.grid_columnconfigure(0, weight=1)
+
         corr_frame = CorrSettingFrame(
             tab2,
             self.settings_vars["-CORR FOLDER-"],
@@ -251,6 +263,20 @@ class SettingsWindow(ctk.CTkToplevel):
             self.inst,
         )
         corr_frame.pack(expand=True, fill="both")
+
+    def fill_button_frame3(self, frame3):
+        save_button = ctk.CTkButton(
+            frame3,
+            text="Save",
+            command=lambda: self.save_settings(),
+        )
+        save_button.grid(row=0, column=0, padx=5, pady=5, sticky="e")
+
+        cancel_button = ctk.CTkButton(
+            frame3, text="Cancel", command=lambda: self.destroy()
+        )
+        cancel_button.grid(row=0, column=1, padx=5, pady=5, sticky="e")
+
 
     def save_settings(self):
         """write to the json file"""
