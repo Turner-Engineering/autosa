@@ -3,9 +3,10 @@ import customtkinter as ctk
 from ui.get_resource_path import resource_path
 from ui.large_button import LargeButton
 from utils.settings import read_settings_from_file
+from instrument.folders import get_folder_info
 from instrument.instrument import (
     get_ref_level,
-    set_ref_level,
+    set_rounded_ref_level,
     recall_state,
     get_state_file,
     update_state,
@@ -25,7 +26,9 @@ class ArrowButton(ctk.CTkButton):
 
 
 class ConfirmStateChangePopup(ctk.CTkToplevel):
-    def __init__(self, parent, update_ref_level, state_filename):
+    def __init__(
+        self, parent, update_ref_level, state_filename, warning_red, hover_red
+    ):
         super().__init__(parent)
         self.title("Confirm State Update")
         self.parent = parent
@@ -33,8 +36,10 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
         self.iconbitmap(self.logo)
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
-        self.window_color = "#8F0202"
-        self.configure(fg_color=self.window_color)
+        self.warning_red = warning_red
+        self.hover_red = hover_red
+        self.backgroud_gray = "#DBDBDB"
+        self.configure(fg_color=self.backgroud_gray)
         self.resizable(False, False)  # disable resizing
         self.transient(parent)
 
@@ -44,72 +49,76 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
         self.create_widgets()
 
     def create_widgets(self):
-        frame = self.init_frame()
-        self.fill_frame(frame)
+        frame1 = self.init_frame1()
+        frame2 = self.init_frame2()
 
-    def init_frame(self):
-        frame = ctk.CTkFrame(self, fg_color=self.window_color)
-        frame.grid(row=0, column=0, padx=10, pady=10)
-        frame.columnconfigure([0, 1], weight=1)
-        frame.rowconfigure([0, 1, 2], weight=1)
-        return frame
+        self.fill_frame1(frame1)
+        self.fill_frame2(frame2)
 
-    def fill_frame(self, frame):
+    def init_frame1(self):
+        frame1 = ctk.CTkFrame(self, fg_color=self.backgroud_gray)
+        frame1.grid(row=0, column=0, padx=10)
+        return frame1
+
+    def init_frame2(self):
+        frame2 = ctk.CTkFrame(self, fg_color=self.backgroud_gray)
+        frame2.grid(row=1, column=0, padx=10)
+        return frame2
+
+    def fill_frame1(self, frame1):
         # Warning Symbol
         ctk.CTkLabel(
-            frame,
-            text="\u26a0 \u26a0 \u26a0",
+            frame1,
+            text="\u26a0",
             anchor="center",
-            font=("Arial", 24, "bold"),
-            text_color="#ffcc00",
+            font=("Arial", 48),
+            text_color="#dc9908",
         ).grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         # Confirmation Text
         ctk.CTkLabel(
-            frame,
-            text="Please confirm that you would like to overwrite",
+            frame1,
+            text="Are You Sure?",
             justify="center",
-            font=("", 14),
-            text_color="white",
+            font=("", 24),
         ).grid(row=1, column=0, columnspan=2, padx=5, sticky="nsew")
 
-        ctk.CTkLabel(
-            frame,
-            text=f"{self.state_filename}",
-            justify="center",
-            font=("", 16, "bold"),
-            text_color="white",
-        ).grid(row=2, column=0, columnspan=2, padx=5, sticky="nsew")
+        # Confirmation Text
+        ctk.CTkLabel(frame1, text="This will overwrite ", font=("", 14)).grid(
+            row=2, column=0, sticky="e"
+        )
 
         ctk.CTkLabel(
-            frame,
-            # text="This will overwrite the state file and cannot be reversed.",
-            text="This cannot be reversed.",
+            frame1, text=f"{self.state_filename}", font=("", 14, "underline")
+        ).grid(row=2, column=1, sticky="w")
+
+        ctk.CTkLabel(
+            frame1,
+            text="This cannot be reversed!",
             justify="center",
             font=("", 14),
-            text_color="white",
         ).grid(row=3, column=0, columnspan=2, padx=5, sticky="nsew")
 
+    def fill_frame2(self, frame2):
         # Okay Button
         ctk.CTkButton(
-            frame,
+            frame2,
             text="Overwrite",
             command=lambda: self.confirmation_callback(),
             anchor="center",
-        ).grid(row=4, column=0, padx=5, pady=5)
+            fg_color=self.warning_red,
+            hover_color=self.hover_red,
+        ).grid(row=0, column=0, padx=5, pady=5)
 
         # Cancel Button
         ctk.CTkButton(
-            frame,
+            frame2,
             text="Cancel",
             command=lambda: self.destroy(),
-            fg_color="#939ba2",
-            hover_color="#646a6e",
             anchor="center",
-        ).grid(row=4, column=1, padx=5, pady=5)
-
-        # pop up a scary dialog to confirm the ref level update will overwrite the current state
-        # are you sure you want to update [dropdown] state file? make the band changeable
+            fg_color="#939ba2",
+            hover_color="#585656",
+        ).grid(row=0, column=1, padx=5, pady=5)
 
     def confirmation_callback(self):
         # create new thread
@@ -134,13 +143,13 @@ class SetUpModeFrame(ctk.CTkFrame):
         self.frame_color = frame_color
         self.label_color = label_color
 
-        self.state_folder = read_settings_from_file()["-STATE FOLDER-"]
         self.button_list = []
-
         self.ref_level_double_var = ctk.DoubleVar()
         self.ref_level_double_var.set(get_ref_level(self.inst))
         self.band_selected = ctk.StringVar()
         self.state_filename = ctk.StringVar()
+        self.warning_red = "#8F0202"
+        self.hover_red = "#350303"
 
         self.band_buttons = [
             ("B0", lambda: self.setup_files("B0"), 1, 0),
@@ -158,12 +167,12 @@ class SetUpModeFrame(ctk.CTkFrame):
     def create_widgets(self):
         frame1 = self.init_frame1()
         frame2 = self.init_frame2()
-        # frame3 = self.init_frame3()
+        frame3 = self.init_frame3()
         frame4 = self.init_frame4()
 
         self.fill_frame1(frame1)
         self.fill_frame2(frame2)
-        # self.fill_frame3(frame3)
+        self.fill_frame3(frame3)
         self.fill_frame4(frame4)
 
     def init_frame1(self):
@@ -176,14 +185,14 @@ class SetUpModeFrame(ctk.CTkFrame):
         frame2.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
         return frame2
 
-    # def init_frame3(self):
-    #     frame3 = ctk.CTkFrame(self, fg_color=self.frame_color)
-    #     frame3.grid(row=2, column=0, padx=5, pady=5, sticky="w")
-    #     return frame3
+    def init_frame3(self):
+        frame3 = ctk.CTkFrame(self, fg_color=self.frame_color)
+        frame3.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+        return frame3
 
     def init_frame4(self):
         frame4 = ctk.CTkFrame(self, fg_color=self.frame_color)
-        frame4.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
+        frame4.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
         frame4.columnconfigure(0, weight=1)
         return frame4
 
@@ -221,39 +230,37 @@ class SetUpModeFrame(ctk.CTkFrame):
             self.button_list.append(button)
 
     # FRAME 3: EDIT STATE
-    # def fill_frame3(self, frame3):
-    #     ctk.CTkLabel(
-    #         frame3,
-    #         text="Ref Level:",
-    #         fg_color=self.label_color,
-    #     ).grid(row=0, column=0, padx=5, sticky="w")
+    def fill_frame3(self, frame3):
+        ctk.CTkLabel(
+            frame3,
+            text="Ref Level:",
+            fg_color=self.label_color,
+        ).grid(row=0, column=0, padx=5, sticky="w")
 
-    #     # Inner Button Frame for Ref Level Controls
-    #     ref_button_frame = ctk.CTkFrame(frame3)
-    #     ref_button_frame.grid(row=1, column=0, columnspan=3, pady=5, sticky="w")
+        # Inner Button Frame for Ref Level Controls
+        ref_button_frame = ctk.CTkFrame(frame3)
+        ref_button_frame.grid(row=1, column=0, columnspan=3, pady=5, sticky="w")
 
-    #     self.decrease_ref_button = ArrowButton(
-    #         ref_button_frame,
-    #         text="\u25BC",
-    #         command=lambda: self.decrese_ref_level()
-    #     )
-    #     self.decrease_ref_button.pack(side="left", padx=5)
+        self.decrease_ref_button = ArrowButton(
+            ref_button_frame, text="\u25bc", command=lambda: self.decrese_ref_level()
+        )
+        self.decrease_ref_button.pack(side="left", padx=5)
 
-    #     self.cur_ref_level_label = ctk.CTkLabel(
-    #         ref_button_frame,
-    #         text=f"{self.ref_level_double_var.get():.2f} dBm",
-    #         text_color="black",
-    #         width=50,
-    #         anchor="center"
-    #     )
-    #     self.cur_ref_level_label.pack(side="left", padx=5)
+        self.cur_ref_level_label = ctk.CTkLabel(
+            ref_button_frame,
+            text=f"{self.ref_level_double_var.get():.2f} dBm",
+            text_color="black",
+            width=50,
+            anchor="center",
+        )
+        self.cur_ref_level_label.pack(side="left", padx=5)
 
-    #     self.increase_ref_button = ArrowButton(
-    #         ref_button_frame,
-    #         text="\u25B2",
-    #         command=lambda: self.increse_ref_level()
-    #     )
-    #     self.increase_ref_button.pack(side="left", padx=5)
+        self.increase_ref_button = ArrowButton(
+            ref_button_frame, text="\u25b2", command=lambda: self.increse_ref_level()
+        )
+        self.increase_ref_button.pack(side="left", padx=5)
+
+        # self.match_ref_level()
 
     # FRAME 4: UPDATE Button
     def fill_frame4(self, frame4):
@@ -261,58 +268,109 @@ class SetUpModeFrame(ctk.CTkFrame):
             frame4,
             text="Update State",
             font=("", 16),
-            fg_color="#A90404",
-            hover_color="#5B0404",
+            fg_color=self.warning_red,
+            hover_color=self.hover_red,
             width=150,
             height=50,
             command=lambda: self.confirm_window(),
         )
         self.update_button.grid(row=0, column=0, padx=5, pady=5)
+        self.update_button.configure(state=self.is_state_folder_valid())
 
     def setup_files(self, band_key):
         self.band_selected = band_key
+        state_folder = read_settings_from_file()["-STATE FOLDER-"]
+
         self.last_band_prepped.configure(text=self.band_selected)
         self.update_button.configure(text=f"Update State {self.band_selected}")
 
         self.state_filename = get_state_file(
-            self.inst, self.state_folder, self.band_selected
+            self.inst, state_folder, self.band_selected
         )
-        recall_state(self.inst, self.state_folder, self.state_filename)
+        recall_state(self.inst, state_folder, self.state_filename)
 
         updated_ref_level = get_ref_level(self.inst)
         self.ref_level_double_var.set(updated_ref_level)
         self.cur_ref_level_label.configure(text=f"{updated_ref_level:.2f} dBm")
 
     def decrese_ref_level(self):
-        # check to see if ref level on autosa matches the ref level on the instrument
-        # if not, update autosa ref level to match the screens instrument
-        cur_rev_level = self.ref_level_double_var.get()
-        if cur_rev_level != get_ref_level(self.inst):
-            self.ref_level_double_var.set(get_ref_level(self.inst))
-            cur_rev_level = self.ref_level_double_var.get()
+        self.get_inst_ref()
 
         decresed_ref = self.ref_level_double_var.get() - 10
-        self.ref_level_double_var.set(decresed_ref)
-        set_ref_level(self.inst, decresed_ref)
-        self.cur_ref_level_label.configure(text=f"{decresed_ref:.2f} dBm")
+        decresed_ref_rounded = round(decresed_ref / 10) * 10
+
+        self.ref_level_double_var.set(decresed_ref_rounded)
+        set_rounded_ref_level(self.inst, decresed_ref_rounded)
+        self.cur_ref_level_label.configure(text=f"{decresed_ref_rounded:.2f} dBm")
 
     def increse_ref_level(self):
+        self.get_inst_ref()
+
         increased_ref = self.ref_level_double_var.get() + 10
-        self.ref_level_double_var.set(increased_ref)
-        set_ref_level(self.inst, increased_ref)
-        self.cur_ref_level_label.configure(text=f"{increased_ref:.2f} dBm")
+        incresed_ref_rounded = round(increased_ref / 10) * 10
+
+        self.ref_level_double_var.set(incresed_ref_rounded)
+        set_rounded_ref_level(self.inst, incresed_ref_rounded)
+        self.cur_ref_level_label.configure(text=f"{incresed_ref_rounded:.2f} dBm")
 
     def confirm_window(self):
         self.wait_window(
-            ConfirmStateChangePopup(self, self.update_ref_level, self.state_filename)
+            ConfirmStateChangePopup(
+                self,
+                self.update_ref_level,
+                self.state_filename,
+                self.warning_red,
+                self.hover_red,
+            )
         )
 
     def update_ref_level(self):
-        print(f"Updating state file {self.band_selected}...")
+        state_folder = read_settings_from_file()["-STATE FOLDER-"]
         self.state_filename = get_state_file(
-            self.inst, self.state_folder, self.band_selected
+            self.inst, state_folder, self.band_selected
         )
-        print(f"State folder: {self.state_folder}")
-        print(f"State filename: {self.state_filename}")
-        print(f"saving state to {self.state_folder}/{self.state_filename}")
-        update_state(self.inst, self.state_folder, self.state_filename)
+        update_state(self.inst, state_folder, self.state_filename)
+
+    def is_state_folder_valid(self):
+        state_folder = read_settings_from_file()["-STATE FOLDER-"]
+        state_exists, _, _ = get_folder_info(self.inst, state_folder)
+        return "normal" if state_exists else "disabled"
+
+    def update_state_button(self):
+        if hasattr(self, "update_button"):
+            new_state = self.is_state_folder_valid()
+            self.update_button.configure(state=new_state)
+
+    def get_inst_ref(self):
+        # check to see if ref level on autosa matches the ref level on the instrument
+        # if not, update autosa ref level to match the screens instrument
+        cur_ref_level = self.ref_level_double_var.get()
+        inst_ref_level = get_ref_level(self.inst)
+
+        if cur_ref_level != inst_ref_level:
+            self.ref_level_double_var.set(inst_ref_level)
+            cur_ref_level = self.ref_level_double_var.get()
+
+    """"
+    If any changes are made to the ref level on the instrument, match_ref_level() updates it on Autosa. 
+    Currently, this function cannot be used. 
+
+    If release_inst(self.inst):
+    - is used, the instrument is released every second which can interfere with testing 
+      and unsure how release acts with the instrument
+
+    - is not used but function is used, the instrument is very difficult to release 
+      even with Release Tab and esc button. This is because this function updates every second.
+
+    To use, uncomment line 261 and the function below.
+    """
+    #
+    # def match_ref_level(self, update_time=1000):
+    #     cur_ref_level = get_ref_level(self.inst)
+    #     if cur_ref_level != self.ref_level_double_var.get():
+    #         self.ref_level_double_var.set(cur_ref_level)
+    #         self.cur_ref_level_label.configure(text=f"{cur_ref_level:.2f} dBm")
+
+    #     release_inst(self.inst)
+
+    #     self.after(update_time, self.match_ref_level, update_time)

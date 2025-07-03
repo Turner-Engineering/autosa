@@ -170,7 +170,14 @@ class SettingsWindow(ctk.CTkToplevel):
     """opens a new window and sets it up for settings"""
 
     def __init__(
-        self, parent, inst, update_valid, inst_found, frame_color, label_color
+        self,
+        parent,
+        inst,
+        update_valid,
+        inst_found,
+        frame_color,
+        label_color,
+        update_state_button,
     ):
         super().__init__(parent)
         self.title("Settings")
@@ -185,6 +192,7 @@ class SettingsWindow(ctk.CTkToplevel):
         self.inst = inst
         self.inst_found = inst_found
         self.update_valid = update_valid
+        self.update_state_button = update_state_button
         self.frame_color = frame_color
         self.label_color = label_color
         self.transient(parent)
@@ -307,6 +315,7 @@ class SettingsWindow(ctk.CTkToplevel):
 
         write_settings_to_file(settings)
         self.update_valid()
+        self.update_state_button()
 
         self.destroy()  # close settings window after saving
 
