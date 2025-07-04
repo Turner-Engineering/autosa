@@ -15,7 +15,7 @@ ctk.set_widget_scaling(1.5)
 
 
 class HeaderFrame(ctk.CTkFrame):
-    def __init__(self, parent, inst_found, inst):
+    def __init__(self, parent, inst_found, inst, set_up_frame):
         super().__init__(parent)
         self.frame_color = parent.frame_color if parent.debug else "#dbdbdb"
         self.label_color = parent.label_color
@@ -23,6 +23,7 @@ class HeaderFrame(ctk.CTkFrame):
         self.columnconfigure(0, weight=1)
         self.inst_found = inst_found
         self.inst = inst
+        self.set_up_frame = set_up_frame
 
         self.valid_settings_label = ctk.CTkLabel(self)
         self.settings_error_var = ctk.StringVar()
@@ -103,6 +104,7 @@ class HeaderFrame(ctk.CTkFrame):
             self.inst_found,
             self.frame_color,
             self.label_color,
+            self.set_up_frame.update_state_button,
         )
 
 
@@ -155,14 +157,16 @@ class MenuFrame(ctk.CTkFrame):
         )
         frame.pack(expand=1, fill="both")
 
-        tab4 = self.tabview.add("      Set Up Mode     ")
-        frame = SetUpModeFrame(
+        self.set_up_tab_label = "      Set Up Mode     "
+        tab4 = self.tabview.add(self.set_up_tab_label)
+        self.set_up_frame = SetUpModeFrame(
             tab4,
             self.inst_found,
             self.inst,
             self.frame_color,
             self.label_color,
         )
+        frame = self.set_up_frame
         frame.pack(expand=1, fill="both")
 
         self.release_tab_label = "      Release Mode      "
@@ -180,6 +184,8 @@ class MenuFrame(ctk.CTkFrame):
         current_tab = self.tabview.get()
         if current_tab == self.release_tab_label:
             release_inst(self.inst)
+        elif current_tab == self.set_up_tab_label:
+            self.set_up_frame.update_autosa_ref_level()
 
 
 class MainApp(ctk.CTk):
@@ -209,11 +215,15 @@ class MainApp(ctk.CTk):
     def create_widgets(self):
         """sets up the window to have the header and the mode window"""
         if self.inst_found:
-            top_frame = HeaderFrame(self, self.inst_found, self.inst)
-            top_frame.pack(fill="x")
-
             # use a string for "both" to match the fill="x" above
             menu_frame = MenuFrame(self, self.inst_found, self.inst)
+
+            top_frame = HeaderFrame(
+                self, self.inst_found, self.inst, menu_frame.set_up_frame
+            )
+
+            top_frame.pack(fill="x")
             menu_frame.pack(fill="both", expand=True)
+
         else:
             InvalidFrame.invalid_frame(self)

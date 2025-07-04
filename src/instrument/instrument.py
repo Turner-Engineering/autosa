@@ -140,6 +140,11 @@ def round_ref_level(inst):
     set_ref_level(inst, new_ref_level)
 
 
+def set_rounded_ref_level(inst, ref_level):
+    new_ref_level = round(ref_level / 10) * 10
+    set_ref_level(inst, new_ref_level)
+
+
 def rename_screen(inst, new_name):
     old_name = inst.query(":INST:SCR:SELECT?").replace("\n", "").replace('"', "")
     if old_name != new_name:
