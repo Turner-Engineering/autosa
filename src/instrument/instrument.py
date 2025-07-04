@@ -1,11 +1,14 @@
 import datetime
 import time
 import pyvisa
+import pyvisa.constants as pyvisa_constants
 
 from instrument.file_transfer import copy_file_to_local
 from instrument.folders import get_folder_files, get_sorted_folder
 from utils.run_ids import run_index_to_id, get_todays_run_ids
 from utils.settings import read_settings_from_file
+
+EMULATOR_RESOURCE_NAME = "TCPIP0::localhost::inst0::INSTR"
 
 
 def get_run_id(inst, inst_out_folder):
@@ -18,22 +21,29 @@ def get_run_id(inst, inst_out_folder):
     return run_id
 
 
-def get_resource_name(resource_manager, emulator_mode):
+def usb_inst_detected(resource_names):
+    usb_resource_names = [r for r in resource_names if "USB" in r]
+    return len(usb_resource_names) > 0
+
+
+def get_resource_name(resource_manager):
     resource_names = resource_manager.list_resources()
-    if emulator_mode:
-        resource_names = ["TCPIP0::localhost::inst0::INSTR"]
-    else:
-        resource_names = [r for r in resource_names if "USB" in r]
+
+    if not usb_inst_detected(resource_names):
+        if EMULATOR_RESOURCE_NAME in resource_names:
+            return EMULATOR_RESOURCE_NAME
+        else:
+            return ""
+
+    resource_names = [r for r in resource_names if "USB" in r]
     resource_names = [r for r in resource_names if "::INSTR" in r]
     resource_name = "" if len(resource_names) == 0 else resource_names[0]
     return resource_name
 
 
 def get_inst():
-    emulator_mode = False
-    # emulator_mode = True  # Set to True for emulator mode, False for real instrument
     resource_manager = pyvisa.ResourceManager()
-    resource_name = get_resource_name(resource_manager, emulator_mode)
+    resource_name = get_resource_name(resource_manager)
     inst = None
     if resource_name != "":
         rm = pyvisa.ResourceManager()
@@ -67,7 +77,7 @@ def validate_filename(inst, inst_out_folder, filename):
 
 # ONE LINERS
 def release_inst(inst):
-    inst.control_ren(pyvisa.constants.VI_GPIB_REN_DEASSERT_GTL)
+    inst.control_ren(pyvisa_constants.VI_GPIB_REN_DEASSERT_GTL)
 
 
 def update_state(inst, state_folder, filename):
