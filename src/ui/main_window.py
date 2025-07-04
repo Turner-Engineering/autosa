@@ -157,7 +157,8 @@ class MenuFrame(ctk.CTkFrame):
         )
         frame.pack(expand=1, fill="both")
 
-        tab4 = self.tabview.add("      Set Up Mode     ")
+        self.set_up_tab_label = "      Set Up Mode     "
+        tab4 = self.tabview.add(self.set_up_tab_label)
         self.set_up_frame = SetUpModeFrame(
             tab4,
             self.inst_found,
@@ -183,6 +184,8 @@ class MenuFrame(ctk.CTkFrame):
         current_tab = self.tabview.get()
         if current_tab == self.release_tab_label:
             release_inst(self.inst)
+        elif current_tab == self.set_up_tab_label:
+            self.set_up_frame.update_autosa_ref_level()
 
 
 class MainApp(ctk.CTk):

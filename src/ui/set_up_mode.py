@@ -291,27 +291,27 @@ class SetUpModeFrame(ctk.CTkFrame):
 
         updated_ref_level = get_ref_level(self.inst)
         self.ref_level_double_var.set(updated_ref_level)
-        self.cur_ref_level_label.configure(text=f"{updated_ref_level:.2f} dBm")
+        self.update_ref_level_label(updated_ref_level)
 
     def decrese_ref_level(self):
-        self.get_inst_ref()
+        self.update_autosa_ref_level()
 
         decresed_ref = self.ref_level_double_var.get() - 10
         decresed_ref_rounded = round(decresed_ref / 10) * 10
 
         self.ref_level_double_var.set(decresed_ref_rounded)
         set_rounded_ref_level(self.inst, decresed_ref_rounded)
-        self.cur_ref_level_label.configure(text=f"{decresed_ref_rounded:.2f} dBm")
+        self.update_ref_level_label(decresed_ref_rounded)
 
     def increse_ref_level(self):
-        self.get_inst_ref()
+        self.update_autosa_ref_level()
 
         increased_ref = self.ref_level_double_var.get() + 10
         incresed_ref_rounded = round(increased_ref / 10) * 10
 
         self.ref_level_double_var.set(incresed_ref_rounded)
         set_rounded_ref_level(self.inst, incresed_ref_rounded)
-        self.cur_ref_level_label.configure(text=f"{incresed_ref_rounded:.2f} dBm")
+        self.update_ref_level_label(incresed_ref_rounded)
 
     def confirm_window(self):
         self.wait_window(
@@ -331,6 +331,9 @@ class SetUpModeFrame(ctk.CTkFrame):
         )
         update_state(self.inst, state_folder, self.state_filename)
 
+    def update_ref_level_label(self, updated_ref_level):
+        self.cur_ref_level_label.configure(text=f"{updated_ref_level:.2f} dBm")
+
     def is_state_folder_valid(self):
         state_folder = read_settings_from_file()["-STATE FOLDER-"]
         state_exists, _, _ = get_folder_info(self.inst, state_folder)
@@ -341,7 +344,7 @@ class SetUpModeFrame(ctk.CTkFrame):
             new_state = self.is_state_folder_valid()
             self.update_button.configure(state=new_state)
 
-    def get_inst_ref(self):
+    def update_autosa_ref_level(self):
         # check to see if ref level on autosa matches the ref level on the instrument
         # if not, update autosa ref level to match the screens instrument
         cur_ref_level = self.ref_level_double_var.get()
@@ -349,7 +352,7 @@ class SetUpModeFrame(ctk.CTkFrame):
 
         if cur_ref_level != inst_ref_level:
             self.ref_level_double_var.set(inst_ref_level)
-            cur_ref_level = self.ref_level_double_var.get()
+            self.update_ref_level_label(inst_ref_level)
 
     """"
     If any changes are made to the ref level on the instrument, match_ref_level() updates it on Autosa. 
