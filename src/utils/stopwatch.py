@@ -13,7 +13,7 @@ class Stopwatch:
             self.running = True
 
     def stop(self):
-        if self.running:
+        if self.running and self._start_time is not None:
             end_time = time.time()
             self._elapsed_time += end_time - self._start_time
             self.running = False
@@ -24,7 +24,7 @@ class Stopwatch:
         self._elapsed_time = 0
 
     def get_time(self):
-        if self.running:
+        if self.running and self._start_time is not None:
             end_time = time.time()
             return self._elapsed_time + end_time - self._start_time
         else:
