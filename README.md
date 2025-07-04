@@ -6,7 +6,6 @@ Autosa is Tenco software used to automate data acquisition using a signal analyz
 
 Windows is the recommended operating system for AutosaVersion 2022 Q3. It has not been tested on other operating systems.
 
-
 ### Autosa Installation
 
 **Autosa has only been tested on Windows 10 and Windows 11 devices**
@@ -38,6 +37,7 @@ Required USB-B to USB-A cable
 To be written. Roughly:
 
 There are three modes:
+
 1. Manual Mode is for when you want to start and stop the instrument manually
 2. Single-band Mode is for when you want to run a band at a time automatically
 3. Multi-band Mode is for when you want to run multiple bands in a row automatically
@@ -49,11 +49,10 @@ Autosa simplifies the process of loading the state file, loading the correction 
 ## Emulator Mode
 
 To run Autosa in Emulator mode:
-* Toggle `emulator_mode` to `true` in the `get_inst` function in [`instrument.py`](https://github.com/Turner-Engineering/autosa/blob/657f55e7287631352ad06e940d7c862862807254/src/instrument/instrument.py#L34C12-L34C79). This sets the `resource_name` to `TCPIP0::localhost::inst0::INSTR`
-* Set the `resource_name` to `TCPIP0::localhost::inst0::INSTR` in [`pyvisa_pxa_screenshot.py`](https://github.com/Turner-Engineering/autosa/blob/657f55e7287631352ad06e940d7c862862807254/src/instrument/pyvisa_pxa_screenshot.py#L37)
+
+- Toggle `emulator_mode` to `true` in the `get_inst` function in [`instrument.py`](https://github.com/Turner-Engineering/autosa/blob/657f55e7287631352ad06e940d7c862862807254/src/instrument/instrument.py#L34C12-L34C79). This sets the `resource_name` to `TCPIP0::localhost::inst0::INSTR`
 
 This will be simplified in future versions of autosa (written while v0.4.0 was in pre-release)
-
 
 ## Development
 
@@ -91,6 +90,104 @@ Autosa was written to work with the N9010B signal analyzer. The [User's and Prog
 
 `band_ori` = "v", "h"
 
+### Screenshot Copy Example Code
+
+```python
+# Instrument Control using PyVISA
+# Get Screenshot from PXA
+# import python modules
+import visa
+
+# Define Functions for Binary Data Mangement
+
+
+
+def binblock_raw(data_in):
+    # This function interprets the header for a definite binary block
+    # and returns the raw binary data for both definite and indefinite binary blocks
+
+    startpos=data_in.find("#")
+    if startpos < 0:
+        raise IOError("No start of block found")
+    lenlen = int(data_in[startpos+1:startpos+2]) # get the data length length
+
+    # If it's a definite length binary block
+    if lenlen > 0:
+        # Get the length from the header
+        offset = startpos+2+lenlen
+        datalen = int(data_in[startpos+2:startpos+2+lenlen])
+    else:
+        # If it's an indefinite length binary block get the length from the transfer itself
+        offset = startpos+2
+        datalen = len(data_in)-offset-1
+
+    # Extract the data out into a list.
+    return data_in[offset:offset+datalen]
+
+
+try:
+
+    #Open Connection
+    rm = visa.ResourceManager('C:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\agvisa\\agbin\\visa32.dll')
+    myinst = rm.open_resource("TCPIP0::156.140.157.6::inst0::INSTR")
+
+    #Set Timeout - 10 seconds
+    myinst.timeout =  10000
+
+    #*RST / *IDN?
+    myinst.write("*CLS")
+    myinst.write("*IDN?")
+    #print myinst.read()
+
+    myinst.write("*OPC?")
+    print ("Reset Complete: " + myinst.read())
+
+    #Store the screen image to file
+    myinst.write(":MMEM:STOR:SCR 'D:\\PICTURE.PNG'")
+    myinst.write("*OPC?")
+    complete = myinst.read()
+
+    #Read the contents of the screen image
+    myinst.write(":MMEM:DATA? 'D:\\PICTURE.PNG'")
+
+    my_image = myinst.read_raw()
+    #Interpret Header and Return Raw DATA
+    my_image = binblock_raw(my_image)
+    #Save Screen Image to File
+    target = open('C:\\Users\\Public\\python_screenshot2.jpg','wb')
+    target.write(my_image)
+    target.close()
+
+    ## Query for Instrument Errors
+    while True:
+        myinst.write(":SYSTem:ERRor?")
+        Result = myinst.read()
+        ErrorList = Result.split(',')
+        Error = ErrorList[0]
+        print ("Error #: " + ErrorList[0])
+        print ("Error Description: " + ErrorList[1])
+        if int(Error) == 0:
+            break
+
+    #Close Connection
+    myinst.close()
+    print ('close instrument connection')
+
+except IOError as err:
+    print ('Unable to open file: ' + str(err.strerror) + str(err.message))
+
+except OSError as err:
+    print ('Library error: ' + str(err.strerror) + str(err.message))
+
+except Exception as err:
+    print ('Exception: ' + str(err.message))
+
+finally:
+    #perform clean up operations
+    print ('complete')
+
+```
+
 ## Real World Tests
 
 ### October 2023
@@ -101,8 +198,6 @@ Autosa was written to work with the N9010B signal analyzer. The [User's and Prog
 - used Autosa in April 2024 for P2250 Railcar Tests in Pueblo, Colorado.
 - used Autosa in June 2024 for PCEP survey
 - used Autosa in June 2025 for PCEP survey 2
-
-
 
 ## Notes
 
