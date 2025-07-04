@@ -187,7 +187,8 @@ class SetUpModeFrame(ctk.CTkFrame):
 
     def init_frame3(self):
         frame3 = ctk.CTkFrame(self, fg_color=self.frame_color)
-        frame3.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+        frame3.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
+        frame3.columnconfigure(0, weight=1)
         return frame3
 
     def init_frame4(self):
@@ -235,16 +236,16 @@ class SetUpModeFrame(ctk.CTkFrame):
             frame3,
             text="Ref Level:",
             fg_color=self.label_color,
-        ).grid(row=0, column=0, padx=5, sticky="w")
+        ).grid(row=0, column=0, padx=5)
 
         # Inner Button Frame for Ref Level Controls
         ref_button_frame = ctk.CTkFrame(frame3)
-        ref_button_frame.grid(row=1, column=0, columnspan=3, pady=5, sticky="w")
+        ref_button_frame.grid(row=1, column=0, pady=5)
 
-        self.decrease_ref_button = ArrowButton(
-            ref_button_frame, text="\u25bc", command=lambda: self.decrese_ref_level()
+        self.increase_ref_button = ArrowButton(
+            ref_button_frame, text="\u25b2", command=lambda: self.increse_ref_level()
         )
-        self.decrease_ref_button.pack(side="left", padx=5)
+        self.increase_ref_button.pack(side="left", padx=5)
 
         self.cur_ref_level_label = ctk.CTkLabel(
             ref_button_frame,
@@ -255,11 +256,10 @@ class SetUpModeFrame(ctk.CTkFrame):
         )
         self.cur_ref_level_label.pack(side="left", padx=5)
 
-        self.increase_ref_button = ArrowButton(
-            ref_button_frame, text="\u25b2", command=lambda: self.increse_ref_level()
+        self.decrease_ref_button = ArrowButton(
+            ref_button_frame, text="\u25bc", command=lambda: self.decrese_ref_level()
         )
-        self.increase_ref_button.pack(side="left", padx=5)
-
+        self.decrease_ref_button.pack(side="left", padx=5)
         # self.match_ref_level()
 
     # FRAME 4: UPDATE Button
