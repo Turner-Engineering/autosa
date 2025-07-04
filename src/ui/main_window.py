@@ -9,6 +9,7 @@ from ui.settings_window import SettingsWindow
 from ui.get_resource_path import resource_path
 from utils.settings import is_settings_valid
 from instrument.instrument import release_inst
+from utils.settings import get_version
 
 ctk.set_appearance_mode("light")
 ctk.set_widget_scaling(1.5)
@@ -192,7 +193,7 @@ class MainApp(ctk.CTk):
     # Window creation
     def __init__(self, inst_found, inst):
         super().__init__()
-        self.title("Autosa Tkinter")
+        self.title(f"Autosa {get_version()}")
         window_width = 1170
         window_height = 760
         self.debug = True

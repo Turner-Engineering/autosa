@@ -5,7 +5,7 @@ from ui.main_window import MainApp
 from instrument.instrument import get_inst
 from utils.settings import (
     default_settings,
-    get_version_path,
+    get_settings_path,
     read_settings_from_file,
     write_settings_to_file,
 )
@@ -56,8 +56,8 @@ def main():
         return
 
     # Assert that settings JSON file exists correctly
-    filepath = get_version_path()
-    if os.path.exists(filepath):
+    settings_path = get_settings_path()
+    if os.path.exists(settings_path):
         valid_settings = make_json_valid()
         write_settings_to_file(valid_settings)  # overwrite settings json
     else:

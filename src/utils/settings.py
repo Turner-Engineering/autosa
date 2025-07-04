@@ -4,7 +4,19 @@ from json_repair import repair_json
 from instrument.folders import get_folder_info
 
 
-filename = "\\settings_v0.4.2.json"
+def get_version():
+    src = os.path.dirname(__file__)
+    path_to_version = os.path.join(src, "..", "version.json")
+    path_to_version = os.path.abspath(path_to_version)
+
+    with open(path_to_version, "r") as reader:
+        autosa_version = json.load(reader)
+
+    return f"v{autosa_version['__version__']}"
+
+
+version_settings = f"\\settings_{get_version()}.json"
+
 default_settings = {
     "-STATE FOLDER-": "D:/Users/Instrument/Desktop/State Files",
     "-CORR FOLDER-": "D:/Users/Instrument/Desktop/Correction Files",
@@ -28,8 +40,11 @@ def get_settings_folder_path():
     return os.path.join(os.getenv("LOCALAPPDATA"), "Autosa")
 
 
-def get_version_path():
-    return get_settings_folder_path() + filename
+def get_settings_path():
+    path = get_settings_folder_path() + version_settings
+    print(path)
+
+    return get_settings_folder_path() + version_settings
 
 
 def write_settings_to_file(settings):
@@ -38,17 +53,17 @@ def write_settings_to_file(settings):
     if not os.path.exists(folder):
         os.mkdir(folder)
 
-    with open(folder + filename, "w") as f:
+    with open(folder + version_settings, "w") as f:
         json.dump(settings, f, ensure_ascii=False, indent=2)
 
 
 def read_settings_from_file():
     folder = get_settings_folder_path()
 
-    if not os.path.exists(folder + filename):
+    if not os.path.exists(folder + version_settings):
         return default_settings
 
-    with open(folder + filename, "r") as reader:
+    with open(folder + version_settings, "r") as reader:
         json_content = reader.read()
         fixed = repair_json(json_content)
         return json.loads(fixed)
@@ -58,7 +73,7 @@ def is_settings_valid(inst):
     folder = get_settings_folder_path()
     settings = read_settings_from_file()
 
-    if not os.path.exists(folder + filename):
+    if not os.path.exists(folder + version_settings):
         return False
 
     # settings = read_settings_from_file()
