@@ -4,7 +4,7 @@ from ui.invalid_frame import PyVisaError
 from ui.main_window import MainApp
 from instrument.instrument import get_inst
 from utils.settings import (
-    default_settings,
+    DEFAULT_SETTINGS,
     get_settings_path,
     read_settings_from_file,
     write_settings_to_file,
@@ -27,7 +27,7 @@ def make_json_valid():
     unchecked_settings = read_settings_from_file()
     valid_settings = {}
 
-    for label, default_val in default_settings.items():
+    for label, default_val in DEFAULT_SETTINGS.items():
         if label in unchecked_settings:
             value = unchecked_settings[label]
             if isinstance(value, str):
@@ -61,7 +61,7 @@ def main():
         valid_settings = make_json_valid()
         write_settings_to_file(valid_settings)  # overwrite settings json
     else:
-        write_settings_to_file(default_settings)  # make default settings
+        write_settings_to_file(DEFAULT_SETTINGS)  # make default settings
 
     inst, inst_found = get_inst()
 

@@ -1,8 +1,6 @@
-import json
 import PyInstaller.__main__
 
-with open("src/version.json", "r") as reader:
-    autosa_version = json.load(reader)["__version__"]
+autosa_version = open("src/autosa_version.txt", "r").read()
 
 install_folder = "install/"
 build_folder = "install/build"
@@ -10,7 +8,7 @@ dist_folder = "install/dist"
 program_name = f"Autosa_v{autosa_version}"
 python_file_path = "src/main.py"
 datas = "../src/images;./images"
-version_data = "../src/version.json;."
+version_data = "../src/autosa_version.txt;."
 
 PyInstaller.__main__.run(
     [

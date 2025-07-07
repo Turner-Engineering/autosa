@@ -6,18 +6,14 @@ from instrument.folders import get_folder_info
 
 def get_version():
     src = os.path.dirname(__file__)
-    path_to_version = os.path.join(src, "..", "version.json")
-    path_to_version = os.path.abspath(path_to_version)
-
-    with open(path_to_version, "r") as reader:
-        autosa_version = json.load(reader)
-
-    return f"v{autosa_version['__version__']}"
+    path_to_version = os.path.abspath(os.path.join(src, "..", "autosa_version.txt"))
+    version_number = open(path_to_version, "r").read().strip() # strip just in case there's any whitespace
+    return  f"v{version_number}"  # e.g. v0.4.2
 
 
-version_settings = f"\\settings_{get_version()}.json"
+SETTINGS_FILENAME = f"\\settings_{get_version()}.json"
 
-default_settings = {
+DEFAULT_SETTINGS = {
     "-STATE FOLDER-": "D:/Users/Instrument/Desktop/State Files",
     "-CORR FOLDER-": "D:/Users/Instrument/Desktop/Correction Files",
     "-INST OUT FOLDER-": "D:/Users/Instrument/Desktop/Test Data",
@@ -41,10 +37,7 @@ def get_settings_folder_path():
 
 
 def get_settings_path():
-    path = get_settings_folder_path() + version_settings
-    print(path)
-
-    return get_settings_folder_path() + version_settings
+    return get_settings_folder_path() + SETTINGS_FILENAME
 
 
 def write_settings_to_file(settings):
@@ -53,17 +46,17 @@ def write_settings_to_file(settings):
     if not os.path.exists(folder):
         os.mkdir(folder)
 
-    with open(folder + version_settings, "w") as f:
+    with open(folder + SETTINGS_FILENAME, "w") as f:
         json.dump(settings, f, ensure_ascii=False, indent=2)
 
 
 def read_settings_from_file():
     folder = get_settings_folder_path()
 
-    if not os.path.exists(folder + version_settings):
-        return default_settings
+    if not os.path.exists(folder + SETTINGS_FILENAME):
+        return DEFAULT_SETTINGS
 
-    with open(folder + version_settings, "r") as reader:
+    with open(folder + SETTINGS_FILENAME, "r") as reader:
         json_content = reader.read()
         fixed = repair_json(json_content)
         return json.loads(fixed)
@@ -73,7 +66,7 @@ def is_settings_valid(inst):
     folder = get_settings_folder_path()
     settings = read_settings_from_file()
 
-    if not os.path.exists(folder + version_settings):
+    if not os.path.exists(folder + SETTINGS_FILENAME):
         return False
 
     # settings = read_settings_from_file()
