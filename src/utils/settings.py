@@ -4,14 +4,14 @@ from json_repair import repair_json
 from instrument.folders import get_folder_info
 
 
-def get_version():
+def get_autosa_version():
     src = os.path.dirname(__file__)
     path_to_version = os.path.abspath(os.path.join(src, "..", "autosa_version.txt"))
     version_number = open(path_to_version, "r").read().strip() # strip just in case there's any whitespace
     return  f"v{version_number}"  # e.g. v0.4.2
 
 
-SETTINGS_FILENAME = f"\\settings_{get_version()}.json"
+SETTINGS_FILENAME = f"\\settings_{get_autosa_version()}.json"
 
 DEFAULT_SETTINGS = {
     "-STATE FOLDER-": "D:/Users/Instrument/Desktop/State Files",
