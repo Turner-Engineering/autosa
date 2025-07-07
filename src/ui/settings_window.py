@@ -4,7 +4,7 @@ from tkinter import filedialog as fd
 from instrument.folders import get_folder_info
 from ui.get_resource_path import resource_path
 from utils.settings import (
-    get_version_path,
+    get_settings_path,
     write_settings_to_file,
     read_settings_from_file,
 )
@@ -298,7 +298,7 @@ class SettingsWindow(ctk.CTkToplevel):
         cancel_button.grid(row=0, column=1, padx=5, pady=5, sticky="e")
 
     def open_to_json(self):
-        json_filepath = get_version_path()
+        json_filepath = get_settings_path()
         subprocess.run(["explorer", "/select,", json_filepath])
 
     def save_settings(self):
