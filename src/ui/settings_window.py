@@ -174,6 +174,7 @@ class SettingsWindow(ctk.CTkToplevel):
         parent,
         inst,
         update_valid,
+        update_output_folder,
         inst_found,
         frame_color,
         label_color,
@@ -192,6 +193,7 @@ class SettingsWindow(ctk.CTkToplevel):
         self.inst = inst
         self.inst_found = inst_found
         self.update_valid = update_valid
+        self.update_output_folder = update_output_folder
         self.update_state_button = update_state_button
         self.frame_color = frame_color
         self.label_color = label_color
@@ -315,6 +317,7 @@ class SettingsWindow(ctk.CTkToplevel):
 
         write_settings_to_file(settings)
         self.update_valid()
+        self.update_output_folder()
         self.update_state_button()
 
         self.destroy()  # close settings window after saving

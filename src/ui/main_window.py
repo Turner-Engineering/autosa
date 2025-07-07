@@ -1,4 +1,6 @@
+import os
 import customtkinter as ctk
+import subprocess
 from ui.invalid_frame import InvalidFrame
 from ui.manual_mode import ManualModeFrame
 from ui.single_band_mode import SingleModeFrame
@@ -9,7 +11,7 @@ from ui.settings_window import SettingsWindow
 from ui.get_resource_path import resource_path
 from utils.settings import is_settings_valid
 from instrument.instrument import release_inst
-from utils.settings import get_autosa_version
+from utils.settings import get_autosa_version, read_settings_from_file
 
 ctk.set_appearance_mode("light")
 ctk.set_widget_scaling(1.5)
@@ -48,6 +50,21 @@ class HeaderFrame(ctk.CTkFrame):
             text="Settings",
             command=lambda: self.settings_window(),
         ).grid(row=0, column=1, sticky="ne", padx=10, pady=10, rowspan=3)
+
+        self.output_folder_button = ctk.CTkButton(
+            self,
+            text="Open Output Folder",
+            height=10,
+            font=("", 10),
+            state="normal"
+            if os.path.exists(read_settings_from_file()["-LOCAL OUT FOLDER-"])
+            else "disabled",
+            command=lambda: subprocess.run(
+                ["explorer", "/open,", read_settings_from_file()["-LOCAL OUT FOLDER-"]]
+            ),
+        )
+
+        self.output_folder_button.grid(row=1, column=1, sticky="ne", padx=10, rowspan=3)
 
         inst_found_var = ctk.StringVar(
             value=(
@@ -97,11 +114,22 @@ class HeaderFrame(ctk.CTkFrame):
         self.settings_error_color = "green" if is_valid else "red"
         self.valid_settings_label.configure(text_color=self.settings_error_color)
 
+    def update_output_folder(self):
+        # get file paths of output folders
+        local_output_path = read_settings_from_file()["-LOCAL OUT FOLDER-"]
+
+        if os.path.exists(local_output_path):
+            # on click, open both folders in explorer
+            self.output_folder_button.configure(state="normal")
+        else:
+            self.output_folder_button.configure(state="disabled")
+
     def settings_window(self):
         SettingsWindow(
             self,
             self.inst,
             self.update_valid,
+            self.update_output_folder,
             self.inst_found,
             self.frame_color,
             self.label_color,
