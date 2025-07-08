@@ -20,16 +20,19 @@ class ManualModeFrame(ctk.CTkFrame):
         parent,
         inst_found,
         inst,
-        frame_color="transparent",
-        label_color="transparent",
+        discon_btn_st,
+        frame_color,
+        label_color,
     ):
         super().__init__(parent)
         self.button_padding = 4
         self.columnconfigure(0, weight=1)
         self.inst_found = inst_found
         self.inst = inst
+        self.discon_btn_st = discon_btn_st
         self.frame_color = frame_color
         self.label_color = label_color
+
         self.stopwatch = Stopwatch()
         self.sweep_dur_var = ctk.StringVar()
         self.sweep_dur_var = "0"  # Initializing with a default value
@@ -48,26 +51,34 @@ class ManualModeFrame(ctk.CTkFrame):
         self.play_img = resource_path("./images/play.png")
 
         self.band_buttons = [
-            ("B0", lambda: self.setup_files("B0"), 1, 0),
-            ("B1", lambda: self.setup_files("B1"), 1, 1),
-            ("B2", lambda: self.setup_files("B2"), 1, 2),
-            ("B3", lambda: self.setup_files("B3"), 1, 3),
-            ("B4", lambda: self.setup_files("B4"), 1, 4),
-            ("B5", lambda: self.setup_files("B5"), 2, 1),
-            ("B6", lambda: self.setup_files("B6"), 2, 2),
-            ("B7", lambda: self.setup_files("B7"), 2, 3),
+            ("B0", self.discon_btn_st, lambda: self.setup_files("B0"), 1, 0),
+            ("B1", self.discon_btn_st, lambda: self.setup_files("B1"), 1, 1),
+            ("B2", self.discon_btn_st, lambda: self.setup_files("B2"), 1, 2),
+            ("B3", self.discon_btn_st, lambda: self.setup_files("B3"), 1, 3),
+            ("B4", self.discon_btn_st, lambda: self.setup_files("B4"), 1, 4),
+            ("B5", self.discon_btn_st, lambda: self.setup_files("B5"), 2, 1),
+            ("B6", self.discon_btn_st, lambda: self.setup_files("B6"), 2, 2),
+            ("B7", self.discon_btn_st, lambda: self.setup_files("B7"), 2, 3),
         ]
 
         self.measure_buttons = [
-            (self.play_img, lambda: self.cont_toggle(), "#2ecf4f", "#229c3b"),
+            (
+                self.play_img,
+                self.discon_btn_st,
+                lambda: self.cont_toggle(),
+                "#2ecf4f",
+                "#229c3b",
+            ),
             (
                 resource_path("./images/reset.png"),
+                self.discon_btn_st,
                 lambda: self.reset_stopwatch(),
                 "#58c4db",
                 "#4396a7",
             ),
             (
                 resource_path("./images/save.png"),
+                "normal",
                 lambda: self.save_trace_screen(),
                 "#a165cf",
                 "#794c9c",
@@ -116,10 +127,11 @@ class ManualModeFrame(ctk.CTkFrame):
         inner_frame = ctk.CTkFrame(frame1)
         inner_frame.grid(row=1, column=0, padx=0, pady=0)
 
-        for band_key, cmd, r, c in self.band_buttons:
+        for band_key, st, cmd, r, c in self.band_buttons:
             button = LargeButton(
                 inner_frame,
                 text=band_key,
+                state=st,
                 command=cmd,
             )
             button.grid(
@@ -140,7 +152,7 @@ class ManualModeFrame(ctk.CTkFrame):
         button_frame = ctk.CTkFrame(frame2)
         button_frame.grid(row=1, column=0, sticky="w")
 
-        for c, (img, cmd, fg_color, hover_color) in enumerate(self.measure_buttons):
+        for c, (img, st, cmd, fg_color, hover_color) in enumerate(self.measure_buttons):
             image = ctk.CTkImage(
                 light_image=Image.open(img),
                 dark_image=Image.open(img),
@@ -151,10 +163,11 @@ class ManualModeFrame(ctk.CTkFrame):
                 button_frame,
                 text="",
                 image=image,
-                command=cmd,
                 height=60,
                 fg_color=fg_color,
                 hover_color=hover_color,
+                state=st,
+                command=cmd,
             )
             button.grid(
                 row=4, column=c, padx=self.button_padding, pady=self.button_padding
@@ -252,11 +265,12 @@ class ManualModeFrame(ctk.CTkFrame):
         run_id = get_run_id(self.inst, self.inst_output_folder)
         run_file = ManualSaveWindow(
             self,
-            self.run_filename,
             self.inst,
-            run_id,
+            self.discon_btn_st,
             self.frame_color,
             self.label_color,
+            self.run_filename,
+            run_id,
             self.sweep_dur_var,
         )
 

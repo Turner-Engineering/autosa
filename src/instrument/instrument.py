@@ -45,11 +45,25 @@ def get_inst():
     resource_manager = pyvisa.ResourceManager()
     resource_name = get_resource_name(resource_manager)
     inst = None
-    if resource_name != "":
-        rm = pyvisa.ResourceManager()
-        inst = rm.open_resource(resource_name)
+
+    try:
+        if resource_name != "":
+            rm = pyvisa.ResourceManager()
+            inst = rm.open_resource(resource_name)
+    except pyvisa.errors.VisaIOError:
+        inst = None
+
     inst_found = inst is not None
-    return inst, inst_found
+
+    inst_name = (
+        "Disconnected Mode"
+        if inst is None
+        else "Emulator"
+        if resource_name is EMULATOR_RESOURCE_NAME
+        else "Instrument"
+    )
+
+    return inst, inst_found, inst_name
 
 
 def get_error_message(folder_path, filename):
@@ -121,7 +135,11 @@ def set_ref_level(inst, ref_level):
 
 
 def get_ref_level(inst):
-    ref_level = float(inst.query(":DISP:WIND:TRAC:Y:RLEV?").replace("\n", ""))
+    if inst is not None:
+        ref_level = float(inst.query(":DISP:WIND:TRAC:Y:RLEV?").replace("\n", ""))
+    else:
+        ref_level = 0.0
+
     return ref_level
 
 

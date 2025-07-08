@@ -9,13 +9,15 @@ class ReleaseMode(ctk.CTkFrame):
         parent,
         inst_found,
         inst,
-        frame_color="transparent",
-        label_color="transparent",
+        is_disconnected,
+        frame_color,
+        label_color,
     ):
         super().__init__(parent)
         self.columnconfigure(0, weight=1)
         self.inst_found = inst_found
         self.inst = inst
+        self.is_disconnected = is_disconnected
         self.frame_color = frame_color
         self.label_color = label_color
         self.panel_img = resource_path("./images/N9010B_front_panel.png")
@@ -33,9 +35,14 @@ class ReleaseMode(ctk.CTkFrame):
         return frame1
 
     def fill_frame1(self, frame1):
+        if self.is_disconnected:
+            release_text = "No instrument detected."
+        else:
+            release_text = "Instrument Released!\nYou can now control the instrument using the front panel."
+
         ctk.CTkLabel(
             frame1,
-            text="Instrument Released!\nYou can now control the instrument using the front panel.",
+            text=release_text,
             fg_color=self.label_color,
             width=80,
             anchor="center",
