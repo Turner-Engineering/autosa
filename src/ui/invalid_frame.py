@@ -2,60 +2,6 @@ import customtkinter as ctk
 from ui.get_resource_path import resource_path
 
 
-class InvalidFrame(ctk.CTkToplevel):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.title("INSTRUMENT DISCONNECTED")
-        window_width = 1170
-        window_height = 760
-        self.geometry(f"{window_width}x{window_height}")
-        self.logo = resource_path("images/autosa_logo.ico")
-        self.iconbitmap(self.logo)
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
-        self.transient(parent)
-
-        self.create_widgets()
-
-    def create_widgets(self):
-        self.invalid_frame()
-
-    def invalid_frame(self):
-        self.rowconfigure([0, 1], weight=1)
-        self.columnconfigure(0, weight=1)
-        instructions = (
-            "1. The instrument is plugged in to power and turned on\n",
-            "2. The instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable\n",
-            '3. The signal analyzer program is running on the device (called "LaunchXSA" on the desktop)',
-        )
-
-        label_frame = ctk.CTkFrame(self)
-        label_frame.grid(row=0, column=0, sticky="nsew")
-        label_frame.rowconfigure(0, weight=1)
-        label_frame.columnconfigure(0, weight=1)
-
-        instructions_frame = ctk.CTkFrame(self)
-        instructions_frame.grid(row=1, column=0, sticky="nsew")
-        instructions_frame.rowconfigure(0, weight=1)
-        instructions_frame.columnconfigure(0, weight=1)
-
-        ctk.CTkLabel(
-            label_frame,
-            text="❌ Instrument NOT Detected",
-            text_color="red",
-            font=("", 48),
-        ).grid(row=0, column=0, padx=20, pady=20, sticky="s")
-
-        ctk.CTkLabel(
-            instructions_frame,
-            text="\n".join(instructions),
-            text_color="black",
-            font=("", 24),
-            wraplength=600,
-            justify="left",
-        ).grid(row=0, column=0, padx=20, pady=20, sticky="n")
-
-
 class PyVisaError(ctk.CTkToplevel):
     def __init__(self, parent, e):
         super().__init__(parent)
