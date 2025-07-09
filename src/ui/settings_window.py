@@ -7,6 +7,9 @@ from utils.settings import (
     get_settings_path,
     write_settings_to_file,
     read_settings_from_file,
+    is_valid_inst_folder,
+    is_valid_local_folder,
+    is_valid_sweep_duration,
 )
 
 
@@ -118,16 +121,27 @@ class CorrSettingFrame(ctk.CTkFrame):
 
 
 class PrimaryFrame(ctk.CTkFrame):
-    def __init__(self, parent, settings_vars, settings_labels):
+    def __init__(self, parent, inst, settings_vars, settings_labels):
         super().__init__(parent)
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
-        self.create_widgets(settings_vars, settings_labels)
 
-    def create_widgets(self, settings_vars, settings_labels):
-        self.create_primary_frame(settings_vars, settings_labels)
+        self.inst = inst
+        self.settings_vars = settings_vars
+        self.settings_labels = settings_labels
+        self.path_entry_widget = {}  # to store the entry widgets
 
-    def create_primary_frame(self, settings_vars, settings_labels):
+        for key, val in self.settings_vars.items():
+            val.trace_add(
+                "write", lambda *args, v=val, k=key: self.validate_path_settings(k, v)
+            )
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.create_primary_frame()
+
+    def create_primary_frame(self):
         """creates and sets up the frame for the folders"""
         primary_frame = ctk.CTkFrame(self)
         primary_frame.grid(row=0, column=0, sticky="nsew")
@@ -136,8 +150,8 @@ class PrimaryFrame(ctk.CTkFrame):
 
         self.path_entries = []  # storing user input folders
 
-        for r, (key, settings_var) in enumerate(settings_vars.items()):
-            text = settings_labels[key] + ":"
+        for r, (key, settings_var) in enumerate(self.settings_vars.items()):
+            text = self.settings_labels[key] + ":"
             ctk.CTkLabel(primary_frame, text=text, justify="left").grid(
                 row=r, column=0, padx=5, pady=5, sticky="w"
             )
@@ -145,13 +159,18 @@ class PrimaryFrame(ctk.CTkFrame):
                 primary_frame, textvariable=settings_var, width=500
             )
             path_entry.grid(row=r, column=2, padx=5, pady=5, sticky="ew")
-            self.path_entries.append(path_entry)  # collect the inputs
+            self.path_entries.append(path_entry)  # collect the inputs in entry widget
+            self.path_entry_widget[key] = path_entry  # entry widget
+
+        # validate upon opening the settings window
+        for key, val in self.settings_vars.items():
+            self.validate_path_settings(key, val)
 
         ctk.CTkButton(
             primary_frame,
             text="Browse",
             command=lambda: SettingsWindow.browse_files(
-                self.master, settings_vars["-LOCAL OUT FOLDER-"]
+                self.master, self.settings_vars["-LOCAL OUT FOLDER-"]
             ),
         ).grid(row=3, column=3, padx=5, pady=5, sticky="w")
 
@@ -164,6 +183,23 @@ class PrimaryFrame(ctk.CTkFrame):
             ),
             justify="left",
         ).grid(row=5, column=0, padx=5, pady=2, columnspan=3, sticky="w")
+
+    def validate_path_settings(self, key, val):
+        cur_path = val.get().strip()
+        entry_widget = self.path_entry_widget.get(key)
+
+        # if entry box doesn't exist, crashes
+        if not entry_widget:
+            return
+
+        if key in ["-STATE FOLDER-", "-CORR FOLDER-", "-INST OUT FOLDER-"]:
+            valid = is_valid_inst_folder(self.inst, cur_path)
+        elif key == "-LOCAL OUT FOLDER-":
+            valid = is_valid_local_folder(cur_path)
+        elif key == "-SWEEP DUR-":
+            valid = is_valid_sweep_duration(cur_path)
+
+        entry_widget.configure(border_color="gray" if valid else "red")
 
 
 class SettingsWindow(ctk.CTkToplevel):
@@ -270,7 +306,9 @@ class SettingsWindow(ctk.CTkToplevel):
         tab1.grid_rowconfigure(0, weight=1)
         tab1.grid_columnconfigure(0, weight=1)
 
-        primary_frame = PrimaryFrame(tab1, self.settings_vars, self.settings_labels)
+        primary_frame = PrimaryFrame(
+            tab1, self.inst, self.settings_vars, self.settings_labels
+        )
         primary_frame.pack(expand=True, fill="both")
 
         tab2 = frame2.add("      Amplitude Correction      ")

@@ -8,7 +8,7 @@ from instrument.instrument import get_run_filename, run_band, get_run_id
 
 
 class ConfirmWindow(ctk.CTkToplevel):
-    def __init__(self, parent, run_multiple_bands, sweep_dur):
+    def __init__(self, parent, run_multiple_bands):
         super().__init__(parent)
         self.title("Confirm Runs")
         self.parent = parent
@@ -20,7 +20,7 @@ class ConfirmWindow(ctk.CTkToplevel):
         self.transient(parent)
         self.center()  # center on screen, otherwise it will be in the top left corner
         self.run_multiple_bands = run_multiple_bands
-        self.sweep_dur = sweep_dur
+        self.sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
         self.create_widgets()
 
     def create_widgets(self):
@@ -122,13 +122,6 @@ class MultiModeFrame(ctk.CTkFrame):
         self.frame_color = frame_color
         self.label_color = label_color
         self.check_color = "#2d1a03"
-
-        self.settings = read_settings_from_file()
-        self.state_folder = read_settings_from_file()["-STATE FOLDER-"]
-        self.corr_folder = read_settings_from_file()["-CORR FOLDER-"]
-        self.inst_output_folder = read_settings_from_file()["-INST OUT FOLDER-"]
-        self.local_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
-        self.sweep_dur = self.settings["-SWEEP DUR-"]
 
         self.band_ranges = [
             "B0 - B4 (monopole)",
@@ -272,11 +265,12 @@ class MultiModeFrame(ctk.CTkFrame):
         band_ori = band_ori_full[0].lower() if band_ori_full else ""
         self.run_id_counter = None
         cur_time = datetime.datetime.now().strftime("%H_%M_%S")
+        sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
 
         for i, band_key in enumerate(self.band_keys):
             run_id = self.get_next_run_id()
             cur_filename = (
-                f"{run_id} {run_note} {self.sweep_dur}s {band_key}{band_ori} {cur_time}"
+                f"{run_id} {run_note} {sweep_dur}s {band_key}{band_ori} {cur_time}"
             )
             self.band_filenames[band_key] = cur_filename
 
@@ -301,7 +295,9 @@ class MultiModeFrame(ctk.CTkFrame):
     # only used to display
     def get_next_run_id(self):
         if self.run_id_counter is None:
-            base_run_id = get_run_id(self.inst, self.inst_output_folder)
+            base_run_id = get_run_id(
+                self.inst, read_settings_from_file()["-INST OUT FOLDER-"]
+            )
             date_part, count_part = base_run_id.split("-")
             self.run_id_date = date_part
             self.run_id_counter = int(count_part)
@@ -358,9 +354,7 @@ class MultiModeFrame(ctk.CTkFrame):
             self.enable_buttons()
         else:
             self.disable_buttons()
-            self.wait_window(
-                ConfirmWindow(self, self.run_multiple_bands, self.sweep_dur)
-            )
+            self.wait_window(ConfirmWindow(self, self.run_multiple_bands))
             self.enable_buttons()
 
     def run_multiple_bands(self):
@@ -370,6 +364,7 @@ class MultiModeFrame(ctk.CTkFrame):
         band_ori_full = "" if self.ori_var.get() == "None" else self.ori_var.get()
         band_ori = band_ori_full[0].lower() if band_ori_full else ""
         num_bands = len(self.band_keys)
+        sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
         self.is_cancel = False
 
         # Now grid it (show it), then fill it
@@ -390,7 +385,7 @@ class MultiModeFrame(ctk.CTkFrame):
             run_note = self.run_note_var.get()
 
             self.run_filename = get_run_filename(
-                self.inst, band_key, run_note, self.sweep_dur, band_ori
+                self.inst, band_key, run_note, sweep_dur, band_ori
             )
             run_band(self.inst, band_key, self.run_filename, band_ori)
 

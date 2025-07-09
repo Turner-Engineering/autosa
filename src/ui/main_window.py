@@ -105,11 +105,7 @@ class HeaderFrame(ctk.CTkFrame):
     def update_valid(self):
         is_valid = self.is_valid_settings()
         self.settings_error_var.set(
-            value=(
-                "✅ Settings Valid"
-                if is_valid
-                else "❌ Settings Invalid. Please change settings."
-            )
+            value=("" if is_valid else "❌ Settings Invalid. Please change settings.")
         )
         self.settings_error_color = "green" if is_valid else "red"
         self.valid_settings_label.configure(text_color=self.settings_error_color)

@@ -7,8 +7,10 @@ from instrument.folders import get_folder_info
 def get_autosa_version():
     src = os.path.dirname(__file__)
     path_to_version = os.path.abspath(os.path.join(src, "..", "autosa_version.txt"))
-    version_number = open(path_to_version, "r").read().strip() # strip just in case there's any whitespace
-    return  f"v{version_number}"  # e.g. v0.4.2
+    version_number = (
+        open(path_to_version, "r").read().strip()
+    )  # strip just in case there's any whitespace
+    return f"v{version_number}"  # e.g. v0.4.2
 
 
 SETTINGS_FILENAME = f"\\settings_{get_autosa_version()}.json"
@@ -101,3 +103,19 @@ def is_settings_valid(inst):
         return False
 
     return True
+
+
+def is_valid_local_folder(path):
+    return os.path.exists(path.strip()) and path.strip()
+
+
+def is_valid_inst_folder(inst, folder_path):
+    exists, empty, _ = get_folder_info(inst, folder_path)
+    return exists and not empty and folder_path.strip()
+
+
+def is_valid_sweep_duration(value):
+    try:
+        return float(value.strip()) > 0
+    except ValueError:
+        return False
