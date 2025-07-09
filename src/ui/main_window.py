@@ -1,7 +1,6 @@
 import os
 import customtkinter as ctk
 import subprocess
-from ui.invalid_frame import InvalidFrame
 from ui.manual_mode import ManualModeFrame
 from ui.single_band_mode import SingleModeFrame
 from ui.multi_band_mode import MultiModeFrame
