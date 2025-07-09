@@ -64,7 +64,15 @@ class ManualSaveWindow(ctk.CTkToplevel):
     """opens a new window and sets it up for settings"""
 
     def __init__(
-        self, parent, run_filename, inst, run_id, frame_color, label_color, sweep_dur
+        self,
+        parent,
+        inst,
+        discon_btn_st,
+        frame_color,
+        label_color,
+        run_filename,
+        run_id,
+        sweep_dur,
     ):
         super().__init__(parent)
         self.title("Save Trace and Screen")
@@ -81,8 +89,9 @@ class ManualSaveWindow(ctk.CTkToplevel):
         self.frame_color = frame_color
         self.label_color = label_color
 
-        self.run_filename = run_filename
         self.inst = inst
+        self.discon_btn_st = discon_btn_st
+        self.run_filename = run_filename
         self.run_id = run_id
         self.sweep_dur = int(sweep_dur)
 
@@ -195,6 +204,7 @@ class ManualSaveWindow(ctk.CTkToplevel):
         save_button = ctk.CTkButton(
             frame3,
             text="Save",
+            state=self.discon_btn_st,
             command=lambda: self.save_run(self.run_note_entry, self.band_entry),
         )
         save_button.grid(row=0, column=2, padx=5, sticky="w")

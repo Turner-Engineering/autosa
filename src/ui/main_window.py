@@ -18,15 +18,17 @@ ctk.set_widget_scaling(1.5)
 
 
 class HeaderFrame(ctk.CTkFrame):
-    def __init__(self, parent, inst_found, inst, set_up_frame):
+    def __init__(self, parent, inst_found, inst, inst_name, set_up_frame):
         super().__init__(parent)
-        self.frame_color = parent.frame_color if parent.debug else "#dbdbdb"
+        self.inst_found = inst_found
+        self.inst_name = inst_name
+        self.inst = inst
+        self.set_up_frame = set_up_frame
+
+        self.frame_color = parent.frame_color
         self.label_color = parent.label_color
         self.configure(fg_color=self.frame_color, bg_color=self.frame_color)
         self.columnconfigure(0, weight=1)
-        self.inst_found = inst_found
-        self.inst = inst
-        self.set_up_frame = set_up_frame
 
         self.valid_settings_label = ctk.CTkLabel(self)
         self.settings_error_var = ctk.StringVar()
@@ -68,9 +70,9 @@ class HeaderFrame(ctk.CTkFrame):
 
         inst_found_var = ctk.StringVar(
             value=(
-                "✅ Instrument Detected - " + str(self.inst)
+                f"✅ {self.inst_name} Detected - " + str(self.inst)
                 if self.inst_found
-                else "❌ Instrument NOT Detected"
+                else "❌ No Instrument Detected - Ensure the instrument is on and connected via USB-B to USB-A."
             )
         )
         inst_found_color = "green" if self.inst_found else "red"
@@ -127,19 +129,19 @@ class HeaderFrame(ctk.CTkFrame):
             self.update_valid,
             self.update_output_folder,
             self.inst_found,
-            self.frame_color,
-            self.label_color,
             self.set_up_frame.update_state_button,
         )
 
 
 class MenuFrame(ctk.CTkFrame):
-    def __init__(self, parent, inst_found, inst):
+    def __init__(self, parent, inst_found, inst, discon_btn_st, is_disconnected):
         super().__init__(parent)
         self.columnconfigure(0, weight=1)  # format to center
         self.rowconfigure(0, weight=1)
         self.inst_found = inst_found
         self.inst = inst
+        self.discon_btn_st = discon_btn_st
+        self.is_disconnected = is_disconnected
         self.frame_color = parent.frame_color
         self.label_color = parent.label_color
 
@@ -157,6 +159,7 @@ class MenuFrame(ctk.CTkFrame):
             tab1,
             self.inst_found,
             self.inst,
+            self.discon_btn_st,
             self.frame_color,
             self.label_color,
         )
@@ -167,6 +170,7 @@ class MenuFrame(ctk.CTkFrame):
             tab2,
             self.inst_found,
             self.inst,
+            self.discon_btn_st,
             self.frame_color,
             self.label_color,
         )
@@ -177,6 +181,7 @@ class MenuFrame(ctk.CTkFrame):
             tab3,
             self.inst_found,
             self.inst,
+            self.discon_btn_st,
             self.frame_color,
             self.label_color,
         )
@@ -188,6 +193,7 @@ class MenuFrame(ctk.CTkFrame):
             tab4,
             self.inst_found,
             self.inst,
+            self.discon_btn_st,
             self.frame_color,
             self.label_color,
         )
@@ -200,6 +206,7 @@ class MenuFrame(ctk.CTkFrame):
             tab5,
             self.inst_found,
             self.inst,
+            self.is_disconnected,
             self.frame_color,
             self.label_color,
         )
@@ -207,20 +214,25 @@ class MenuFrame(ctk.CTkFrame):
 
     def on_tab_change(self):
         current_tab = self.tabview.get()
-        if current_tab == self.release_tab_label:
+        if (current_tab == self.release_tab_label) and (not self.is_disconnected):
             release_inst(self.inst)
-        elif current_tab == self.set_up_tab_label:
-            self.set_up_frame.update_autosa_ref_level()
 
 
 class MainApp(ctk.CTk):
     # Window creation
-    def __init__(self, inst_found, inst):
+    def __init__(self, inst, inst_found, inst_name):
         super().__init__()
         self.title(f"Autosa {get_autosa_version()}")
         window_width = 1170
         window_height = 760
-        self.debug = True
+        self.geometry(f"{window_width}x{window_height}")
+        self.logo = resource_path("images/autosa_logo.ico")
+        self.iconbitmap(self.logo)
+        self.inst = inst
+        self.inst_found = inst_found
+        self.inst_name = inst_name
+
+        # self.debug = True
         self.debug = False
         if self.debug:
             self.frame_color = "pink"
@@ -228,27 +240,30 @@ class MainApp(ctk.CTk):
         else:
             self.frame_color = "transparent"
             self.label_color = "transparent"
-        self.geometry(f"{window_width}x{window_height}")
-        self.logo = resource_path("images/autosa_logo.ico")
-        self.iconbitmap(self.logo)
 
-        self.inst_found = inst_found
-        self.inst = inst
+        self.is_disconnected = True if self.inst is None else False
+        self.discon_btn_st = "disabled" if self.is_disconnected else "normal"
 
         self.create_widgets()
 
     def create_widgets(self):
         """sets up the window to have the header and the mode window"""
-        if self.inst_found:
-            # use a string for "both" to match the fill="x" above
-            menu_frame = MenuFrame(self, self.inst_found, self.inst)
+        menu_frame = MenuFrame(
+            self,
+            self.inst_found,
+            self.inst,
+            self.discon_btn_st,
+            self.is_disconnected,
+        )
 
-            top_frame = HeaderFrame(
-                self, self.inst_found, self.inst, menu_frame.set_up_frame
-            )
+        top_frame = HeaderFrame(
+            self,
+            self.inst_found,
+            self.inst,
+            self.inst_name,
+            menu_frame.set_up_frame,
+        )
 
-            top_frame.pack(fill="x")
-            menu_frame.pack(fill="both", expand=True)
-
-        else:
-            InvalidFrame.invalid_frame(self)
+        # use a string for "both" to match the fill="x" above
+        top_frame.pack(fill="x")
+        menu_frame.pack(fill="both", expand=True)

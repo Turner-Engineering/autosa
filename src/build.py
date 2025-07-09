@@ -9,6 +9,7 @@ program_name = f"Autosa_v{autosa_version}"
 python_file_path = "src/main.py"
 datas = "../src/images;./images"
 version_data = "../src/autosa_version.txt;."
+autosa_logo = "../src/images/autosa_logo.ico"
 
 PyInstaller.__main__.run(
     [
@@ -28,5 +29,6 @@ PyInstaller.__main__.run(
         "--onefile",
         "--windowed",
         "--clean",
+        "--icon=" + autosa_logo,
     ]
 )

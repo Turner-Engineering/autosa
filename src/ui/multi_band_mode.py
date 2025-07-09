@@ -8,7 +8,7 @@ from instrument.instrument import get_run_filename, run_band, get_run_id
 
 
 class ConfirmWindow(ctk.CTkToplevel):
-    def __init__(self, parent, run_multiple_bands):
+    def __init__(self, parent, discon_btn_st, run_multiple_bands):
         super().__init__(parent)
         self.title("Confirm Runs")
         self.parent = parent
@@ -19,6 +19,10 @@ class ConfirmWindow(ctk.CTkToplevel):
         self.resizable(False, False)  # disable resizing
         self.transient(parent)
         self.center()  # center on screen, otherwise it will be in the top left corner
+
+        self.frame_color = parent.frame_color
+        self.label_color = parent.label_color
+        self.discon_btn_st = discon_btn_st
         self.run_multiple_bands = run_multiple_bands
         self.sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
         self.create_widgets()
@@ -28,7 +32,7 @@ class ConfirmWindow(ctk.CTkToplevel):
         self.fill_frame(frame)
 
     def init_frame(self):
-        frame = ctk.CTkFrame(self, fg_color="transparent")
+        frame = ctk.CTkFrame(self, fg_color=self.frame_color)
         frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
         frame.columnconfigure(0, weight=1)
         frame.rowconfigure(0, weight=1)
@@ -48,6 +52,7 @@ class ConfirmWindow(ctk.CTkToplevel):
         ctk.CTkButton(
             frame,
             text="Okay",
+            state=self.discon_btn_st,
             command=lambda: self.confirmation_callback(),
         ).grid(row=1, column=0, padx=5, pady=5, sticky="e")
 
@@ -112,13 +117,15 @@ class MultiModeFrame(ctk.CTkFrame):
         parent,
         inst_found,
         inst,
-        frame_color="transparent",
-        label_color="transparent",
+        discon_btn_st,
+        frame_color,
+        label_color,
     ):
         super().__init__(parent)
         self.columnconfigure(0, weight=1)
         self.inst_found = inst_found
         self.inst = inst
+        self.discon_btn_st = discon_btn_st
         self.frame_color = frame_color
         self.label_color = label_color
         self.check_color = "#2d1a03"
@@ -354,7 +361,8 @@ class MultiModeFrame(ctk.CTkFrame):
             self.enable_buttons()
         else:
             self.disable_buttons()
-            self.wait_window(ConfirmWindow(self, self.run_multiple_bands))
+            self.wait_window(
+                ConfirmWindow(self, self.discon_btn_st, self.run_multiple_bands))
             self.enable_buttons()
 
     def run_multiple_bands(self):

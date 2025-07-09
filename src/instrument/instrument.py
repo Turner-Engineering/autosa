@@ -4,7 +4,7 @@ import pyvisa
 import pyvisa.constants as pyvisa_constants
 
 from instrument.file_transfer import copy_file_to_local
-from instrument.folders import get_folder_files, get_sorted_folder
+from instrument.folders import get_csv_folder, get_folder_files, get_sorted_folder
 from utils.run_ids import run_index_to_id, get_todays_run_ids
 from utils.settings import read_settings_from_file
 
@@ -45,11 +45,25 @@ def get_inst():
     resource_manager = pyvisa.ResourceManager()
     resource_name = get_resource_name(resource_manager)
     inst = None
-    if resource_name != "":
-        rm = pyvisa.ResourceManager()
-        inst = rm.open_resource(resource_name)
+
+    try:
+        if resource_name != "":
+            rm = pyvisa.ResourceManager()
+            inst = rm.open_resource(resource_name)
+    except pyvisa.errors.VisaIOError:
+        inst = None
+
     inst_found = inst is not None
-    return inst, inst_found
+
+    inst_name = (
+        "Disconnected Mode"
+        if inst is None
+        else "Emulator"
+        if resource_name is EMULATOR_RESOURCE_NAME
+        else "Instrument"
+    )
+
+    return inst, inst_found, inst_name
 
 
 def get_error_message(folder_path, filename):
@@ -121,7 +135,11 @@ def set_ref_level(inst, ref_level):
 
 
 def get_ref_level(inst):
-    ref_level = float(inst.query(":DISP:WIND:TRAC:Y:RLEV?").replace("\n", ""))
+    if inst is not None:
+        ref_level = float(inst.query(":DISP:WIND:TRAC:Y:RLEV?").replace("\n", ""))
+    else:
+        ref_level = 0.0
+
     return ref_level
 
 
@@ -184,10 +202,11 @@ def save_trace_and_screen(
     save_trace(inst, csv_path)
     save_screen(inst, png_path)
 
-    sorted_output_folder = get_sorted_folder(local_out_folder, band)
+    sorted_csv_folder = get_csv_folder(local_out_folder)
+    sorted_png_folder = get_sorted_folder(local_out_folder, band)
 
-    copy_file_to_local(inst, csv_path, sorted_output_folder)
-    copy_file_to_local(inst, png_path, sorted_output_folder)
+    copy_file_to_local(inst, csv_path, sorted_csv_folder)
+    copy_file_to_local(inst, png_path, sorted_png_folder)
 
 
 def record_and_adjust(inst, sweep_dur):

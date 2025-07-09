@@ -36,6 +36,7 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
         self.iconbitmap(self.logo)
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
+
         self.warning_red = warning_red
         self.hover_red = hover_red
         self.backgroud_gray = "#DBDBDB"
@@ -133,13 +134,15 @@ class SetUpModeFrame(ctk.CTkFrame):
         parent,
         inst_found,
         inst,
-        frame_color="transparent",
-        label_color="transparent",
+        discon_btn_st,
+        frame_color,
+        label_color,
     ):
         super().__init__(parent)
         self.button_padding = 4
         self.inst_found = inst_found
         self.inst = inst
+        self.discon_btn_st = discon_btn_st
         self.frame_color = frame_color
         self.label_color = label_color
 
@@ -152,14 +155,14 @@ class SetUpModeFrame(ctk.CTkFrame):
         self.hover_red = "#350303"
 
         self.band_buttons = [
-            ("B0", lambda: self.setup_files("B0"), 1, 0),
-            ("B1", lambda: self.setup_files("B1"), 1, 1),
-            ("B2", lambda: self.setup_files("B2"), 1, 2),
-            ("B3", lambda: self.setup_files("B3"), 1, 3),
-            ("B4", lambda: self.setup_files("B4"), 1, 4),
-            ("B5", lambda: self.setup_files("B5"), 2, 1),
-            ("B6", lambda: self.setup_files("B6"), 2, 2),
-            ("B7", lambda: self.setup_files("B7"), 2, 3),
+            ("B0", self.discon_btn_st, lambda: self.setup_files("B0"), 1, 0),
+            ("B1", self.discon_btn_st, lambda: self.setup_files("B1"), 1, 1),
+            ("B2", self.discon_btn_st, lambda: self.setup_files("B2"), 1, 2),
+            ("B3", self.discon_btn_st, lambda: self.setup_files("B3"), 1, 3),
+            ("B4", self.discon_btn_st, lambda: self.setup_files("B4"), 1, 4),
+            ("B5", self.discon_btn_st, lambda: self.setup_files("B5"), 2, 1),
+            ("B6", self.discon_btn_st, lambda: self.setup_files("B6"), 2, 2),
+            ("B7", self.discon_btn_st, lambda: self.setup_files("B7"), 2, 3),
         ]
 
         self.create_widgets()
@@ -219,10 +222,11 @@ class SetUpModeFrame(ctk.CTkFrame):
         inner_frame = ctk.CTkFrame(frame2)
         inner_frame.grid(row=0, column=0, padx=0, pady=0)
 
-        for band_key, cmd, r, c in self.band_buttons:
+        for band_key, st, cmd, r, c in self.band_buttons:
             button = LargeButton(
                 inner_frame,
                 text=band_key,
+                state=st,
                 command=cmd,
             )
             button.grid(
@@ -243,7 +247,10 @@ class SetUpModeFrame(ctk.CTkFrame):
         ref_button_frame.grid(row=1, column=0, pady=5)
 
         self.increase_ref_button = ArrowButton(
-            ref_button_frame, text="\u25b2", command=lambda: self.increse_ref_level()
+            ref_button_frame,
+            text="\u25b2",
+            state=self.discon_btn_st,
+            command=lambda: self.increse_ref_level(),
         )
         self.increase_ref_button.pack(side="left", padx=5)
 
@@ -257,7 +264,10 @@ class SetUpModeFrame(ctk.CTkFrame):
         self.cur_ref_level_label.pack(side="left", padx=5)
 
         self.decrease_ref_button = ArrowButton(
-            ref_button_frame, text="\u25bc", command=lambda: self.decrese_ref_level()
+            ref_button_frame,
+            text="\u25bc",
+            state=self.discon_btn_st,
+            command=lambda: self.decrese_ref_level(),
         )
         self.decrease_ref_button.pack(side="left", padx=5)
         # self.match_ref_level()
