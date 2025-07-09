@@ -15,14 +15,16 @@ class SingleModeFrame(ctk.CTkFrame):
         parent,
         inst_found,
         inst,
-        frame_color="transparent",
-        label_color="transparent",
+        discon_btn_st,
+        frame_color,
+        label_color,
     ):
         super().__init__(parent)
         self.button_padding = 4
         self.columnconfigure(0, weight=1)
         self.inst_found = inst_found
         self.inst = inst
+        self.discon_btn_st = discon_btn_st
         self.frame_color = frame_color
         self.label_color = label_color
 
@@ -39,17 +41,17 @@ class SingleModeFrame(ctk.CTkFrame):
 
         self.button_list = []
         self.band_buttons = [
-            ("B0", lambda: self.check_and_run("B0"), 1, 0),
-            ("B1", lambda: self.check_and_run("B1"), 1, 1),
-            ("B2", lambda: self.check_and_run("B2"), 1, 2),
-            ("B3", lambda: self.check_and_run("B3"), 1, 3),
-            ("B4", lambda: self.check_and_run("B4"), 1, 4),
-            ("B5h", lambda: self.check_and_run("B5h"), 2, 1),
-            ("B6h", lambda: self.check_and_run("B6h"), 2, 2),
-            ("B7h", lambda: self.check_and_run("B7h"), 2, 3),
-            ("B5v", lambda: self.check_and_run("B5v"), 3, 1),
-            ("B6v", lambda: self.check_and_run("B6v"), 3, 2),
-            ("B7v", lambda: self.check_and_run("B7v"), 3, 3),
+            ("B0", self.discon_btn_st, lambda: self.check_and_run("B0"), 1, 0),
+            ("B1", self.discon_btn_st, lambda: self.check_and_run("B1"), 1, 1),
+            ("B2", self.discon_btn_st, lambda: self.check_and_run("B2"), 1, 2),
+            ("B3", self.discon_btn_st, lambda: self.check_and_run("B3"), 1, 3),
+            ("B4", self.discon_btn_st, lambda: self.check_and_run("B4"), 1, 4),
+            ("B5h", self.discon_btn_st, lambda: self.check_and_run("B5h"), 2, 1),
+            ("B6h", self.discon_btn_st, lambda: self.check_and_run("B6h"), 2, 2),
+            ("B7h", self.discon_btn_st, lambda: self.check_and_run("B7h"), 2, 3),
+            ("B5v", self.discon_btn_st, lambda: self.check_and_run("B5v"), 3, 1),
+            ("B6v", self.discon_btn_st, lambda: self.check_and_run("B6v"), 3, 2),
+            ("B7v", self.discon_btn_st, lambda: self.check_and_run("B7v"), 3, 3),
         ]
 
         self.create_widgets()
@@ -100,10 +102,11 @@ class SingleModeFrame(ctk.CTkFrame):
         inner_frame = ctk.CTkFrame(frame)
         inner_frame.grid(row=1, column=0, padx=0, pady=0)
 
-        for band_key, cmd, r, c in self.band_buttons:
+        for band_key, st, cmd, r, c in self.band_buttons:
             button = LargeButton(
                 inner_frame,
                 text=band_key,
+                state=st,
                 command=cmd,
             )
             button.grid(

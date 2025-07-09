@@ -176,8 +176,6 @@ class SettingsWindow(ctk.CTkToplevel):
         update_valid,
         update_output_folder,
         inst_found,
-        frame_color,
-        label_color,
         update_state_button,
     ):
         super().__init__(parent)
@@ -190,13 +188,14 @@ class SettingsWindow(ctk.CTkToplevel):
         self.iconbitmap(self.logo)
         self.columnconfigure(0, weight=1)
         self.rowconfigure([0, 1, 2], weight=0)
+
         self.inst = inst
         self.inst_found = inst_found
         self.update_valid = update_valid
         self.update_output_folder = update_output_folder
         self.update_state_button = update_state_button
-        self.frame_color = frame_color
-        self.label_color = label_color
+        self.frame_color = parent.frame_color
+        self.label_color = parent.label_color
         self.transient(parent)
 
         # if folder exists:
@@ -237,7 +236,7 @@ class SettingsWindow(ctk.CTkToplevel):
 
     def init_frame2(self):
         tabview_frame = ctk.CTkTabview(self)
-        tabview_frame.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
+        tabview_frame.grid(row=1, column=0, padx=5, pady=5, sticky="ewns")
         tabview_frame.columnconfigure(0, weight=1)
         tabview_frame.rowconfigure(0, weight=1)
         return tabview_frame

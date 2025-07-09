@@ -63,9 +63,9 @@ def main():
     else:
         write_settings_to_file(DEFAULT_SETTINGS)  # make default settings
 
-    inst, inst_found = get_inst()
+    inst, inst_found, inst_name = get_inst()
 
-    app = MainApp(inst_found, inst)
+    app = MainApp(inst, inst_found, inst_name)
     app.resizable(False, False)
     app.mainloop()
 
