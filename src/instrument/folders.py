@@ -56,3 +56,13 @@ def get_sorted_folder(out_folder, band):
     os.makedirs(band_folder, exist_ok=True)
 
     return band_folder
+
+
+def get_csv_folder(out_folder):
+    out_folder = out_folder.replace("/", "\\")
+
+    # Add csv subfolder
+    csv_folder = os.path.join(out_folder, "csv")
+    os.makedirs(csv_folder, exist_ok=True)
+
+    return csv_folder

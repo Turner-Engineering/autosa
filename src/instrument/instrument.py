@@ -4,7 +4,7 @@ import pyvisa
 import pyvisa.constants as pyvisa_constants
 
 from instrument.file_transfer import copy_file_to_local
-from instrument.folders import get_folder_files, get_sorted_folder
+from instrument.folders import get_csv_folder, get_folder_files, get_sorted_folder
 from utils.run_ids import run_index_to_id, get_todays_run_ids
 from utils.settings import read_settings_from_file
 
@@ -184,10 +184,11 @@ def save_trace_and_screen(
     save_trace(inst, csv_path)
     save_screen(inst, png_path)
 
-    sorted_output_folder = get_sorted_folder(local_out_folder, band)
+    sorted_csv_folder = get_csv_folder(local_out_folder)
+    sorted_png_folder = get_sorted_folder(local_out_folder, band)
 
-    copy_file_to_local(inst, csv_path, sorted_output_folder)
-    copy_file_to_local(inst, png_path, sorted_output_folder)
+    copy_file_to_local(inst, csv_path, sorted_csv_folder)
+    copy_file_to_local(inst, png_path, sorted_png_folder)
 
 
 def record_and_adjust(inst, sweep_dur):
