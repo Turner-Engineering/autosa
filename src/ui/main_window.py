@@ -70,7 +70,7 @@ class HeaderFrame(ctk.CTkFrame):
 
         ctk.CTkButton(
             self,
-            text="More Info",
+            text="Help",
             height=10,
             font=("", 10),
             command=lambda: MoreInfoWindow(self, self.frame_color, self.label_color),
