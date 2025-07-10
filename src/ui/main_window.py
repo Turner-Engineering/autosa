@@ -1,6 +1,7 @@
 import os
 import customtkinter as ctk
 import subprocess
+from ui.info_window import MoreInfoWindow
 from ui.manual_mode import ManualModeFrame
 from ui.single_band_mode import SingleModeFrame
 from ui.multi_band_mode import MultiModeFrame
@@ -66,6 +67,14 @@ class HeaderFrame(ctk.CTkFrame):
         )
 
         self.output_folder_button.grid(row=1, column=1, sticky="ne", padx=10, rowspan=3)
+
+        ctk.CTkButton(
+            self,
+            text="More Info",
+            height=10,
+            font=("", 10),
+            command=lambda: MoreInfoWindow(self, self.frame_color, self.label_color),
+        ).grid(row=2, column=1, sticky="ne", padx=10, rowspan=3)
 
         inst_found_var = ctk.StringVar(
             value=(
