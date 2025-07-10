@@ -11,7 +11,7 @@ class MoreInfoWindow(ctk.CTkToplevel):
         self.iconbitmap(self.logo)
         self.transient(parent)
         self.window_width = 760
-        self.window_height = 400
+        self.window_height = 600
         self.geometry(f"{self.window_width}x{self.window_height}")
         self.resizable(False, False)
 
@@ -202,9 +202,10 @@ class MoreInfoWindow(ctk.CTkToplevel):
             'The screenshot (.png) file is saved in a folder labelled "CSV" in the local output folder.'
         )
 
-        deleting_files_info = (
-            "To delete files, it has to be manually deleted them from the instrument's output folder.\n"
-            "If a file is deleted from the instrument's output folder, it will not be deleted from the local output\nfolder and vice versa\n"
+        back_run_id = (
+            "If you want the upcoming measurement to have the previous Run ID, you will need to manually delete the\n"
+            "previous file (csv and png) from the instrument's output folder.\n"
+            "If a file is deleted from the instrument's output folder, it will not be deleted from the local output\nfolder and vice versa.\n"
             "If the file is only deleted from the local output folder, Autosa will not be able to generate the next Run ID."
         )
 
@@ -248,14 +249,14 @@ class MoreInfoWindow(ctk.CTkToplevel):
 
         ctk.CTkLabel(
             saved_files_info_frame,
-            text="Deleting Files",
+            text="Going Back to Previous Run ID",
             font=self.subheader_font,
             justify="left",
             height=0,
         ).grid(row=5, column=0, padx=self.padx, pady=self.subheader_pady, sticky="nw")
         ctk.CTkLabel(
             saved_files_info_frame,
-            text=deleting_files_info,
+            text=back_run_id,
             font=self.body_font,
             justify="left",
             height=0,
