@@ -67,6 +67,7 @@ class ManualSaveWindow(ctk.CTkToplevel):
         self,
         parent,
         inst,
+        autosa_logger,
         discon_btn_st,
         frame_color,
         label_color,
@@ -90,6 +91,7 @@ class ManualSaveWindow(ctk.CTkToplevel):
         self.label_color = label_color
 
         self.inst = inst
+        self.autosa_logger = autosa_logger
         self.discon_btn_st = discon_btn_st
         self.run_filename = run_filename
         self.run_id = run_id
@@ -210,7 +212,7 @@ class ManualSaveWindow(ctk.CTkToplevel):
         save_button.grid(row=0, column=2, padx=5, sticky="w")
 
         cancel_button = ctk.CTkButton(
-            frame3, text="Cancel", command=lambda: self.destroy()
+            frame3, text="Cancel", command=lambda: self.cancel_save()
         )
         cancel_button.grid(row=0, column=3, padx=5, sticky="w")
 
@@ -228,6 +230,7 @@ class ManualSaveWindow(ctk.CTkToplevel):
         band = band_entry.get().strip()
 
         if (run_note == "") or (band == ""):
+            self.autosa_logger.error("Manual Mode: Entry fields were empty.")
             self.lower()
             PopupWindow(self)
         else:
@@ -241,3 +244,7 @@ class ManualSaveWindow(ctk.CTkToplevel):
 
     def get_band(self):
         return self.band_var.get().strip()
+
+    def cancel_save(self):
+        self.autosa_logger.warning("Manual Mode: Save canceled.")
+        self.destroy()

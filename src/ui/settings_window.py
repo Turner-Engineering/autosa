@@ -5,6 +5,7 @@ from instrument.folders import get_folder_info
 from ui.get_resource_path import resource_path
 from utils.settings import (
     get_settings_path,
+    get_log_path,
     write_settings_to_file,
     read_settings_from_file,
     is_valid_inst_folder,
@@ -14,7 +15,9 @@ from utils.settings import (
 
 
 class CorrSettingFrame(ctk.CTkFrame):
-    def __init__(self, parent, corr_path_var, corr_dropdowns, corr_choice, inst):
+    def __init__(
+        self, parent, corr_path_var, corr_dropdowns, corr_choice, inst, autosa_logger
+    ):
         super().__init__(parent)
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
@@ -28,6 +31,7 @@ class CorrSettingFrame(ctk.CTkFrame):
         self.corr_choice = corr_choice
         self.corr_file_options = ["No Correction"]
         self.inst = inst
+        self.autosa_logger = autosa_logger
 
         self.create_widgets()
         self.get_init_corr()
@@ -65,6 +69,9 @@ class CorrSettingFrame(ctk.CTkFrame):
 
     def update_corr_choice(self, band, choice):
         self.corr_choice[band] = choice
+        self.autosa_logger.info(
+            f"{band} Amplitude Correction changed to {self.corr_choice[band]}"
+        )
 
     def update_dropdown(self, *args):
         self.corr_file_options = ["No Correction"]
@@ -121,12 +128,13 @@ class CorrSettingFrame(ctk.CTkFrame):
 
 
 class PrimaryFrame(ctk.CTkFrame):
-    def __init__(self, parent, inst, settings_vars, settings_labels):
+    def __init__(self, parent, inst, autosa_logger, settings_vars, settings_labels):
         super().__init__(parent)
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
 
         self.inst = inst
+        self.autosa_logger = autosa_logger
         self.settings_vars = settings_vars
         self.settings_labels = settings_labels
         self.path_entry_widget = {}  # to store the entry widgets
@@ -170,7 +178,9 @@ class PrimaryFrame(ctk.CTkFrame):
             primary_frame,
             text="Browse",
             command=lambda: SettingsWindow.browse_files(
-                self.master, self.settings_vars["-LOCAL OUT FOLDER-"]
+                self.master,
+                self.settings_vars["-LOCAL OUT FOLDER-"],
+                self.autosa_logger,
             ),
         ).grid(row=3, column=3, padx=5, pady=5, sticky="w")
 
@@ -200,6 +210,10 @@ class PrimaryFrame(ctk.CTkFrame):
             valid = is_valid_sweep_duration(cur_path)
 
         entry_widget.configure(border_color="gray" if valid else "red")
+        if valid:
+            self.autosa_logger.info(f"VALID {key}: {cur_path}")
+        else:
+            self.autosa_logger.warning(f"INVALID {key}: {cur_path}")
 
 
 class SettingsWindow(ctk.CTkToplevel):
@@ -212,6 +226,7 @@ class SettingsWindow(ctk.CTkToplevel):
         update_valid,
         update_output_folder,
         inst_found,
+        autosa_logger,
         update_state_button,
     ):
         super().__init__(parent)
@@ -227,12 +242,16 @@ class SettingsWindow(ctk.CTkToplevel):
 
         self.inst = inst
         self.inst_found = inst_found
+        self.autosa_logger = autosa_logger
         self.update_valid = update_valid
         self.update_output_folder = update_output_folder
         self.update_state_button = update_state_button
         self.frame_color = parent.frame_color
         self.label_color = parent.label_color
         self.transient(parent)
+
+        self.autosa_logger.info("Settings Window was opened.")
+        self.protocol("WM_DELETE_WINDOW", lambda: self.on_close("Window Manager"))
 
         # if folder exists:
         settings = read_settings_from_file()
@@ -271,11 +290,11 @@ class SettingsWindow(ctk.CTkToplevel):
         return header_frame
 
     def init_frame2(self):
-        tabview_frame = ctk.CTkTabview(self)
-        tabview_frame.grid(row=1, column=0, padx=5, pady=5, sticky="ewns")
-        tabview_frame.columnconfigure(0, weight=1)
-        tabview_frame.rowconfigure(0, weight=1)
-        return tabview_frame
+        self.tabview_frame = ctk.CTkTabview(self, command=self.on_tab_change)
+        self.tabview_frame.grid(row=1, column=0, padx=5, pady=5, sticky="ewns")
+        self.tabview_frame.columnconfigure(0, weight=1)
+        self.tabview_frame.rowconfigure(0, weight=1)
+        return self.tabview_frame
 
     def init_frame3(self):
         button_frame = ctk.CTkFrame(self, fg_color=self.label_color)
@@ -298,7 +317,20 @@ class SettingsWindow(ctk.CTkToplevel):
             hover_color="#676b6e",
             command=lambda: self.open_to_json(),
         )
-        view_json_button.grid(row=1, column=0, padx=5, sticky="w")
+        view_json_button.grid(row=0, column=1, padx=5, sticky="e")
+
+        view_log_button = ctk.CTkButton(
+            frame1,
+            text="Open Log File",
+            font=("", 8),
+            width=16,
+            height=10,
+            anchor="center",
+            fg_color="#979da2",
+            hover_color="#676b6e",
+            command=lambda: self.open_to_log(),
+        )
+        view_log_button.grid(row=1, column=1, padx=5, sticky="e")
 
     def fill_tabview_frame2(self, frame2):
         tab1 = frame2.add("      Primary      ")
@@ -306,7 +338,11 @@ class SettingsWindow(ctk.CTkToplevel):
         tab1.grid_columnconfigure(0, weight=1)
 
         primary_frame = PrimaryFrame(
-            tab1, self.inst, self.settings_vars, self.settings_labels
+            tab1,
+            self.inst,
+            self.autosa_logger,
+            self.settings_vars,
+            self.settings_labels,
         )
         primary_frame.pack(expand=True, fill="both")
 
@@ -320,6 +356,7 @@ class SettingsWindow(ctk.CTkToplevel):
             self.corr_dropdowns,
             self.corr_choice,
             self.inst,
+            self.autosa_logger,
         )
         corr_frame.pack(expand=True, fill="both")
 
@@ -332,13 +369,23 @@ class SettingsWindow(ctk.CTkToplevel):
         save_button.grid(row=0, column=0, padx=5, pady=5, sticky="e")
 
         cancel_button = ctk.CTkButton(
-            frame3, text="Cancel", command=lambda: self.destroy()
+            frame3, text="Cancel", command=lambda: self.on_close("Cancel Button")
         )
         cancel_button.grid(row=0, column=1, padx=5, pady=5, sticky="e")
 
+    def on_tab_change(self):
+        current_tab = self.tabview_frame.get()
+        self.autosa_logger.info(f"Switched to {current_tab.strip()}.")
+
     def open_to_json(self):
+        self.autosa_logger.info("Settings File opened in File Explorer.")
         json_filepath = get_settings_path()
         subprocess.run(["explorer", "/select,", json_filepath])
+
+    def open_to_log(self):
+        self.autosa_logger.info("Log opened in File Explorer")
+        log_filepath = get_log_path()
+        subprocess.run(["explorer", "/select,", log_filepath])
 
     def save_settings(self):
         """write to the json file"""
@@ -357,8 +404,18 @@ class SettingsWindow(ctk.CTkToplevel):
         self.update_output_folder()
         self.update_state_button()
 
+        self.autosa_logger.info("Settings saved and closed.")
         self.destroy()  # close settings window after saving
 
-    def browse_files(parent, path_var):
+    def browse_files(parent, path_var, autosa_logger):
+        autosa_logger.info("Local Output Folder opened in File Explorer for selection.")
         folder_path = fd.askdirectory(parent=parent)
         path_var.set(folder_path)
+
+    def on_close(self, close_type=""):
+        if close_type == "Window Manager":
+            self.autosa_logger.info("Settings closed through window manager.")
+        elif close_type == "Cancel Button":
+            self.autosa_logger.info("Settings changes canceled.")
+
+        self.destroy()

@@ -117,6 +117,7 @@ class MultiModeFrame(ctk.CTkFrame):
         parent,
         inst_found,
         inst,
+        autosa_logger,
         discon_btn_st,
         frame_color,
         label_color,
@@ -125,6 +126,7 @@ class MultiModeFrame(ctk.CTkFrame):
         self.columnconfigure(0, weight=1)
         self.inst_found = inst_found
         self.inst = inst
+        self.autosa_logger = autosa_logger
         self.discon_btn_st = discon_btn_st
         self.frame_color = frame_color
         self.label_color = label_color
@@ -225,6 +227,9 @@ class MultiModeFrame(ctk.CTkFrame):
             frame1,
             values=["Horizontal", "Vertical"],
             variable=self.ori_var,
+            command=lambda event: self.autosa_logger.info(
+                f"Multi Band Mode: {self.ori_var.get()} orientation was selected."
+            ),
             width=180,
         )
         self.ori_dropdown.grid(row=2, column=1, padx=5, pady=5, sticky="w")
@@ -320,11 +325,15 @@ class MultiModeFrame(ctk.CTkFrame):
             self.ori_dropdown.configure(state="normal")
             if self.ori_var.get() not in ["Horizontal", "Vertical"]:
                 self.ori_dropdown.set("Horizontal")
+            self.autosa_logger.info(
+                f"Multi Band Mode: {self.ori_var.get()} orientation was selected."
+            )
         else:
             self.ori_dropdown.configure(state="disabled")
             self.ori_dropdown.set("None")
 
     def update_cancel_status(self):
+        self.autosa_logger.warning("Multi Band Mode: Runs canceled.")
         self.is_cancel = True
 
     def call_update_band_keys(self, *args):
@@ -342,6 +351,10 @@ class MultiModeFrame(ctk.CTkFrame):
         else:
             self.band_keys = []
 
+        self.autosa_logger.info(
+            f"Multi Band Mode: Band Range {band_range} was selected."
+        )
+
     def disable_buttons(self):
         self.ori_dropdown.configure(state="disabled")
         self.run_note_entry.configure(state="disabled")
@@ -356,16 +369,19 @@ class MultiModeFrame(ctk.CTkFrame):
 
     def check_and_run(self):
         if self.run_note_var.get().strip() == "":
+            self.autosa_logger.error("Multi Band Mode: No Run Note was entered.")
             self.disable_buttons()
             self.wait_window(PopupWindow(self))
             self.enable_buttons()
         else:
             self.disable_buttons()
             self.wait_window(
-                ConfirmWindow(self, self.discon_btn_st, self.run_multiple_bands))
+                ConfirmWindow(self, self.discon_btn_st, self.run_multiple_bands)
+            )
             self.enable_buttons()
 
     def run_multiple_bands(self):
+        self.autosa_logger.info("Multi Band Mode: Started measurements.")
         self.saved_files = []
         self.disable_buttons()
         self.ori_dropdown.configure(state="disabled")
@@ -395,7 +411,10 @@ class MultiModeFrame(ctk.CTkFrame):
             self.run_filename = get_run_filename(
                 self.inst, band_key, run_note, sweep_dur, band_ori
             )
-            run_band(self.inst, band_key, self.run_filename, band_ori)
+            run_band(
+                self.inst, band_key, self.run_filename, band_ori, self.autosa_logger
+            )
+            self.autosa_logger.info(f"Multi Band Mode: Saved {self.run_filename}.")
 
             # Mark checkbox complete
             checkbox, check_var = self.band_checkbox[band_key]
@@ -420,6 +439,7 @@ class MultiModeFrame(ctk.CTkFrame):
 
         # RUNS COMPLETE
         self.pbar.stop()
+        self.autosa_logger.info("Multi Band Mode: Completed and saved measurements.")
         CompletedWindow(self)
         self.band_checkbox.clear()
         self.band_filenames.clear()

@@ -261,16 +261,23 @@ def get_state_file(inst, state_folder, band_key):
             return filename
 
 
-def prep_band(inst, band_key):
+def prep_band(inst, band_key, autosa_logger):
     error_message = ""
     state_folder = read_settings_from_file()["-STATE FOLDER-"]
     corr_folder = read_settings_from_file()["-CORR FOLDER-"]
     state_filename = get_state_file(inst, state_folder, band_key)
     corr_filename = read_settings_from_file()["-CORR CHOICES-"][f"{band_key}"]
+
     try:
         recall_state(inst, state_folder, state_filename)
+        autosa_logger.info(f"Recalled State: {state_filename}")
+
         if corr_filename != "No Correction":
             recall_cors(inst, corr_folder, corr_filename)
+            autosa_logger.info(f"Recalled Amplitude Correction: {corr_filename}")
+        else:
+            autosa_logger.info(f"No Amplitude Correction file selected for {band_key}.")
+
         rename_screen(inst, band_key)
         disable_ref_level_offset(inst)
         round_ref_level(inst)
@@ -281,7 +288,7 @@ def prep_band(inst, band_key):
     return error_message
 
 
-def run_band(inst, band_key, run_filename, band_ori, save=True):
+def run_band(inst, band_key, run_filename, band_ori, autosa_logger, save=True):
     inst_out_folder = read_settings_from_file()["-INST OUT FOLDER-"]
     local_out_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
     sweep_dur = float(read_settings_from_file()["-SWEEP DUR-"])
@@ -293,7 +300,7 @@ def run_band(inst, band_key, run_filename, band_ori, save=True):
             return error_message
 
     # PREPARE THE INSTRUMENT
-    error_message = prep_band(inst, band_key)
+    error_message = prep_band(inst, band_key, autosa_logger)
 
     # RECORD, ADJUST, AND SAVE
     record_and_adjust(inst, sweep_dur)

@@ -42,6 +42,10 @@ def get_settings_path():
     return get_settings_folder_path() + SETTINGS_FILENAME
 
 
+def get_log_path():
+    return get_settings_folder_path() + f"\\autosa_{get_autosa_version()}.log"
+
+
 def write_settings_to_file(settings):
     folder = get_settings_folder_path()
 

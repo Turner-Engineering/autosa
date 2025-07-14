@@ -27,7 +27,13 @@ class ArrowButton(ctk.CTkButton):
 
 class ConfirmStateChangePopup(ctk.CTkToplevel):
     def __init__(
-        self, parent, update_ref_level, state_filename, warning_red, hover_red
+        self,
+        parent,
+        autosa_logger,
+        update_ref_level,
+        state_filename,
+        warning_red,
+        hover_red,
     ):
         super().__init__(parent)
         self.title("Confirm State Update")
@@ -37,6 +43,7 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
 
+        self.autosa_logger = autosa_logger
         self.warning_red = warning_red
         self.hover_red = hover_red
         self.backgroud_gray = "#DBDBDB"
@@ -115,7 +122,7 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
         ctk.CTkButton(
             frame2,
             text="Cancel",
-            command=lambda: self.destroy(),
+            command=lambda: self.overwrite_canceled(),
             anchor="center",
             fg_color="#939ba2",
             hover_color="#585656",
@@ -123,9 +130,16 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
 
     def confirmation_callback(self):
         # create new thread
+        self.autosa_logger.warning(f"State File {self.state_filename} overwritten.")
         self.destroy()  # close confirm window
         new_thread = threading.Thread(target=self.update_ref_level, daemon=True)
         new_thread.start()
+
+    def overwrite_canceled(self):
+        self.autosa_logger.warning(
+            f"State File {self.state_filename} overwrite canceled."
+        )
+        self.destroy()
 
 
 class SetUpModeFrame(ctk.CTkFrame):
@@ -134,6 +148,7 @@ class SetUpModeFrame(ctk.CTkFrame):
         parent,
         inst_found,
         inst,
+        autosa_logger,
         discon_btn_st,
         frame_color,
         label_color,
@@ -142,6 +157,7 @@ class SetUpModeFrame(ctk.CTkFrame):
         self.button_padding = 4
         self.inst_found = inst_found
         self.inst = inst
+        self.autosa_logger = autosa_logger
         self.discon_btn_st = discon_btn_st
         self.frame_color = frame_color
         self.label_color = label_color
@@ -298,6 +314,7 @@ class SetUpModeFrame(ctk.CTkFrame):
             self.inst, state_folder, self.band_selected
         )
         recall_state(self.inst, state_folder, self.state_filename)
+        self.autosa_logger.info(f"Recalled State: {self.state_filename}")
 
         updated_ref_level = get_ref_level(self.inst)
         self.ref_level_double_var.set(updated_ref_level)
@@ -313,6 +330,8 @@ class SetUpModeFrame(ctk.CTkFrame):
         set_rounded_ref_level(self.inst, decresed_ref_rounded)
         self.update_ref_level_label(decresed_ref_rounded)
 
+        self.autosa_logger.info(f"Decreased ref level to {decresed_ref_rounded} dBm")
+
     def increse_ref_level(self):
         self.update_autosa_ref_level()
 
@@ -323,10 +342,16 @@ class SetUpModeFrame(ctk.CTkFrame):
         set_rounded_ref_level(self.inst, incresed_ref_rounded)
         self.update_ref_level_label(incresed_ref_rounded)
 
+        self.autosa_logger.info(f"Increased ref level to {incresed_ref_rounded} dBm")
+
     def confirm_window(self):
+        self.autosa_logger.warning(
+            f"State File {self.state_filename} overwrite initiated."
+        )
         self.wait_window(
             ConfirmStateChangePopup(
                 self,
+                self.autosa_logger,
                 self.update_ref_level,
                 self.state_filename,
                 self.warning_red,

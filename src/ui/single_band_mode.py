@@ -15,6 +15,7 @@ class SingleModeFrame(ctk.CTkFrame):
         parent,
         inst_found,
         inst,
+        autosa_logger,
         discon_btn_st,
         frame_color,
         label_color,
@@ -24,6 +25,7 @@ class SingleModeFrame(ctk.CTkFrame):
         self.columnconfigure(0, weight=1)
         self.inst_found = inst_found
         self.inst = inst
+        self.autosa_logger = autosa_logger
         self.discon_btn_st = discon_btn_st
         self.frame_color = frame_color
         self.label_color = label_color
@@ -127,6 +129,7 @@ class SingleModeFrame(ctk.CTkFrame):
     # Functions
     def check_and_run(self, band_name):
         if self.run_note_var.get().strip() == "":
+            self.autosa_logger.error("Single Band Mode: No Run Note was entered.")
             self.disable_buttons()
             self.wait_window(PopupWindow(self))
             self.enable_buttons()
@@ -138,7 +141,10 @@ class SingleModeFrame(ctk.CTkFrame):
         # PREPARE, RECORD, ADJUST
         band_key = band_name[:2]
         band_ori = band_name[2] if len(band_name) == 3 else ""
-        error_message = run_band(self.inst, band_key, "", band_ori, save=False)
+        error_message = run_band(
+            self.inst, band_key, "", band_ori, self.autosa_logger, save=False
+        )
+        # self.autosa_logger.info(f"Single Band Mode: Measured {band_key}{band_ori}")
 
         # GET FILENAME
         run_note = self.run_note_var.get()
@@ -148,6 +154,7 @@ class SingleModeFrame(ctk.CTkFrame):
 
         # SAVE
         if self.run_filename is not None:
+            self.autosa_logger.info(f"Single Band Mode: Saved {self.run_filename}")
             save_trace_and_screen(
                 self.inst,
                 self.run_filename,

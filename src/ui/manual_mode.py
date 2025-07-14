@@ -20,6 +20,7 @@ class ManualModeFrame(ctk.CTkFrame):
         parent,
         inst_found,
         inst,
+        autosa_logger,
         discon_btn_st,
         frame_color,
         label_color,
@@ -29,6 +30,7 @@ class ManualModeFrame(ctk.CTkFrame):
         self.columnconfigure(0, weight=1)
         self.inst_found = inst_found
         self.inst = inst
+        self.autosa_logger = autosa_logger
         self.discon_btn_st = discon_btn_st
         self.frame_color = frame_color
         self.label_color = label_color
@@ -232,11 +234,13 @@ class ManualModeFrame(ctk.CTkFrame):
         start_time = time.strftime("%I:%M:%S %p", time.localtime(time.time()))
 
         if self.is_paused:
+            self.autosa_logger.info("Manual Mode: Started measurement.")
             self.inst.write(":INIT:CONT ON")
             self.last_start_time.configure(text=start_time)
             self.stopwatch.start()
             self.disable_buttons("disabled")
         else:
+            self.autosa_logger.info("Manual Mode: Stopped measurement.")
             self.inst.write(":INIT:CONT OFF")
             self.stopwatch.stop()
             self.disable_buttons("normal")
@@ -246,7 +250,7 @@ class ManualModeFrame(ctk.CTkFrame):
 
     def setup_files(self, band_key):
         self.last_band_prepped.configure(text=band_key)
-        prep_band(self.inst, band_key)
+        prep_band(self.inst, band_key, self.autosa_logger)
         self.stopwatch.reset()
 
     def update_stopwatch_time(self):
@@ -258,14 +262,17 @@ class ManualModeFrame(ctk.CTkFrame):
         self.sweep_dur_var = seconds.split(".")[0]
 
     def reset_stopwatch(self):
+        self.autosa_logger.info("Manual Mode: Reset band.")
         self.inst.write(":INIT:REST")
         self.stopwatch.reset()
 
     def save_trace_screen(self):
+        self.autosa_logger.info("Manual Mode: Save measurement initiated.")
         run_id = get_run_id(self.inst, self.inst_output_folder)
         run_file = ManualSaveWindow(
             self,
             self.inst,
+            self.autosa_logger,
             self.discon_btn_st,
             self.frame_color,
             self.label_color,
@@ -279,6 +286,7 @@ class ManualModeFrame(ctk.CTkFrame):
         band_key = run_file.get_band()
 
         if self.run_filename is not None:
+            self.autosa_logger.info(f"Manual Mode: Saved {self.run_filename}.")
             save_trace_and_screen(
                 self.inst,
                 self.run_filename,
