@@ -1,8 +1,8 @@
 import time
 import customtkinter as ctk
 from PIL import Image
-
-from ui.large_button import LargeButton
+from utils.log_config import autosa_logger
+from ui.ui_logger import LargeButton
 from utils.stopwatch import Stopwatch
 from ui.save_window_popups import ManualSaveWindow
 from ui.get_resource_path import resource_path
@@ -10,6 +10,9 @@ from utils.settings import read_settings_from_file
 from instrument.instrument import (
     get_run_id,
     prep_band,
+    run_start,
+    run_stop,
+    run_reset,
     save_trace_and_screen,
 )
 
@@ -20,7 +23,6 @@ class ManualModeFrame(ctk.CTkFrame):
         parent,
         inst_found,
         inst,
-        autosa_logger,
         discon_btn_st,
         frame_color,
         label_color,
@@ -30,7 +32,6 @@ class ManualModeFrame(ctk.CTkFrame):
         self.columnconfigure(0, weight=1)
         self.inst_found = inst_found
         self.inst = inst
-        self.autosa_logger = autosa_logger
         self.discon_btn_st = discon_btn_st
         self.frame_color = frame_color
         self.label_color = label_color
@@ -65,6 +66,7 @@ class ManualModeFrame(ctk.CTkFrame):
 
         self.measure_buttons = [
             (
+                "Start/Stop",
                 self.play_img,
                 self.discon_btn_st,
                 lambda: self.cont_toggle(),
@@ -72,6 +74,7 @@ class ManualModeFrame(ctk.CTkFrame):
                 "#229c3b",
             ),
             (
+                "Reset",
                 resource_path("./images/reset.png"),
                 self.discon_btn_st,
                 lambda: self.reset_stopwatch(),
@@ -79,6 +82,7 @@ class ManualModeFrame(ctk.CTkFrame):
                 "#4396a7",
             ),
             (
+                "Save",
                 resource_path("./images/save.png"),
                 "normal",
                 lambda: self.save_trace_screen(),
@@ -154,7 +158,9 @@ class ManualModeFrame(ctk.CTkFrame):
         button_frame = ctk.CTkFrame(frame2)
         button_frame.grid(row=1, column=0, sticky="w")
 
-        for c, (img, st, cmd, fg_color, hover_color) in enumerate(self.measure_buttons):
+        for c, (label, img, st, cmd, fg_color, hover_color) in enumerate(
+            self.measure_buttons
+        ):
             image = ctk.CTkImage(
                 light_image=Image.open(img),
                 dark_image=Image.open(img),
@@ -170,6 +176,7 @@ class ManualModeFrame(ctk.CTkFrame):
                 hover_color=hover_color,
                 state=st,
                 command=cmd,
+                log_label=label,
             )
             button.grid(
                 row=4, column=c, padx=self.button_padding, pady=self.button_padding
@@ -234,14 +241,12 @@ class ManualModeFrame(ctk.CTkFrame):
         start_time = time.strftime("%I:%M:%S %p", time.localtime(time.time()))
 
         if self.is_paused:
-            self.autosa_logger.info("Manual Mode: Started measurement.")
-            self.inst.write(":INIT:CONT ON")
+            run_start(self.inst)
             self.last_start_time.configure(text=start_time)
             self.stopwatch.start()
             self.disable_buttons("disabled")
         else:
-            self.autosa_logger.info("Manual Mode: Stopped measurement.")
-            self.inst.write(":INIT:CONT OFF")
+            run_stop(self.inst)
             self.stopwatch.stop()
             self.disable_buttons("normal")
 
@@ -250,7 +255,7 @@ class ManualModeFrame(ctk.CTkFrame):
 
     def setup_files(self, band_key):
         self.last_band_prepped.configure(text=band_key)
-        prep_band(self.inst, band_key, self.autosa_logger)
+        prep_band(self.inst, band_key)
         self.stopwatch.reset()
 
     def update_stopwatch_time(self):
@@ -262,17 +267,15 @@ class ManualModeFrame(ctk.CTkFrame):
         self.sweep_dur_var = seconds.split(".")[0]
 
     def reset_stopwatch(self):
-        self.autosa_logger.info("Manual Mode: Reset band.")
-        self.inst.write(":INIT:REST")
+        run_reset(self.inst)
         self.stopwatch.reset()
 
     def save_trace_screen(self):
-        self.autosa_logger.info("Manual Mode: Save measurement initiated.")
+        autosa_logger.debug("Save measurement initiated.")
         run_id = get_run_id(self.inst, self.inst_output_folder)
         run_file = ManualSaveWindow(
             self,
             self.inst,
-            self.autosa_logger,
             self.discon_btn_st,
             self.frame_color,
             self.label_color,
@@ -286,7 +289,6 @@ class ManualModeFrame(ctk.CTkFrame):
         band_key = run_file.get_band()
 
         if self.run_filename is not None:
-            self.autosa_logger.info(f"Manual Mode: Saved {self.run_filename}.")
             save_trace_and_screen(
                 self.inst,
                 self.run_filename,

@@ -1,12 +1,14 @@
 import os
 import customtkinter as ctk
 import subprocess
+from utils.log_config import autosa_logger
 from ui.manual_mode import ManualModeFrame
 from ui.single_band_mode import SingleModeFrame
 from ui.multi_band_mode import MultiModeFrame
 from ui.set_up_mode import SetUpModeFrame
 from ui.release_mode import ReleaseMode
 from ui.settings_window import SettingsWindow
+from ui.ui_logger import LoggingButton
 from ui.get_resource_path import resource_path
 from utils.settings import is_settings_valid
 from instrument.instrument import release_inst
@@ -17,14 +19,11 @@ ctk.set_widget_scaling(1.5)
 
 
 class HeaderFrame(ctk.CTkFrame):
-    def __init__(
-        self, parent, inst_found, inst, inst_name, autosa_logger, set_up_frame
-    ):
+    def __init__(self, parent, inst_found, inst, inst_name, set_up_frame):
         super().__init__(parent)
         self.inst_found = inst_found
         self.inst_name = inst_name
         self.inst = inst
-        self.autosa_logger = autosa_logger
         self.set_up_frame = set_up_frame
 
         self.frame_color = parent.frame_color
@@ -49,13 +48,13 @@ class HeaderFrame(ctk.CTkFrame):
             fg_color=self.label_color,
         ).grid(row=0, column=0, sticky="w", padx=10, pady=10)
 
-        ctk.CTkButton(
+        LoggingButton(
             self,
             text="Settings",
             command=lambda: self.settings_window(),
         ).grid(row=0, column=1, sticky="ne", padx=10, pady=10, rowspan=3)
 
-        self.output_folder_button = ctk.CTkButton(
+        self.output_folder_button = LoggingButton(
             self,
             text="Open Output Folder",
             height=10,
@@ -123,7 +122,6 @@ class HeaderFrame(ctk.CTkFrame):
             self.output_folder_button.configure(state="disabled")
 
     def open_output_folder(self):
-        self.autosa_logger.info("Local Output Folder opened in File Explorer.")
         subprocess.run(
             ["explorer", "/open,", read_settings_from_file()["-LOCAL OUT FOLDER-"]]
         )
@@ -135,21 +133,17 @@ class HeaderFrame(ctk.CTkFrame):
             self.update_valid,
             self.update_output_folder,
             self.inst_found,
-            self.autosa_logger,
             self.set_up_frame.update_state_button,
         )
 
 
 class MenuFrame(ctk.CTkFrame):
-    def __init__(
-        self, parent, inst_found, inst, autosa_logger, discon_btn_st, is_disconnected
-    ):
+    def __init__(self, parent, inst_found, inst, discon_btn_st, is_disconnected):
         super().__init__(parent)
         self.columnconfigure(0, weight=1)  # format to center
         self.rowconfigure(0, weight=1)
         self.inst_found = inst_found
         self.inst = inst
-        self.autosa_logger = autosa_logger
         self.discon_btn_st = discon_btn_st
         self.is_disconnected = is_disconnected
         self.frame_color = parent.frame_color
@@ -169,7 +163,6 @@ class MenuFrame(ctk.CTkFrame):
             tab1,
             self.inst_found,
             self.inst,
-            self.autosa_logger,
             self.discon_btn_st,
             self.frame_color,
             self.label_color,
@@ -181,7 +174,6 @@ class MenuFrame(ctk.CTkFrame):
             tab2,
             self.inst_found,
             self.inst,
-            self.autosa_logger,
             self.discon_btn_st,
             self.frame_color,
             self.label_color,
@@ -193,7 +185,6 @@ class MenuFrame(ctk.CTkFrame):
             tab3,
             self.inst_found,
             self.inst,
-            self.autosa_logger,
             self.discon_btn_st,
             self.frame_color,
             self.label_color,
@@ -206,7 +197,6 @@ class MenuFrame(ctk.CTkFrame):
             tab4,
             self.inst_found,
             self.inst,
-            self.autosa_logger,
             self.discon_btn_st,
             self.frame_color,
             self.label_color,
@@ -228,15 +218,14 @@ class MenuFrame(ctk.CTkFrame):
 
     def on_tab_change(self):
         current_tab = self.tabview.get()
-        self.autosa_logger.info(f"Switched to {current_tab.strip()}.")
+        autosa_logger.info(f"Switched to {current_tab.strip()}.")
         if (current_tab == self.release_tab_label) and (not self.is_disconnected):
             release_inst(self.inst)
-            self.autosa_logger.info("Instrument released.")
 
 
 class MainApp(ctk.CTk):
     # Window creation
-    def __init__(self, inst, inst_found, inst_name, autosa_logger):
+    def __init__(self, inst, inst_found, inst_name):
         super().__init__()
         self.title(f"Autosa {get_autosa_version()}")
         window_width = 1170
@@ -247,14 +236,13 @@ class MainApp(ctk.CTk):
         self.inst = inst
         self.inst_found = inst_found
         self.inst_name = inst_name
-        self.autosa_logger = autosa_logger
 
         # self.debug = True
         self.debug = False
         if self.debug:
             self.frame_color = "pink"
             self.label_color = "white"
-            self.autosa_logger.warning("Debug Mode entered.")
+            autosa_logger.info("Debug Mode entered.")
         else:
             self.frame_color = "transparent"
             self.label_color = "transparent"
@@ -270,7 +258,6 @@ class MainApp(ctk.CTk):
             self,
             self.inst_found,
             self.inst,
-            self.autosa_logger,
             self.discon_btn_st,
             self.is_disconnected,
         )
@@ -280,7 +267,6 @@ class MainApp(ctk.CTk):
             self.inst_found,
             self.inst,
             self.inst_name,
-            self.autosa_logger,
             menu_frame.set_up_frame,
         )
 

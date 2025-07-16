@@ -1,8 +1,9 @@
 import customtkinter as ctk
+from ui.ui_logger import LoggingTopLevel
 from ui.get_resource_path import resource_path
 
 
-class PyVisaError(ctk.CTkToplevel):
+class PyVisaError(LoggingTopLevel):
     def __init__(self, parent, e):
         super().__init__(parent)
         self.title("NI-VISA ERROR")
