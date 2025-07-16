@@ -6,7 +6,7 @@ autosa_logger = logging.getLogger("Autosa")
 
 # set up log format
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     # handlers=[logging.FileHandler(get_log_path()), logging.StreamHandler()],
     handlers=[logging.FileHandler(get_log_path())],
     format="%(asctime)s - %(levelname)s - %(message)s",
