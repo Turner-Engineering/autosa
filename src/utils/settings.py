@@ -43,7 +43,12 @@ def get_settings_path():
 
 
 def get_log_path():
-    return get_settings_folder_path() + f"\\autosa_{get_autosa_version()}.log"
+    folder = get_settings_folder_path()
+
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+
+    return folder + f"\\autosa_{get_autosa_version()}.log"
 
 
 def write_settings_to_file(settings):
