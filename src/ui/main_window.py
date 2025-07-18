@@ -1,5 +1,6 @@
 import os
 import subprocess
+from pathlib import Path
 
 import customtkinter as ctk
 
@@ -67,7 +68,10 @@ class HeaderFrame(ctk.CTkFrame):
             if os.path.exists(read_settings_from_file()["-LOCAL OUT FOLDER-"])
             else "disabled",
             command=lambda: subprocess.run(
-                ["explorer", "/open,", read_settings_from_file()["-LOCAL OUT FOLDER-"]]
+                [
+                    "explorer",
+                    Path(read_settings_from_file()["-LOCAL OUT FOLDER-"]).resolve(),
+                ]
             ),
         )
 
