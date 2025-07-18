@@ -11,7 +11,7 @@ class HelpWindow(ctk.CTkToplevel):
         self.logo = resource_path("images/autosa_logo.ico")
         self.iconbitmap(self.logo)
         self.transient(parent)
-        self.window_width = 760
+        self.window_width = 800
         self.window_height = 600
         self.geometry(f"{self.window_width}x{self.window_height}")
         self.resizable(False, False)
@@ -75,6 +75,7 @@ class HelpWindow(ctk.CTkToplevel):
             font=self.body_font,
             height=0,
             justify="left",
+            wraplength=490,
         ).grid(row=row, column=0, padx=self.padx, pady=self.body_pady, sticky="nw")
 
     def create_clickable_link(self, parent_frame, text, url, row):
@@ -102,104 +103,110 @@ class HelpWindow(ctk.CTkToplevel):
         """Returns all text content in a structured format"""
         return {
             "about": {
-                "title": "About Autosa",
+                "title": "What is Autosa?",
                 "content": (
-                    "Autosa is Tenco software used to automate data acquisition using a signal analyzer (the name is\n"
-                    'spelled "Autosa" or "autosa" and is read as a single word with a stress on the second syllable).'
+                    "Autosa is Tenco software used to automate data acquisition using a signal analyzer (the name is spelled "
+                    '"Autosa" or "autosa" and is read as a single word with a stress on the second syllable).'
+                ),
+            },
+            "version": {
+                "title": "What version of Autosa is this?",
+                "content": (
+                    "In the title bar (top left) of the main window, you can find Autosa's current version."
                 ),
             },
             "connection": {
-                "title": "Instrument Connection",
+                "title": "How do I connect Autosa to the Instrument?",
                 "content": (
-                    "To use Autosa, please ensure that the:\n"
-                    "   1. Instrument is plugged in to power and turned on.\n"
-                    "   2. Instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable.\n"
-                    '   3. Emulator is running on the device ("LaunchXSA" on the desktop) if instrument is unavailable.'
+                    "To connect Autosa to the instrument, please ensure that:\n"
+                    "   1. The instrument is plugged in to power and turned on.\n"
+                    "   2. The instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable.\n"
+                    "   3. Autosa is launched after the instrument is fully on."
                 ),
             },
-            "main_window": {
-                "title": "Main Window",
-                "sections": {
-                    "mode_tabs": {
-                        "title": "Mode Tabs",
-                        "content": (
-                            "There are 3 main and 2 supplemental modes:\n"
-                            "   - Manual Mode: Full control of measurement\n"
-                            "   - Single Band Mode: Automated measurement for one band\n"
-                            "   - Multi Band Mode: Automated measurement for a range of band\n"
-                            "   - Set Up Mode: Adjust and update state file\n"
-                            "   - Release: Gives control back to the instrument"
-                        ),
-                    },
-                    "buttons": {
-                        "title": "Buttons",
-                        "content": (
-                            "- Settings: Located in the top right corner, this button opens a new window.\n"
-                            "- Open Output Folder: Located below Settings, this opens the output folder in File Explorer."
-                        ),
-                    },
-                },
+            "connection2": {
+                "title": 'How do I fix "No Instrument Detected"?',
+                "content": (
+                    "1. Ensure that either the instrument or the emulator is fully turned on and running.\n"
+                    "2. Relaunch Autosa."
+                ),
             },
-            "settings_window": {
-                "title": "Settings Window Information",
-                "sections": {
-                    "tabs": {
-                        "title": "Tabs",
-                        "content": (
-                            "There are 2 tabs in the Settings Window:\n"
-                            "   - Primary: This tab contains textboxes to input valid folder paths and sweep duration.\n"
-                            "   - Amplitude Correct: This tab contains correction file dropdown menus for each band."
-                        ),
-                    },
-                    "buttons": {
-                        "title": "Buttons",
-                        "content": (
-                            "- Open Settings File: Located in the top left corner, this opens the json settings file in File Explorer.\n"
-                            "- Browse: Located in the Primary tab, this opens the file explorer to find the local output folder.\n"
-                            "- Save: Located in the buttom right corner, this saves the input to the settings file.\n"
-                            "- Cancel: Located next to Save, this closes the settings window without saving changes."
-                        ),
-                    },
-                },
+            "settings_invalid": {
+                "title": 'How do I fix "Settings Invalid?"',
+                "content": (
+                    "1. Ensure either the instrument or emulator is running. If it is not, instrument files will not be detected.\n"
+                    "2. Navigate to the Settings window, ensure all entries are valid, and save.\n"
+                    "3. If there are still issues, navigate to the top right of Settings window and click the 'Open Settings File Button.'"
+                ),
             },
-            "measurement_files": {
-                "title": "Measurement Files Information",
-                "sections": {
-                    "run_ids": {
-                        "title": "Run IDs",
-                        "content": (
-                            "The run ID is a unique identifier for each measurement run generated automatically.\n"
-                            "   Example: 801-01 Input by Test Engineer 1s B6h 11_21_23"
-                        ),
-                    },
-                    "output_files": {
-                        "title": "Output Files",
-                        "content": (
-                            "Autosa saves files in the output folder specified in the settings file.\n"
-                            "The output folder contains a:\n"
-                            "   - Trace: This is a CSV of the measurement.\n"
-                            "   - Screenshot: This is an image of the screen at the end of the measurement.\n"
-                            "The trace (.csv) file is saved in a sorted folder within the local output folder.\n"
-                            'The screenshot (.png) file is saved in a folder labelled "CSV" in the local output folder.'
-                        ),
-                    },
-                    "back_run_id": {
-                        "title": "Going Back to Previous Run ID",
-                        "content": (
-                            "If you want the upcoming measurement to have the previous Run ID, you will need to manually delete the\n"
-                            "previous file (csv and png) from the instrument's output folder.\n"
-                            "If a file is deleted from the instrument's output folder, it will not be deleted from the local output\n"
-                            "folder and vice versa.\n"
-                            "If the file is only deleted from the local output folder, Autosa will not be able to generate the next Run ID."
-                        ),
-                    },
-                },
+            "amp_corr_tab": {
+                "title": "Where can I select/change amplitude corrections?",
+                "content": (
+                    'Next to the "Primary" tab in the Settings window, there is a "Amplitude Correction" tab where there are dropdown menus for each band.'
+                ),
+            },
+            "measurement": {
+                "title": "How do I take measurements with Autosa?",
+                "content": (
+                    "There are 3 tabs dedecated to measurement: Manual Mode, Single Band Mode, Multi Band Mode.\n"
+                    "To take a measurement in Manual Mode:\n"
+                    "   1. Ensure all settings are valid.\n"
+                    "   2. Navigate to Manual Mode tab.\n"
+                    "   3. Select a band to recall the state file and correction file, if applicable.\n"
+                    "   4. Begin the measurement using the green button.\n"
+                    "   5. Stop the measurement using the red button.\n"
+                    "   6. If needed, reset the instrument using the cyan button.\n"
+                    "   7. Save the run measurement using the purple button.\n"
+                    "   8. Fill out the entry boxes for the filename and save the measurement.\n\n"
+                    "To take a measurement in Single Band Mode or Multi Band Mode:\n"
+                    "   1. Ensure all settings are valid.\n"
+                    "   2. Navigate to the mode's tab.\n"
+                    "   3. Input the run note and make selections as applicable.\n"
+                    "   4. Measurements can be found in the local and instrument output folder."
+                ),
+            },
+            "buttons": {
+                "title": "Where can I find the output folder?",
+                "content": (
+                    'The "Open Output Folder" button is located below the Settings button and opens the output folder in File Explorer. '
+                    "Image files, on the local output folder, can be found in a subfolder sorted by date and band. "
+                    'Trace files, on the local output folder, can be found in a subfolder labeled "csv".'
+                ),
+            },
+            "set_up_mode": {
+                "title": "What is Set Up Mode?",
+                "content": (
+                    "Set Up Mode is the 4th tab in Autosa's main window that provides test engineers a efficient way to update states. "
+                    "The band buttons recall just the state file. Then, test engineers can make adjustment to the state on Autosa or the instrument. "
+                    'Using the "Update State" button, test engineers can update the state through Autosa.'
+                ),
+            },
+            "release_mode": {
+                "title": "What is Release Mode?",
+                "content": (
+                    "Release Mode is the 5th tab in Autosa's main window. Test engineers will need to navigate to this tab to interact with the instrument."
+                ),
+            },
+            "settings_buttons": {
+                "title": "Where is the settings file actually located?",
+                "content": (
+                    "This file might be difficult to find, so within the Settings window there is a button to navigate to it. "
+                    'In the top left corner of the Settings window, find the "Open Settings File" button. '
+                    "This will open the json settings file in File Explorer."
+                ),
+            },
+            "back_run_id": {
+                "title": "How do I reset the Run IDs back to 01?",
+                "content": (
+                    "If you have alreay ran some measurements but want to reset to back to 01, you will need to manually delete the "
+                    "previous files (csv and png) from the local output folder and the instrument output folder. If the file is only "
+                    "deleted from the one of the output folders, Autosa will NOT be able to generate the next Run ID."
+                ),
             },
             "github_link": {
                 "title": "More Information",
                 "content": (
-                    "For more information about Autosa, including source code, documentation, and updates, "
-                    "visit the official GitHub repository:"
+                    "For more information about Autosa, including source code, documentation, and updates, visit the official GitHub repository:"
                 ),
                 "link": {
                     "text": "https://github.com/Turner-Engineering/autosa",
