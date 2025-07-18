@@ -1,17 +1,22 @@
 import os
-import customtkinter as ctk
 import subprocess
+
+import customtkinter as ctk
+
+from instrument.instrument import release_inst
+from ui.get_resource_path import resource_path
 from ui.help_window import HelpWindow
 from ui.manual_mode import ManualModeFrame
-from ui.single_band_mode import SingleModeFrame
 from ui.multi_band_mode import MultiModeFrame
-from ui.set_up_mode import SetUpModeFrame
 from ui.release_mode import ReleaseMode
+from ui.set_up_mode import SetUpModeFrame
 from ui.settings_window import SettingsWindow
-from ui.get_resource_path import resource_path
-from utils.settings import is_settings_valid
-from instrument.instrument import release_inst
-from utils.settings import get_autosa_version, read_settings_from_file
+from ui.single_band_mode import SingleModeFrame
+from utils.settings import (
+    get_autosa_version,
+    is_settings_valid,
+    read_settings_from_file,
+)
 
 ctk.set_appearance_mode("light")
 ctk.set_widget_scaling(1.5)
