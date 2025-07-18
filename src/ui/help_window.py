@@ -10,8 +10,8 @@ class HelpWindow(ctk.CTkToplevel):
     def __init__(self, parent, frame_color, label_color):
         super().__init__(parent)
         self.title("Help")
-        self.logo = resource_path("images/autosa_logo.ico")
-        self.iconbitmap(self.logo)
+        self.logo = resource_path("images/help.ico")
+        self.after(200, lambda: self.iconbitmap(self.logo))
         self.transient(parent)
         self.window_width = 800
         self.window_height = 600
