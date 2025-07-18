@@ -1,11 +1,8 @@
+import customtkinter as ctk
 import os
 import subprocess
-import customtkinter as ctk
-from pathlib import Path
 from utils.log_config import autosa_logger
 from ui.ui_logger import LoggingButton
-from instrument.instrument import release_inst
-from ui.get_resource_path import resource_path
 from ui.help_window import HelpWindow
 from ui.manual_mode import ManualModeFrame
 from ui.multi_band_mode import MultiModeFrame
@@ -13,6 +10,8 @@ from ui.release_mode import ReleaseMode
 from ui.set_up_mode import SetUpModeFrame
 from ui.settings_window import SettingsWindow
 from ui.single_band_mode import SingleModeFrame
+from instrument.instrument import release_inst
+from ui.get_resource_path import resource_path
 from utils.settings import (
     get_autosa_version,
     is_settings_valid,
