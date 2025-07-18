@@ -3,6 +3,8 @@ import webbrowser
 
 from ui.get_resource_path import resource_path
 
+from utils.settings import get_autosa_version
+
 
 class HelpWindow(ctk.CTkToplevel):
     def __init__(self, parent, frame_color, label_color):
@@ -28,15 +30,15 @@ class HelpWindow(ctk.CTkToplevel):
         self.subheader_font = ("Arial", 10, "bold")
         self.body_font = ("Arial", 10)
 
-        self.create_widgets()
+        self.create_widgets(get_autosa_version())
 
-    def create_widgets(self):
+    def create_widgets(self, autosa_version):
         """main scrollable frame"""
         main_scroll_frame = ctk.CTkScrollableFrame(self)
         main_scroll_frame.pack(expand=True, fill="both")
 
         """dynamically create frames based on content structure"""
-        content_data = self.get_content_data()
+        content_data = self.get_content_data(autosa_version)
         row = 0
 
         for section_key, section_data in content_data.items():
@@ -99,32 +101,19 @@ class HelpWindow(ctk.CTkToplevel):
         link_label.bind("<Button-1>", open_link)
         return link_label
 
-    def get_content_data(self):
+    def get_content_data(self, autosa_version):
         """Returns all text content in a structured format"""
         return {
-            "about": {
-                "title": "What is Autosa?",
-                "content": (
-                    "Autosa is Tenco software used to automate data acquisition using a signal analyzer (the name is spelled "
-                    '"Autosa" or "autosa" and is read as a single word with a stress on the second syllable).'
-                ),
-            },
-            "version": {
-                "title": "What version of Autosa is this?",
-                "content": (
-                    "In the title bar (top left) of the main window, you can find Autosa's current version."
-                ),
-            },
             "connection": {
                 "title": "How do I connect Autosa to the Instrument?",
                 "content": (
                     "To connect Autosa to the instrument, please ensure that:\n"
-                    "   1. The instrument is plugged in to power and turned on.\n"
-                    "   2. The instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable.\n"
-                    "   3. Autosa is launched after the instrument is fully on."
+                    "1. The instrument is plugged in to power and turned on.\n"
+                    "2. The instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable.\n"
+                    "3. Autosa is launched after the instrument is fully on."
                 ),
             },
-            "connection2": {
+            "no_instrument_detected": {
                 "title": 'How do I fix "No Instrument Detected"?',
                 "content": (
                     "1. Ensure that either the instrument or the emulator is fully turned on and running.\n"
@@ -134,73 +123,98 @@ class HelpWindow(ctk.CTkToplevel):
             "settings_invalid": {
                 "title": 'How do I fix "Settings Invalid?"',
                 "content": (
-                    "1. Ensure either the instrument or emulator is running. If it is not, instrument files will not be detected.\n"
-                    "2. Navigate to the Settings window, ensure all entries are valid, and save.\n"
-                    "3. If there are still issues, navigate to the top right of Settings window and click the 'Open Settings File Button.'"
+                    '"Settings Invalid" means one or more of the settings are not valid and must be corrected before measurements can be taken. '
+                    "To fix this, follow these steps:\n"
+                    "1. Ensure that the instrument is powered on, connected to the computer, and the software is running.\n"
+                    "2. Open Settings and ensure all entries are valid (invalid entries will be highlighted in red). Save the settings when done.\n"
+                    "All folder paths must be valid. The state files folder must contain valid state files, and the correction files folder must contain the necessary correction files."
                 ),
             },
             "amp_corr_tab": {
-                "title": "Where can I select/change amplitude corrections?",
+                "title": "How do I configure the amplitude corrections?",
                 "content": (
-                    'Next to the "Primary" tab in the Settings window, there is a "Amplitude Correction" tab where there are dropdown menus for each band.'
+                    "1. Open settings\n"
+                    "2. Ensure that the Corrections Files Folder is set to the folder on the instrument that contains the correction files\n"
+                    "3. Switch to the Amplitude Correction tab\n"
+                    "4. Select the correction file you want to apply to each band\n"
+                    "5. Save the settings"
                 ),
             },
             "measurement": {
                 "title": "How do I take measurements with Autosa?",
                 "content": (
-                    "There are 3 tabs dedecated to measurement: Manual Mode, Single Band Mode, Multi Band Mode.\n"
+                    "Autosa has three measurement modes: Manual Mode, Single Band Mode, and Multi Band Mode.\n"
                     "To take a measurement in Manual Mode:\n"
-                    "   1. Ensure all settings are valid.\n"
-                    "   2. Navigate to Manual Mode tab.\n"
-                    "   3. Select a band to recall the state file and correction file, if applicable.\n"
-                    "   4. Begin the measurement using the green button.\n"
-                    "   5. Stop the measurement using the red button.\n"
-                    "   6. If needed, reset the instrument using the cyan button.\n"
-                    "   7. Save the run measurement using the purple button.\n"
+                    "   1. Ensure that the settings are valid.\n"
+                    "   2. Navigate to the Manual Mode tab.\n"
+                    "   3. Select a band to recall the state and correction files.\n"
+                    "   4. Begin the measurement using the Green Play Button.\n"
+                    "   5. Stop the measurement using the Red Pause Button.\n"
+                    "   6. If needed, reset the instrument using the Cyan Reset Button.\n"
+                    "   7. Save the run measurement using the Purple Save Button.\n"
                     "   8. Fill out the entry boxes for the filename and save the measurement.\n\n"
                     "To take a measurement in Single Band Mode or Multi Band Mode:\n"
                     "   1. Ensure all settings are valid.\n"
                     "   2. Navigate to the mode's tab.\n"
                     "   3. Input the run note and make selections as applicable.\n"
-                    "   4. Measurements can be found in the local and instrument output folder."
+                    "   4. Measurements are saved in the local and instrument output folders."
                 ),
             },
-            "buttons": {
-                "title": "Where can I find the output folder?",
+            "save_location": {
+                "title": "Where is the measurement data saved?",
                 "content": (
-                    'The "Open Output Folder" button is located below the Settings button and opens the output folder in File Explorer. '
-                    "Image files, on the local output folder, can be found in a subfolder sorted by date and band. "
-                    'Trace files, on the local output folder, can be found in a subfolder labeled "csv".'
+                    "Each measurement is saved in two locations:\n"
+                    "1. The local output folder, which is the folder on the computer where Autosa is running.\n"
+                    "2. The instrument output folder, which is the folder on the instrument that Autosa is connected to.\n\n"
+                    "To open the local output folder, click the 'Open Output Folder' button in the top right corner.\n"
                 ),
             },
             "set_up_mode": {
                 "title": "What is Set Up Mode?",
                 "content": (
-                    "Set Up Mode is the 4th tab in Autosa's main window that provides test engineers a efficient way to update states. "
-                    "The band buttons recall just the state file. Then, test engineers can make adjustment to the state on Autosa or the instrument. "
-                    'Using the "Update State" button, test engineers can update the state through Autosa.'
+                    "Set Up Mode provides test engineers an efficient way to update state files. "
+                    "To use it:\n"
+                    "1. Click a band button to recall a state file\n"
+                    "2. Configure the measurement as desired on the instrument\n"
+                    "3. Click the 'Update State' button to update the state through Autosa."
+                ),
+            },
+            "version": {
+                "title": "What version of Autosa is this?",
+                "content": (
+                    f"Autosa {autosa_version}. The version is also shown in the filename of the executable and in the main window title."
                 ),
             },
             "release_mode": {
-                "title": "What is Release Mode?",
+                "title": "How do I use Release Mode?",
                 "content": (
-                    "Release Mode is the 5th tab in Autosa's main window. Test engineers will need to navigate to this tab to interact with the instrument."
+                    "When Autosa is connected to the instrument, the instrument switches to remote operation mode. "
+                    "To use the touch interface and buttons on the instrument, the instrument must be in local operation mode. "
+                    'This is done by switching to the "Release Mode" tab in Autosa.'
                 ),
             },
             "settings_buttons": {
-                "title": "Where is the settings file actually located?",
+                "title": "Where are the settings actually saved?",
                 "content": (
-                    "This file might be difficult to find, so within the Settings window there is a button to navigate to it. "
-                    'In the top left corner of the Settings window, find the "Open Settings File" button. '
-                    "This will open the json settings file in File Explorer."
+                    'The settings are saved in a json file under "%LOCALAPPDATA%\\Autosa". '
+                    "Do not edit this file directly unless you know what you are doing. Deleting the file will reset the settings to default. "
+                    'To quickly navigate to this file, click the "Open Settings File" button in the top left corner of the Settings window. '
                 ),
             },
             "back_run_id": {
                 "title": "How do I reset the Run IDs back to 01?",
                 "content": (
-                    "If you have alreay ran some measurements but want to reset to back to 01, you will need to manually delete the "
-                    "previous files (csv and png) from the local output folder and the instrument output folder. If the file is only "
-                    "deleted from the one of the output folders, Autosa will NOT be able to generate the next Run ID."
+                    "Autosa automatically generates a Run ID for each measurement based on previously saved measurements. "
+                    "Since Run IDs are generated based on the current date, they will be reset back to 01 after midnight. "
+                    "Manually resetting the Run IDs back to 01, or back by a few measurements is not recommended.\n\n"
+                    "However, it is possible to do this by deleting all the unwanted measurement files from BOTH the local output folder and the instrument output folder. "
+                    "You MUST delete the CSV and PNG files from both folders. "
+                ),
+            },
+            "about": {
+                "title": "What is Autosa?",
+                "content": (
+                    "Autosa was developed by Turner Engineering Corporation (Tenco) to automate data acquisition for radiated emissions testing using a signal analyzer."
                 ),
             },
             "github_link": {
