@@ -7,6 +7,7 @@ from instrument.file_transfer import copy_file_to_local
 from instrument.folders import get_csv_folder, get_folder_files, get_sorted_folder
 from utils.run_ids import run_index_to_id, get_todays_run_ids
 from utils.settings import read_settings_from_file
+from instrument.logged_instrument import LoggedInstrument
 
 EMULATOR_RESOURCE_NAME = "TCPIP0::localhost::inst0::INSTR"
 
@@ -51,7 +52,8 @@ def get_inst():
     try:
         if resource_name != "":
             rm = pyvisa.ResourceManager()
-            inst = rm.open_resource(resource_name)
+            _inst = rm.open_resource(resource_name)
+            inst = LoggedInstrument(_inst, autosa_logger)
     except pyvisa.errors.VisaIOError:
         inst = None
 
@@ -91,15 +93,6 @@ def validate_filename(inst, inst_out_folder, filename):
     return error_message
 
 
-def inst_log_write(inst, command):
-    autosa_logger.debug(f"Instrument wrote: {command}")
-    try:
-        inst.write(command)
-    except Exception as e:
-        autosa_logger.error(f"Instrument write error: {e}")
-        raise e
-
-
 # ONE LINERS
 def release_inst(inst):
     inst.control_ren(pyvisa_constants.VI_GPIB_REN_DEASSERT_GTL)
@@ -107,45 +100,45 @@ def release_inst(inst):
 
 
 def update_state(inst, state_folder, filename):
-    inst_log_write(inst, f":MMEM:STOR:STAT '{state_folder}/{filename}'")
+    inst.write(f":MMEM:STOR:STAT '{state_folder}/{filename}'")
 
 
 def recall_state(inst, state_folder, filename):
-    inst_log_write(inst, f":MMEM:LOAD:STAT '{state_folder}/{filename}'")
+    inst.write(f":MMEM:LOAD:STAT '{state_folder}/{filename}'")
 
 
 def recall_corr(inst, corr_folder, filename):
-    inst_log_write(inst, f":MMEM:LOAD:CORR 1,'{corr_folder}/{filename}'")
+    inst.write(f":MMEM:LOAD:CORR 1,'{corr_folder}/{filename}'")
 
 
 def set_coupling(inst, coupling):
-    inst_log_write(inst, f":INP:COUP {coupling}")
+    inst.write(f":INP:COUP {coupling}")
 
 
 def run_start(inst):
     autosa_logger.info("Measurement started.")
-    inst_log_write(inst, ":INIT:CONT ON")
+    inst.write(":INIT:CONT ON")
 
 
 def run_stop(inst):
     autosa_logger.info("Measurement stopped.")
-    inst_log_write(inst, ":INIT:CONT OFF")
+    inst.write(":INIT:CONT OFF")
 
 
 def run_reset(inst):
-    inst_log_write(inst, ":INIT:REST")
+    inst.write(":INIT:REST")
 
 
 def set_marker_to_max(inst):
-    inst_log_write(inst, ":CALC:MARK1:MAX")
+    inst.write(":CALC:MARK1:MAX")
 
 
 def save_trace(inst, csv_path):
-    inst_log_write(inst, f':MMEM:STOR:TRAC:DATA ALL, "{csv_path}"')
+    inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csv_path}"')
 
 
 def set_ref_level(inst, ref_level):
-    inst_log_write(inst, f":DISP:WIND:TRAC:Y:RLEV {ref_level}")
+    inst.write(f":DISP:WIND:TRAC:Y:RLEV {ref_level}")
 
 
 def get_ref_level(inst):
@@ -153,12 +146,11 @@ def get_ref_level(inst):
         ref_level = float(inst.query(":DISP:WIND:TRAC:Y:RLEV?").replace("\n", ""))
     else:
         ref_level = 0.0
-
     return ref_level
 
 
 def disable_ref_level_offset(inst):
-    inst_log_write(inst, ":DISP:WIND:TRAC:Y:RLEV:OFFS:STAT OFF")
+    inst.write(":DISP:WIND:TRAC:Y:RLEV:OFFS:STAT OFF")
 
 
 def get_trace_max(inst, trace_num=1):
@@ -190,13 +182,13 @@ def set_rounded_ref_level(inst, ref_level):
 def rename_screen(inst, new_name):
     old_name = inst.query(":INST:SCR:SELECT?").replace("\n", "").replace('"', "")
     if old_name != new_name:
-        inst_log_write(inst, f":INST:SCR:REN '{new_name}'")
+        inst.write(f":INST:SCR:REN '{new_name}'")
 
 
 def save_screen(inst, png_path):
-    inst_log_write(inst, ":DISP:FSCR:STAT ON")  # set to full screen
-    inst_log_write(inst, ":MMEM:STOR:SCR:THEM OUTL")  # set to light mode
-    inst_log_write(inst, f':MMEM:STOR:SCR "{png_path}"')  # save screen
+    inst.write(":DISP:FSCR:STAT ON")  # set to full screen
+    inst.write(":MMEM:STOR:SCR:THEM OUTL")  # set to light mode
+    inst.write(f':MMEM:STOR:SCR "{png_path}"')  # save screen
 
 
 def save_trace_and_screen(
@@ -227,10 +219,10 @@ def save_trace_and_screen(
 
 
 def record_and_adjust(inst, sweep_dur):
-    inst_log_write(inst, ":INIT:REST")
-    inst_log_write(inst, ":INIT:CONT ON")
+    inst.write(":INIT:REST")
+    inst.write(":INIT:CONT ON")
     time.sleep(sweep_dur)
-    inst_log_write(inst, ":INIT:CONT OFF")
+    inst.write(":INIT:CONT OFF")
 
     # ADJUST
     set_marker_to_max(inst)
@@ -240,9 +232,9 @@ def record_and_adjust(inst, sweep_dur):
 def recall_cors(inst, corr_folder, corr_filename):
     for i in range(16):
         idx = i + 1
-        inst_log_write(inst, f":SENS:CORR:CSET{idx} OFF")
+        inst.write(f":SENS:CORR:CSET{idx} OFF")
 
-    inst_log_write(inst, f":MMEM:LOAD:CORR 1, '{corr_folder}/{corr_filename}'")
+    inst.write(f":MMEM:LOAD:CORR 1, '{corr_folder}/{corr_filename}'")
 
 
 def create_run_filename(run_id, run_note, band_name, sweep_dur):
@@ -300,7 +292,7 @@ def prep_band(inst, band_key):
         rename_screen(inst, band_key)
         disable_ref_level_offset(inst)
         round_ref_level(inst)
-        inst_log_write(inst, ":INIT:REST")
+        inst.write(":INIT:REST")
         release_inst(inst)
     except Exception as e:
         error_message = str(e)
