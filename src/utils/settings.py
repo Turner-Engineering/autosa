@@ -123,8 +123,8 @@ def is_valid_local_folder(path):
 
 
 def is_valid_inst_folder(inst, folder_path):
-    exists, empty, _ = get_folder_info(inst, folder_path)
-    return exists and not empty and folder_path.strip()
+    exists, _, _ = get_folder_info(inst, folder_path)
+    return exists and folder_path.strip()
 
 
 def is_valid_sweep_duration(value):
