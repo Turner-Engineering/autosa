@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from utils.log_config import autosa_logger
-from ui.save_window_popups import CompletedWindow, PopupWindow
+from ui.save_window_popups import CompletedWindow, NoRunNoteWindow
 from ui.ui_logger import LargeButton
 from utils.settings import read_settings_from_file
 from instrument.instrument import (
@@ -130,7 +130,7 @@ class SingleModeFrame(ctk.CTkFrame):
         if self.run_note_var.get().strip() == "":
             autosa_logger.info("Single Band Mode: No Run Note was entered.")
             self.disable_buttons()
-            self.wait_window(PopupWindow(self))
+            self.wait_window(NoRunNoteWindow(self))
             self.enable_buttons()
         else:
             self.disable_buttons()

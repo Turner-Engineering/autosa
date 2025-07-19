@@ -34,7 +34,7 @@ class CompletedWindow(LoggingTopLevel):
         )
 
 
-class PopupWindow(LoggingTopLevel):
+class NoRunNoteWindow(LoggingTopLevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Invalid")
@@ -232,7 +232,7 @@ class ManualSaveWindow(LoggingTopLevel):
         if (run_note == "") or (band == ""):
             autosa_logger.info("Manual Mode: Entry fields were empty.")
             self.lower()
-            PopupWindow(self)
+            NoRunNoteWindow(self)
         else:
             self.run_filename = get_run_filename(
                 self.inst, band, run_note, self.sweep_dur
