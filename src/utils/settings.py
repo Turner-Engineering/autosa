@@ -42,13 +42,17 @@ def get_settings_path():
     return get_settings_folder_path() + SETTINGS_FILENAME
 
 
-def get_log_path():
+def get_log_path(name=None):
     folder = get_settings_folder_path()
 
     if not os.path.exists(folder):
         os.mkdir(folder)
 
-    return folder + f"\\autosa_{get_autosa_version()}.log"
+    filename = f"autosa_{get_autosa_version()}.log"
+    if name is not None:
+        filename = filename.replace("_", f"_{name}_")
+
+    return os.path.join(folder, filename)
 
 
 def write_settings_to_file(settings):
