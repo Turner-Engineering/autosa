@@ -10,6 +10,7 @@ from utils.settings import (
     get_settings_path,
     read_settings_from_file,
     write_settings_to_file,
+    SETTINGS_FILENAME,
 )
 
 
@@ -38,7 +39,6 @@ def make_json_valid():
         if label in unchecked_settings:
             value = unchecked_settings[label]
             if isinstance(value, str):
-                autosa_logger.debug(f"Cleaning {label}.")
                 value = value.strip()
             elif isinstance(value, dict) and isinstance(default_val, dict):
                 # Clean nested dict keys and values
@@ -49,14 +49,16 @@ def make_json_valid():
                 # Fill missing subkeys from default
                 for subkey, subval in default_val.items():
                     if subkey not in value:
-                        autosa_logger.debug(
-                            f"{label} {subkey} missing. Create and set to default value."
-                        )
                         value[subkey] = subval
+                        autosa_logger.warning(
+                            f'"{label}:{subkey}" missing from file {SETTINGS_FILENAME}. Created and set to default value "{subval}".'
+                        )
             valid_settings[label] = value
         else:
             valid_settings[label] = default_val
-            autosa_logger.debug(f"{label} missing. Set to default value.")
+            autosa_logger.warning(
+                f'"{label}" missing from file {SETTINGS_FILENAME}. Created and set to default value "{default_val}".'
+            )
 
     return valid_settings
 
