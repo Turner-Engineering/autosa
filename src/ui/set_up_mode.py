@@ -1,18 +1,19 @@
 import threading
+
 import customtkinter as ctk
-from utils.log_config import autosa_logger
-from ui.get_resource_path import resource_path
-from ui.ui_logger import LargeButton
-from utils.settings import read_settings_from_file
+
 from instrument.folders import get_folder_info
 from instrument.instrument import (
     get_ref_level,
-    set_rounded_ref_level,
-    recall_state,
     get_state_file,
+    recall_state,
+    set_rounded_ref_level,
     update_state,
 )
-from ui.ui_logger import LoggingTopLevel, LoggingButton, ArrowButton
+from ui.get_resource_path import resource_path
+from ui.ui_logger import ArrowButton, LargeButton, LoggingButton, LoggingTopLevel
+from utils.log_config import autosa_logger
+from utils.settings import read_settings_from_file
 
 
 class ConfirmStateChangePopup(LoggingTopLevel):

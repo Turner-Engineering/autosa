@@ -1,4 +1,5 @@
 import customtkinter as ctk
+
 from utils.log_config import autosa_logger
 
 

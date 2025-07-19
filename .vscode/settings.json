@@ -4,7 +4,9 @@
   "editor.formatOnSave": true,
   "terminal.integrated.cwd": "${workspaceFolder}/src",
   "[python]": {
-    "editor.defaultFormatter": "charliermarsh.ruff"
-  },
-  "python.formatting.provider": "none"
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.ruff": "explicit"
+    }
+  }
 }

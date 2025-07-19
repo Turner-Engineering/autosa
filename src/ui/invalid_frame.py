@@ -1,6 +1,7 @@
 import customtkinter as ctk
-from ui.ui_logger import LoggingTopLevel
+
 from ui.get_resource_path import resource_path
+from ui.ui_logger import LoggingTopLevel
 
 
 class PyVisaError(LoggingTopLevel):

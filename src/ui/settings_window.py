@@ -1,18 +1,20 @@
-import customtkinter as ctk
 import subprocess
-from utils.log_config import autosa_logger
 from tkinter import filedialog as fd
+
+import customtkinter as ctk
+
 from instrument.folders import get_folder_info
 from ui.get_resource_path import resource_path
-from ui.ui_logger import LoggingTopLevel, LoggingButton
+from ui.ui_logger import LoggingButton, LoggingTopLevel
+from utils.log_config import autosa_logger
 from utils.settings import (
-    get_settings_path,
     get_log_folder_path,
-    write_settings_to_file,
-    read_settings_from_file,
+    get_settings_path,
     is_valid_inst_folder,
     is_valid_local_folder,
     is_valid_sweep_duration,
+    read_settings_from_file,
+    write_settings_to_file,
 )
 
 

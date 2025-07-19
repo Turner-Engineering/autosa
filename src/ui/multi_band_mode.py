@@ -1,12 +1,14 @@
 import datetime
 import threading
+
 import customtkinter as ctk
-from utils.log_config import autosa_logger
-from ui.ui_logger import LoggingTopLevel, LoggingButton
-from ui.save_window_popups import CompletedWindow, NoRunNoteWindow
-from utils.settings import read_settings_from_file
+
+from instrument.instrument import get_run_filename, get_run_id, run_band
 from ui.get_resource_path import resource_path
-from instrument.instrument import get_run_filename, run_band, get_run_id
+from ui.save_window_popups import CompletedWindow, NoRunNoteWindow
+from ui.ui_logger import LoggingButton, LoggingTopLevel
+from utils.log_config import autosa_logger
+from utils.settings import read_settings_from_file
 
 
 class ConfirmWindow(LoggingTopLevel):

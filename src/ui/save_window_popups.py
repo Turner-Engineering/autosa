@@ -1,9 +1,11 @@
-import customtkinter as ctk
 import datetime
-from utils.log_config import autosa_logger
-from ui.ui_logger import LoggingTopLevel, LoggingButton
+
+import customtkinter as ctk
+
 from instrument.instrument import get_run_filename
 from ui.get_resource_path import resource_path
+from ui.ui_logger import LoggingButton, LoggingTopLevel
+from utils.log_config import autosa_logger
 
 
 class CompletedWindow(LoggingTopLevel):

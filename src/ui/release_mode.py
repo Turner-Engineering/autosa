@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from PIL import Image
+
 from ui.get_resource_path import resource_path
 
 

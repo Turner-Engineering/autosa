@@ -1,13 +1,15 @@
 import datetime
 import time
+
 import pyvisa
 import pyvisa.constants as pyvisa_constants
-from utils.log_config import autosa_logger
+
 from instrument.file_transfer import copy_file_to_local
 from instrument.folders import get_csv_folder, get_folder_files, get_sorted_folder
-from utils.run_ids import run_index_to_id, get_todays_run_ids
-from utils.settings import read_settings_from_file
 from instrument.logged_instrument import LoggedInstrument
+from utils.log_config import autosa_logger
+from utils.run_ids import get_todays_run_ids, run_index_to_id
+from utils.settings import read_settings_from_file
 
 EMULATOR_RESOURCE_NAME = "TCPIP0::localhost::inst0::INSTR"
 

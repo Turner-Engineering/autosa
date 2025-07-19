@@ -1,8 +1,8 @@
-import customtkinter as ctk
 import webbrowser
 
-from ui.get_resource_path import resource_path
+import customtkinter as ctk
 
+from ui.get_resource_path import resource_path
 from utils.settings import get_autosa_version
 
 

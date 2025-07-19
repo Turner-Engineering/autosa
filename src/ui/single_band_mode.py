@@ -1,13 +1,14 @@
 import customtkinter as ctk
-from utils.log_config import autosa_logger
-from ui.save_window_popups import CompletedWindow, NoRunNoteWindow
-from ui.ui_logger import LargeButton
-from utils.settings import read_settings_from_file
+
 from instrument.instrument import (
     get_run_filename,
     run_band,
     save_trace_and_screen,
 )
+from ui.save_window_popups import CompletedWindow, NoRunNoteWindow
+from ui.ui_logger import LargeButton
+from utils.log_config import autosa_logger
+from utils.settings import read_settings_from_file
 
 
 class SingleModeFrame(ctk.CTkFrame):

@@ -1,20 +1,22 @@
 import time
+
 import customtkinter as ctk
 from PIL import Image
-from utils.log_config import autosa_logger
-from ui.ui_logger import LargeButton
-from utils.stopwatch import Stopwatch
-from ui.save_window_popups import ManualSaveWindow
-from ui.get_resource_path import resource_path
-from utils.settings import read_settings_from_file
+
 from instrument.instrument import (
     get_run_id,
     prep_band,
+    run_reset,
     run_start,
     run_stop,
-    run_reset,
     save_trace_and_screen,
 )
+from ui.get_resource_path import resource_path
+from ui.save_window_popups import ManualSaveWindow
+from ui.ui_logger import LargeButton
+from utils.log_config import autosa_logger
+from utils.settings import read_settings_from_file
+from utils.stopwatch import Stopwatch
 
 
 class ManualModeFrame(ctk.CTkFrame):
