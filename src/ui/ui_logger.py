@@ -7,12 +7,12 @@ class LoggingTopLevel(ctk.CTkToplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.window_name = kwargs.pop("window_name", self.__class__.__name__)
-        autosa_logger.info(f"{self.window_name} was created and opened.")
+        autosa_logger.info(f'[WINDOW] "{self.window_name}" opened.')
 
         self.protocol("WM_DELETE_WINDOW", self.on_delete_win)
 
     def on_delete_win(self):
-        autosa_logger.info(f"{self.window_name} was closed without save.")
+        autosa_logger.info(f'[WINDOW] "{self.window_name}" closed.')
         self.destroy()
 
 
@@ -36,7 +36,7 @@ class LoggingButton(ctk.CTkButton):
                 button_name = "Unlabeled"
             # if no label or no text, button name is "Unknown"
 
-            autosa_logger.info(f"'{button_name}' button was clicked.")
+            autosa_logger.info(f'[BUTTON] User clicked "{button_name}" button.')
             button_cmd()
 
         self.configure(command=on_click)

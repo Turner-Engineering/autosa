@@ -230,7 +230,7 @@ class MenuFrame(ctk.CTkFrame):
 
     def on_tab_change(self):
         current_tab = self.tabview.get()
-        autosa_logger.info(f"Switched to {current_tab.strip()}.")
+        autosa_logger.info(f'[TAB] User switched to "{current_tab.strip()}" tab.')
         if (current_tab == self.release_tab_label) and (not self.is_disconnected):
             release_inst(self.inst)
 

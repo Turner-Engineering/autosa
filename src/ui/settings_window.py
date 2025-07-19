@@ -363,7 +363,7 @@ class SettingsWindow(LoggingTopLevel):
 
     def on_tab_change(self):
         current_tab = self.tabview_frame.get()
-        autosa_logger.info(f"Switched to {current_tab.strip()}.")
+        autosa_logger.info(f'[TAB] User switched to "{current_tab.strip()}" tab.')
 
     def open_to_json(self):
         json_filepath = get_settings_path()
