@@ -18,7 +18,7 @@ class LoggingTopLevel(ctk.CTkToplevel):
 
 class LoggingButton(ctk.CTkButton):
     def __init__(self, parent, *args, **kwargs):
-        log_label = kwargs.pop("log_label", None)  # buttons without text
+        self.log_label = kwargs.pop("log_label", None)  # buttons without text
         # TODO: is there a way to remind to put label
         super().__init__(parent, *args, **kwargs)
 
@@ -28,8 +28,8 @@ class LoggingButton(ctk.CTkButton):
             button_text = self.cget("text")
 
             # check if log_label first, then text
-            if log_label:
-                button_name = log_label
+            if self.log_label:
+                button_name = self.log_label
             elif button_text and button_text.isascii():
                 button_name = button_text
             else:

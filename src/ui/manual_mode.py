@@ -66,7 +66,7 @@ class ManualModeFrame(ctk.CTkFrame):
 
         self.measure_buttons = [
             (
-                "Start/Stop",
+                "Start",
                 self.play_img,
                 self.discon_btn_st,
                 lambda: self.cont_toggle(),
@@ -237,6 +237,7 @@ class ManualModeFrame(ctk.CTkFrame):
             fg_color=inst_status_fg_color,
             hover_color=inst_status_hover_color,
         )
+        self.measure_button_imgs[0].log_label = "Start" if self.is_paused else "Stop"
 
         start_time = time.strftime("%I:%M:%S %p", time.localtime(time.time()))
 
