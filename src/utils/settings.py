@@ -42,8 +42,14 @@ def get_settings_path():
     return os.path.join(get_settings_folder_path(), SETTINGS_FILENAME)
 
 
-def get_log_path(name=None):
+def get_log_folder_path():
     folder = get_settings_folder_path()
+    folder = os.path.join(folder, "logs")
+    return folder
+
+
+def get_log_path(name=None):
+    folder = get_log_folder_path()
 
     if not os.path.exists(folder):
         os.mkdir(folder)

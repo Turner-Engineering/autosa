@@ -7,7 +7,7 @@ from ui.get_resource_path import resource_path
 from ui.ui_logger import LoggingTopLevel, LoggingButton
 from utils.settings import (
     get_settings_path,
-    get_log_path,
+    get_log_folder_path,
     write_settings_to_file,
     read_settings_from_file,
     is_valid_inst_folder,
@@ -313,7 +313,7 @@ class SettingsWindow(LoggingTopLevel):
 
         view_log_button = LoggingButton(
             frame1,
-            text="Open Log File",
+            text="View Logs",
             font=("", 8),
             width=16,
             height=10,
@@ -370,8 +370,8 @@ class SettingsWindow(LoggingTopLevel):
         subprocess.run(["explorer", "/select,", json_filepath])
 
     def open_to_log(self):
-        log_filepath = get_log_path()
-        subprocess.run(["explorer", "/select,", log_filepath])
+        log_folder_path = get_log_folder_path()
+        subprocess.run(["explorer", log_folder_path])
 
     def save_settings(self):
         """write to the json file"""
