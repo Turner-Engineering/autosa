@@ -9,11 +9,9 @@ class LoggingTopLevel(ctk.CTkToplevel):
         self.window_name = kwargs.pop("window_name", self.__class__.__name__)
         autosa_logger.info(f'[WINDOW] "{self.window_name}" opened.')
 
-        self.protocol("WM_DELETE_WINDOW", self.on_delete_win)
-
-    def on_delete_win(self):
+    def destroy(self):
         autosa_logger.info(f'[WINDOW] "{self.window_name}" closed.')
-        self.destroy()
+        super().destroy()
 
 
 class LoggingButton(ctk.CTkButton):
