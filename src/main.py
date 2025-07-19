@@ -97,5 +97,7 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         autosa_logger.info("Autosa stopped by keyboard interrupt")
+    except Exception as e:
+        autosa_logger.exception(f"An error occurred: {e}")
     finally:
         autosa_logger.info("Autosa stopped")
