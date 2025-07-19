@@ -59,6 +59,15 @@ def make_json_valid():
     return valid_settings
 
 
+def log_start():
+    open_message = f"Autosa {get_autosa_version()} Started"
+    padding = 10
+    open_message = " " * padding + open_message + " " * padding
+    autosa_logger.info("=" * len(open_message))
+    autosa_logger.info(open_message)
+    autosa_logger.info("=" * len(open_message))
+
+
 def main():
     # Assert that NI-VISA is installed, else throw error dialog
     ni_visa_installed = assert_ni_visa_installed(pyvisa)
@@ -77,13 +86,16 @@ def main():
 
     inst, inst_found, inst_name = get_inst()
 
-    autosa_logger.info(
-        f"****************** Autosa {get_autosa_version()} started running with {inst_name}. ******************"
-    )
     app = MainApp(inst, inst_found, inst_name)
     app.resizable(False, False)
     app.mainloop()
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        log_start()
+        main()
+    except KeyboardInterrupt:
+        autosa_logger.info("Autosa stopped by keyboard interrupt")
+    finally:
+        autosa_logger.info("Autosa stopped")

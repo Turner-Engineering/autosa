@@ -248,6 +248,7 @@ class MainApp(ctk.CTk):
         self.inst = inst
         self.inst_found = inst_found
         self.inst_name = inst_name
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
 
         # self.debug = True
         self.debug = False
@@ -285,3 +286,7 @@ class MainApp(ctk.CTk):
         # use a string for "both" to match the fill="x" above
         top_frame.pack(fill="x")
         menu_frame.pack(fill="both", expand=True)
+
+    def on_close(self):
+        autosa_logger.info("User closed Autosa.")
+        self.destroy()
