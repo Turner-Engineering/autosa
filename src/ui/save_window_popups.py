@@ -230,7 +230,7 @@ class ManualSaveWindow(LoggingTopLevel):
         band = band_entry.get().strip()
 
         if (run_note == "") or (band == ""):
-            autosa_logger.error("Manual Mode: Entry fields were empty.")
+            autosa_logger.info("Manual Mode: Entry fields were empty.")
             self.lower()
             PopupWindow(self)
         else:

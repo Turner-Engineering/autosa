@@ -368,7 +368,7 @@ class MultiModeFrame(ctk.CTkFrame):
 
     def check_and_run(self):
         if self.run_note_var.get().strip() == "":
-            autosa_logger.error("Multi Band Mode: No Run Note was entered.")
+            autosa_logger.info("Multi Band Mode: No Run Note was entered.")
             self.disable_buttons()
             self.wait_window(PopupWindow(self))
             self.enable_buttons()

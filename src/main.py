@@ -20,11 +20,13 @@ def assert_ni_visa_installed(pyvisa):
         return True
     except pyvisa.errors.VisaIOError as e:
         PyVisaError.handle_py_visa_error(e)
-        autosa_logger.warning("NI-VISA not found.")
+        autosa_logger.exception("NI-VISA not found.")
         return False
     except Exception as e:
         PyVisaError.handle_py_visa_error(e)
-        autosa_logger.critical("UNEXPECTED BEHAVIOR WITH NI-VISA.")
+        autosa_logger.exception(
+            "An unexpected error occurred while checking NI-VISA installation."
+        )
         return False
 
 

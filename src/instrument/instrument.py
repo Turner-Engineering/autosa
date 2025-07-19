@@ -31,6 +31,7 @@ def usb_inst_detected(resource_names):
 
 def get_resource_name(resource_manager):
     resource_names = resource_manager.list_resources()
+    autosa_logger.debug(f"Resource Names: {resource_names}")
 
     if not usb_inst_detected(resource_names):
         if EMULATOR_RESOURCE_NAME in resource_names:
@@ -66,6 +67,13 @@ def get_inst():
         if resource_name is EMULATOR_RESOURCE_NAME
         else "Instrument"
     )
+
+    if inst_found and inst_name == "Instrument":
+        autosa_logger.info(f"Connected to Instrument at: '{resource_name}'")
+    elif inst_found and inst_name == "Emulator":
+        autosa_logger.info(f"Connected to Emulator at: '{resource_name}'")
+    else:
+        autosa_logger.info("No instrument found. Running in Disconnected Mode.")
 
     return inst, inst_found, inst_name
 

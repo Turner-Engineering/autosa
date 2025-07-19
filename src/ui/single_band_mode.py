@@ -128,7 +128,7 @@ class SingleModeFrame(ctk.CTkFrame):
     # Functions
     def check_and_run(self, band_name):
         if self.run_note_var.get().strip() == "":
-            autosa_logger.error("Single Band Mode: No Run Note was entered.")
+            autosa_logger.info("Single Band Mode: No Run Note was entered.")
             self.disable_buttons()
             self.wait_window(PopupWindow(self))
             self.enable_buttons()
