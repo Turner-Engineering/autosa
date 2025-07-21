@@ -46,3 +46,6 @@ class LoggedInstrument:
         else:
             self._logger.debug(f"[INST ATTR] {item} -> {repr(attr)}")
             return attr
+
+    def __str__(self):
+        return f"{self._inst}"
