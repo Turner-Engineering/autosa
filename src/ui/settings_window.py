@@ -380,10 +380,14 @@ class SettingsWindow(LoggingTopLevel):
         settings = {}
         for label, settings_var in self.settings_vars.items():
             settings[label] = (
-                settings_var.get().lstrip("0")
-                if label == "-SWEEP DUR-"
-                else settings_var.get()
-            ).strip()
+                (
+                    settings_var.get().lstrip("0")
+                    if label == "-SWEEP DUR-"
+                    else settings_var.get()
+                )
+                .strip()
+                .replace("/", "\\")
+            )
 
         settings["-CORR CHOICES-"] = self.corr_choice
 

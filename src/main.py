@@ -1,16 +1,18 @@
-import pyvisa
 import os
+
+import pyvisa
+
+from instrument.instrument import get_inst
 from ui.invalid_frame import PyVisaError
 from ui.main_window import MainApp
-from instrument.instrument import get_inst
 from utils.log_config import autosa_logger
 from utils.settings import (
     DEFAULT_SETTINGS,
+    SETTINGS_FILENAME,
     get_autosa_version,
     get_settings_path,
     read_settings_from_file,
     write_settings_to_file,
-    SETTINGS_FILENAME,
 )
 
 
@@ -39,7 +41,7 @@ def make_json_valid():
         if label in unchecked_settings:
             value = unchecked_settings[label]
             if isinstance(value, str):
-                value = value.strip()
+                value = value.strip().replace("/", "\\")
             elif isinstance(value, dict) and isinstance(default_val, dict):
                 # Clean nested dict keys and values
                 value = {
