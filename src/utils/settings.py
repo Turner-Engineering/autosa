@@ -47,6 +47,7 @@ def get_settings_path():
 def get_log_folder_path():
     folder = get_settings_folder_path()
     folder = os.path.join(folder, "logs")
+    os.makedirs(folder, exist_ok=True)  # check if logs folder exists
     return folder
 
 
