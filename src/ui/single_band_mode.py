@@ -138,11 +138,12 @@ class SingleModeFrame(ctk.CTkFrame):
 
         # GET FILENAME
         run_note = self.run_note_var.get()
-        sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
+        settings = read_settings_from_file()
+        sweep_dur = settings["-SWEEP DUR-"]
         self.run_filename = get_run_filename(self.inst, band_name, run_note, sweep_dur)
 
-        inst_output_folder = read_settings_from_file()["-INST OUT FOLDER-"]
-        local_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
+        inst_output_folder = settings["-INST OUT FOLDER-"]
+        local_folder = settings["-LOCAL OUT FOLDER-"]
 
         # SAVE
         if self.run_filename is not None:
