@@ -1,11 +1,14 @@
 import datetime
 import time
+
 import pyvisa
 import pyvisa.constants as pyvisa_constants
 
 from instrument.file_transfer import copy_file_to_local
 from instrument.folders import get_csv_folder, get_folder_files, get_sorted_folder
-from utils.run_ids import run_index_to_id, get_todays_run_ids
+from instrument.logged_instrument import LoggedInstrument
+from utils.logger import autosa_logger
+from utils.run_ids import get_todays_run_ids, run_index_to_id
 from utils.settings import read_settings_from_file
 
 EMULATOR_RESOURCE_NAME = "TCPIP0::localhost::inst0::INSTR"
@@ -18,6 +21,8 @@ def get_run_id(inst, inst_out_folder):
     last_run_index = max(todays_run_idxs) if todays_run_idxs else 0
     run_index = last_run_index + 1
     run_id = run_index_to_id(run_index)
+
+    autosa_logger.debug(f"Generated run ID: {run_id}")
     return run_id
 
 
@@ -28,6 +33,7 @@ def usb_inst_detected(resource_names):
 
 def get_resource_name(resource_manager):
     resource_names = resource_manager.list_resources()
+    autosa_logger.debug(f"Resource Names: {resource_names}")
 
     if not usb_inst_detected(resource_names):
         if EMULATOR_RESOURCE_NAME in resource_names:
@@ -49,7 +55,8 @@ def get_inst():
     try:
         if resource_name != "":
             rm = pyvisa.ResourceManager()
-            inst = rm.open_resource(resource_name)
+            _inst = rm.open_resource(resource_name)
+            inst = LoggedInstrument(_inst, autosa_logger)
     except pyvisa.errors.VisaIOError:
         inst = None
 
@@ -62,6 +69,13 @@ def get_inst():
         if resource_name is EMULATOR_RESOURCE_NAME
         else "Instrument"
     )
+
+    if inst_found and inst_name == "Instrument":
+        autosa_logger.info(f"Connected to Instrument at: '{resource_name}'")
+    elif inst_found and inst_name == "Emulator":
+        autosa_logger.info(f"Connected to Emulator at: '{resource_name}'")
+    else:
+        autosa_logger.info("No instrument found. Running in Disconnected Mode.")
 
     return inst, inst_found, inst_name
 
@@ -92,6 +106,7 @@ def validate_filename(inst, inst_out_folder, filename):
 # ONE LINERS
 def release_inst(inst):
     inst.control_ren(pyvisa_constants.VI_GPIB_REN_DEASSERT_GTL)
+    autosa_logger.info("Instrument released.")
 
 
 def update_state(inst, state_folder, filename):
@@ -111,10 +126,12 @@ def set_coupling(inst, coupling):
 
 
 def run_start(inst):
+    autosa_logger.info("Measurement started.")
     inst.write(":INIT:CONT ON")
 
 
 def run_stop(inst):
+    autosa_logger.info("Measurement stopped.")
     inst.write(":INIT:CONT OFF")
 
 
@@ -139,7 +156,6 @@ def get_ref_level(inst):
         ref_level = float(inst.query(":DISP:WIND:TRAC:Y:RLEV?").replace("\n", ""))
     else:
         ref_level = 0.0
-
     return ref_level
 
 
@@ -205,6 +221,9 @@ def save_trace_and_screen(
     sorted_csv_folder = get_csv_folder(local_out_folder)
     sorted_png_folder = get_sorted_folder(local_out_folder, band)
 
+    autosa_logger.info(f"Trace saved to {sorted_csv_folder}")
+    autosa_logger.info(f"Image saved to {sorted_png_folder}")
+
     copy_file_to_local(inst, csv_path, sorted_csv_folder)
     copy_file_to_local(inst, png_path, sorted_png_folder)
 
@@ -267,10 +286,19 @@ def prep_band(inst, band_key):
     corr_folder = read_settings_from_file()["-CORR FOLDER-"]
     state_filename = get_state_file(inst, state_folder, band_key)
     corr_filename = read_settings_from_file()["-CORR CHOICES-"][f"{band_key}"]
+
     try:
         recall_state(inst, state_folder, state_filename)
+        autosa_logger.debug(f"Recalled State: {state_filename}")
+
         if corr_filename != "No Correction":
             recall_cors(inst, corr_folder, corr_filename)
+            autosa_logger.debug(f"Recalled Amplitude Correction: {corr_filename}")
+        else:
+            autosa_logger.debug(
+                f"No Amplitude Correction file selected for {band_key}."
+            )
+
         rename_screen(inst, band_key)
         disable_ref_level_offset(inst)
         round_ref_level(inst)

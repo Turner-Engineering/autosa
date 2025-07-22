@@ -1,17 +1,22 @@
 import time
+
 import customtkinter as ctk
 from PIL import Image
 
-from ui.large_button import LargeButton
-from utils.stopwatch import Stopwatch
-from ui.save_window_popups import ManualSaveWindow
-from ui.get_resource_path import resource_path
-from utils.settings import read_settings_from_file
 from instrument.instrument import (
     get_run_id,
     prep_band,
+    run_reset,
+    run_start,
+    run_stop,
     save_trace_and_screen,
 )
+from ui.get_resource_path import resource_path
+from ui.save_window_popups import ManualSaveWindow
+from ui.ui_logger import LargeButton
+from utils.logger import autosa_logger
+from utils.settings import read_settings_from_file
+from utils.stopwatch import Stopwatch
 
 
 class ManualModeFrame(ctk.CTkFrame):
@@ -34,8 +39,6 @@ class ManualModeFrame(ctk.CTkFrame):
         self.label_color = label_color
 
         self.stopwatch = Stopwatch()
-        self.sweep_dur_var = ctk.StringVar()
-        self.sweep_dur_var = "0"  # Initializing with a default value
 
         self.state_folder = read_settings_from_file()["-STATE FOLDER-"]
         self.corr_folder = read_settings_from_file()["-CORR FOLDER-"]
@@ -63,6 +66,7 @@ class ManualModeFrame(ctk.CTkFrame):
 
         self.measure_buttons = [
             (
+                "Start",
                 self.play_img,
                 self.discon_btn_st,
                 lambda: self.cont_toggle(),
@@ -70,6 +74,7 @@ class ManualModeFrame(ctk.CTkFrame):
                 "#229c3b",
             ),
             (
+                "Reset",
                 resource_path("./images/reset.png"),
                 self.discon_btn_st,
                 lambda: self.reset_stopwatch(),
@@ -77,6 +82,7 @@ class ManualModeFrame(ctk.CTkFrame):
                 "#4396a7",
             ),
             (
+                "Save",
                 resource_path("./images/save.png"),
                 "normal",
                 lambda: self.save_trace_screen(),
@@ -152,7 +158,9 @@ class ManualModeFrame(ctk.CTkFrame):
         button_frame = ctk.CTkFrame(frame2)
         button_frame.grid(row=1, column=0, sticky="w")
 
-        for c, (img, st, cmd, fg_color, hover_color) in enumerate(self.measure_buttons):
+        for c, (label, img, st, cmd, fg_color, hover_color) in enumerate(
+            self.measure_buttons
+        ):
             image = ctk.CTkImage(
                 light_image=Image.open(img),
                 dark_image=Image.open(img),
@@ -168,6 +176,7 @@ class ManualModeFrame(ctk.CTkFrame):
                 hover_color=hover_color,
                 state=st,
                 command=cmd,
+                log_label=label,
             )
             button.grid(
                 row=4, column=c, padx=self.button_padding, pady=self.button_padding
@@ -228,16 +237,17 @@ class ManualModeFrame(ctk.CTkFrame):
             fg_color=inst_status_fg_color,
             hover_color=inst_status_hover_color,
         )
+        self.measure_button_imgs[0].log_label = "Start" if self.is_paused else "Stop"
 
         start_time = time.strftime("%I:%M:%S %p", time.localtime(time.time()))
 
         if self.is_paused:
-            self.inst.write(":INIT:CONT ON")
+            run_start(self.inst)
             self.last_start_time.configure(text=start_time)
             self.stopwatch.start()
             self.disable_buttons("disabled")
         else:
-            self.inst.write(":INIT:CONT OFF")
+            run_stop(self.inst)
             self.stopwatch.stop()
             self.disable_buttons("normal")
 
@@ -253,16 +263,14 @@ class ManualModeFrame(ctk.CTkFrame):
         self.time_elapased.configure(text=self.stopwatch.get_time_str())
         self.after(100, self.update_stopwatch_time)
 
-        raw_time = self.stopwatch.get_time_str()
-        seconds = raw_time.split(":")[1]
-        self.sweep_dur_var = seconds.split(".")[0]
-
     def reset_stopwatch(self):
-        self.inst.write(":INIT:REST")
+        run_reset(self.inst)
         self.stopwatch.reset()
 
     def save_trace_screen(self):
+        autosa_logger.debug("Save measurement initiated.")
         run_id = get_run_id(self.inst, self.inst_output_folder)
+        sweep_dur = round(self.stopwatch.get_time())  # add this
         run_file = ManualSaveWindow(
             self,
             self.inst,
@@ -271,7 +279,7 @@ class ManualModeFrame(ctk.CTkFrame):
             self.label_color,
             self.run_filename,
             run_id,
-            self.sweep_dur_var,
+            sweep_dur,
         )
 
         self.wait_window(run_file)

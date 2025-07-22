@@ -1,6 +1,8 @@
 import json
 import os
+
 from json_repair import repair_json
+
 from instrument.folders import get_folder_info
 
 
@@ -13,7 +15,7 @@ def get_autosa_version():
     return f"v{version_number}"  # e.g. v0.4.2
 
 
-SETTINGS_FILENAME = f"\\settings_{get_autosa_version()}.json"
+SETTINGS_FILENAME = f"settings_{get_autosa_version()}.json"
 
 DEFAULT_SETTINGS = {
     "-STATE FOLDER-": "D:/Users/Instrument/Desktop/State Files",
@@ -39,7 +41,27 @@ def get_settings_folder_path():
 
 
 def get_settings_path():
-    return get_settings_folder_path() + SETTINGS_FILENAME
+    return os.path.join(get_settings_folder_path(), SETTINGS_FILENAME)
+
+
+def get_log_folder_path():
+    folder = get_settings_folder_path()
+    folder = os.path.join(folder, "logs")
+    os.makedirs(folder, exist_ok=True)  # check if logs folder exists
+    return folder
+
+
+def get_log_path(name=None):
+    folder = get_log_folder_path()
+
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+
+    filename = f"autosa_{get_autosa_version()}.log"
+    if name is not None:
+        filename = filename.replace("_", f"_{name}_")
+
+    return os.path.join(folder, filename)
 
 
 def write_settings_to_file(settings):
@@ -48,27 +70,26 @@ def write_settings_to_file(settings):
     if not os.path.exists(folder):
         os.mkdir(folder)
 
-    with open(folder + SETTINGS_FILENAME, "w") as f:
+    with open(get_settings_path(), "w") as f:
         json.dump(settings, f, ensure_ascii=False, indent=2)
 
 
 def read_settings_from_file():
-    folder = get_settings_folder_path()
+    settings_path = get_settings_path()
 
-    if not os.path.exists(folder + SETTINGS_FILENAME):
+    if not os.path.exists(settings_path):
         return DEFAULT_SETTINGS
 
-    with open(folder + SETTINGS_FILENAME, "r") as reader:
+    with open(settings_path, "r") as reader:
         json_content = reader.read()
         fixed = repair_json(json_content)
         return json.loads(fixed)
 
 
 def is_settings_valid(inst):
-    folder = get_settings_folder_path()
     settings = read_settings_from_file()
 
-    if not os.path.exists(folder + SETTINGS_FILENAME):
+    if not os.path.exists(get_settings_path()):
         return False
 
     # settings = read_settings_from_file()
@@ -110,8 +131,8 @@ def is_valid_local_folder(path):
 
 
 def is_valid_inst_folder(inst, folder_path):
-    exists, empty, _ = get_folder_info(inst, folder_path)
-    return exists and not empty and folder_path.strip()
+    exists, _, _ = get_folder_info(inst, folder_path)
+    return exists and folder_path.strip()
 
 
 def is_valid_sweep_duration(value):

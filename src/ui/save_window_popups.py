@@ -1,10 +1,14 @@
-import customtkinter as ctk
-from instrument.instrument import get_run_filename
-from ui.get_resource_path import resource_path
 import datetime
 
+import customtkinter as ctk
 
-class CompletedWindow(ctk.CTkToplevel):
+from instrument.instrument import get_run_filename
+from ui.get_resource_path import resource_path
+from ui.ui_logger import LoggingButton, LoggingTopLevel
+from utils.logger import autosa_logger
+
+
+class CompletedWindow(LoggingTopLevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Completion Status")
@@ -27,12 +31,12 @@ class CompletedWindow(ctk.CTkToplevel):
         ctk.CTkLabel(self, text="Run(s) Complete!").grid(
             row=0, column=0, padx=10, pady=10
         )
-        ctk.CTkButton(self, text="Okay", command=lambda: self.destroy()).grid(
+        LoggingButton(self, text="Okay", command=lambda: self.destroy()).grid(
             row=1, column=0, padx=10, pady=10
         )
 
 
-class PopupWindow(ctk.CTkToplevel):
+class NoRunNoteWindow(LoggingTopLevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Invalid")
@@ -55,12 +59,12 @@ class PopupWindow(ctk.CTkToplevel):
         ctk.CTkLabel(self, text="Please enter a Run Note!").grid(
             row=0, column=0, padx=10, pady=10
         )
-        ctk.CTkButton(self, text="Okay", command=lambda: self.destroy()).grid(
+        LoggingButton(self, text="Okay", command=lambda: self.destroy()).grid(
             row=1, column=0, padx=10, pady=10
         )
 
 
-class ManualSaveWindow(ctk.CTkToplevel):
+class ManualSaveWindow(LoggingTopLevel):
     """opens a new window and sets it up for settings"""
 
     def __init__(
@@ -93,7 +97,7 @@ class ManualSaveWindow(ctk.CTkToplevel):
         self.discon_btn_st = discon_btn_st
         self.run_filename = run_filename
         self.run_id = run_id
-        self.sweep_dur = int(sweep_dur)
+        self.sweep_dur = sweep_dur
 
         self.run_note_var = ctk.StringVar()
         self.band_var = ctk.StringVar()
@@ -201,7 +205,7 @@ class ManualSaveWindow(ctk.CTkToplevel):
     def fill_frame3(self, frame3):
         """third frame is the save/cancel button"""
         # Save/Cancel
-        save_button = ctk.CTkButton(
+        save_button = LoggingButton(
             frame3,
             text="Save",
             state=self.discon_btn_st,
@@ -209,8 +213,8 @@ class ManualSaveWindow(ctk.CTkToplevel):
         )
         save_button.grid(row=0, column=2, padx=5, sticky="w")
 
-        cancel_button = ctk.CTkButton(
-            frame3, text="Cancel", command=lambda: self.destroy()
+        cancel_button = LoggingButton(
+            frame3, text="Cancel", command=lambda: self.cancel_save()
         )
         cancel_button.grid(row=0, column=3, padx=5, sticky="w")
 
@@ -228,8 +232,9 @@ class ManualSaveWindow(ctk.CTkToplevel):
         band = band_entry.get().strip()
 
         if (run_note == "") or (band == ""):
+            autosa_logger.info("Manual Mode: Entry fields were empty.")
             self.lower()
-            PopupWindow(self)
+            NoRunNoteWindow(self)
         else:
             self.run_filename = get_run_filename(
                 self.inst, band, run_note, self.sweep_dur
@@ -241,3 +246,7 @@ class ManualSaveWindow(ctk.CTkToplevel):
 
     def get_band(self):
         return self.band_var.get().strip()
+
+    def cancel_save(self):
+        autosa_logger.info("Manual Mode: Save canceled.")
+        self.destroy()

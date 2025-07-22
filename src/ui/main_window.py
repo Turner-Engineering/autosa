@@ -1,6 +1,5 @@
 import os
 import subprocess
-from pathlib import Path
 
 import customtkinter as ctk
 
@@ -13,6 +12,8 @@ from ui.release_mode import ReleaseMode
 from ui.set_up_mode import SetUpModeFrame
 from ui.settings_window import SettingsWindow
 from ui.single_band_mode import SingleModeFrame
+from ui.ui_logger import LoggingButton
+from utils.logger import autosa_logger
 from utils.settings import (
     get_autosa_version,
     is_settings_valid,
@@ -53,13 +54,13 @@ class HeaderFrame(ctk.CTkFrame):
             fg_color=self.label_color,
         ).grid(row=0, column=0, sticky="w", padx=10, pady=10)
 
-        ctk.CTkButton(
+        LoggingButton(
             self,
             text="Settings",
             command=lambda: self.settings_window(),
         ).grid(row=0, column=1, sticky="ne", padx=10, pady=10, rowspan=3)
 
-        self.output_folder_button = ctk.CTkButton(
+        self.output_folder_button = LoggingButton(
             self,
             text="Open Output Folder",
             height=10,
@@ -67,12 +68,7 @@ class HeaderFrame(ctk.CTkFrame):
             state="normal"
             if os.path.exists(read_settings_from_file()["-LOCAL OUT FOLDER-"])
             else "disabled",
-            command=lambda: subprocess.run(
-                [
-                    "explorer",
-                    Path(read_settings_from_file()["-LOCAL OUT FOLDER-"]).resolve(),
-                ]
-            ),
+            command=lambda: self.open_output_folder(),
         )
 
         self.output_folder_button.grid(row=1, column=1, sticky="ne", padx=10, rowspan=3)
@@ -138,6 +134,11 @@ class HeaderFrame(ctk.CTkFrame):
             self.output_folder_button.configure(state="normal")
         else:
             self.output_folder_button.configure(state="disabled")
+
+    def open_output_folder(self):
+        subprocess.run(
+            ["explorer", "/open,", read_settings_from_file()["-LOCAL OUT FOLDER-"]]
+        )
 
     def settings_window(self):
         SettingsWindow(
@@ -231,6 +232,7 @@ class MenuFrame(ctk.CTkFrame):
 
     def on_tab_change(self):
         current_tab = self.tabview.get()
+        autosa_logger.info(f'[TAB] User switched to "{current_tab.strip()}" tab.')
         if (current_tab == self.release_tab_label) and (not self.is_disconnected):
             release_inst(self.inst)
 
@@ -248,12 +250,14 @@ class MainApp(ctk.CTk):
         self.inst = inst
         self.inst_found = inst_found
         self.inst_name = inst_name
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
 
         # self.debug = True
         self.debug = False
         if self.debug:
             self.frame_color = "pink"
             self.label_color = "white"
+            autosa_logger.info("Debug Mode entered.")
         else:
             self.frame_color = "transparent"
             self.label_color = "transparent"
@@ -284,3 +288,7 @@ class MainApp(ctk.CTk):
         # use a string for "both" to match the fill="x" above
         top_frame.pack(fill="x")
         menu_frame.pack(fill="both", expand=True)
+
+    def on_close(self):
+        autosa_logger.info("User closed Autosa.")
+        self.destroy()

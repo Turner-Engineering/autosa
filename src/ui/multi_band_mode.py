@@ -1,13 +1,17 @@
 import datetime
 import threading
+
 import customtkinter as ctk
-from ui.save_window_popups import CompletedWindow, PopupWindow
-from utils.settings import read_settings_from_file
+
+from instrument.instrument import get_run_filename, get_run_id, run_band
 from ui.get_resource_path import resource_path
-from instrument.instrument import get_run_filename, run_band, get_run_id
+from ui.save_window_popups import CompletedWindow, NoRunNoteWindow
+from ui.ui_logger import LoggingButton, LoggingTopLevel
+from utils.logger import autosa_logger
+from utils.settings import read_settings_from_file
 
 
-class ConfirmWindow(ctk.CTkToplevel):
+class ConfirmWindow(LoggingTopLevel):
     def __init__(self, parent, discon_btn_st, run_multiple_bands):
         super().__init__(parent)
         self.title("Confirm Runs")
@@ -24,7 +28,6 @@ class ConfirmWindow(ctk.CTkToplevel):
         self.label_color = parent.label_color
         self.discon_btn_st = discon_btn_st
         self.run_multiple_bands = run_multiple_bands
-        self.sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
         self.create_widgets()
 
     def create_widgets(self):
@@ -49,7 +52,7 @@ class ConfirmWindow(ctk.CTkToplevel):
         ).grid(row=0, column=0, padx=10, pady=10, columnspan=2)
 
         # Okay Button
-        ctk.CTkButton(
+        LoggingButton(
             frame,
             text="Okay",
             state=self.discon_btn_st,
@@ -57,7 +60,7 @@ class ConfirmWindow(ctk.CTkToplevel):
         ).grid(row=1, column=0, padx=5, pady=5, sticky="e")
 
         # Cancel Button
-        ctk.CTkButton(
+        LoggingButton(
             frame,
             text="Cancel",
             command=lambda: self.destroy(),
@@ -76,13 +79,14 @@ class ConfirmWindow(ctk.CTkToplevel):
         run_id = "XYZ-AB"
         first_band = band_range[:2]
         cur_time = datetime.datetime.now().strftime("%H_%M_%S")
+        sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
 
         text = (
             "Please confirm that you would like to run bands\n"
             f"{band_range} ({run_count} runs total)\n"
-            f"for {self.sweep_dur} seconds each\n"
+            f"for {sweep_dur} seconds each\n"
             "and that the first filename should be:\n"
-            f"{run_id} {run_note} {self.sweep_dur}s {first_band}{band_ori} {cur_time}\n"
+            f"{run_id} {run_note} {sweep_dur}s {first_band}{band_ori} {cur_time}\n"
             "(the rest will be numbered sequentially)"
         )
         return text
@@ -100,6 +104,9 @@ class ConfirmWindow(ctk.CTkToplevel):
 
     def confirmation_callback(self):
         # create new thread
+        autosa_logger.debug(
+            f"Multi Band Mode runs confirmed and started {self.parent.band_range_var.get()} runs"
+        )
         self.destroy()  # close confirm window
         new_thread = threading.Thread(target=self.run_multiple_bands, daemon=True)
         new_thread.start()
@@ -225,6 +232,9 @@ class MultiModeFrame(ctk.CTkFrame):
             frame1,
             values=["Horizontal", "Vertical"],
             variable=self.ori_var,
+            command=lambda event: autosa_logger.info(
+                f"{self.ori_var.get()} orientation was selected."
+            ),
             width=180,
         )
         self.ori_dropdown.grid(row=2, column=1, padx=5, pady=5, sticky="w")
@@ -232,7 +242,7 @@ class MultiModeFrame(ctk.CTkFrame):
 
     def fill_frame2(self, frame2):
         # Run Button
-        self.run_button = ctk.CTkButton(
+        self.run_button = LoggingButton(
             frame2,
             text="Run Sweeps",
             command=lambda: self.check_and_run(),
@@ -253,7 +263,7 @@ class MultiModeFrame(ctk.CTkFrame):
         self.pbar_label.grid(row=0, column=2, padx=5, pady=5, sticky="e")
 
         # Cancel Button
-        ctk.CTkButton(
+        LoggingButton(
             frame2,
             text="Cancel",
             command=lambda: self.update_cancel_status(),
@@ -320,11 +330,13 @@ class MultiModeFrame(ctk.CTkFrame):
             self.ori_dropdown.configure(state="normal")
             if self.ori_var.get() not in ["Horizontal", "Vertical"]:
                 self.ori_dropdown.set("Horizontal")
+            autosa_logger.info(f"{self.ori_var.get()} orientation was selected.")
         else:
             self.ori_dropdown.configure(state="disabled")
             self.ori_dropdown.set("None")
 
     def update_cancel_status(self):
+        autosa_logger.info("Runs canceled.")
         self.is_cancel = True
 
     def call_update_band_keys(self, *args):
@@ -342,6 +354,8 @@ class MultiModeFrame(ctk.CTkFrame):
         else:
             self.band_keys = []
 
+        autosa_logger.info(f"Band Range {band_range} was selected for run.")
+
     def disable_buttons(self):
         self.ori_dropdown.configure(state="disabled")
         self.run_note_entry.configure(state="disabled")
@@ -356,13 +370,19 @@ class MultiModeFrame(ctk.CTkFrame):
 
     def check_and_run(self):
         if self.run_note_var.get().strip() == "":
+            autosa_logger.info("Multi Band Mode: No Run Note was entered.")
             self.disable_buttons()
-            self.wait_window(PopupWindow(self))
+            self.wait_window(NoRunNoteWindow(self))
             self.enable_buttons()
         else:
             self.disable_buttons()
             self.wait_window(
-                ConfirmWindow(self, self.discon_btn_st, self.run_multiple_bands))
+                ConfirmWindow(
+                    self,
+                    self.discon_btn_st,
+                    self.run_multiple_bands,
+                )
+            )
             self.enable_buttons()
 
     def run_multiple_bands(self):
@@ -420,6 +440,7 @@ class MultiModeFrame(ctk.CTkFrame):
 
         # RUNS COMPLETE
         self.pbar.stop()
+        autosa_logger.debug("Multi Band Mode: Completed and saved measurements.")
         CompletedWindow(self)
         self.band_checkbox.clear()
         self.band_filenames.clear()

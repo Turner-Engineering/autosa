@@ -1,33 +1,29 @@
 import threading
+
 import customtkinter as ctk
-from ui.get_resource_path import resource_path
-from ui.large_button import LargeButton
-from utils.settings import read_settings_from_file
+
 from instrument.folders import get_folder_info
 from instrument.instrument import (
     get_ref_level,
-    set_rounded_ref_level,
-    recall_state,
     get_state_file,
+    recall_state,
+    set_rounded_ref_level,
     update_state,
 )
+from ui.get_resource_path import resource_path
+from ui.ui_logger import ArrowButton, LargeButton, LoggingButton, LoggingTopLevel
+from utils.logger import autosa_logger
+from utils.settings import read_settings_from_file
 
 
-class ArrowButton(ctk.CTkButton):
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(
-            parent,
-            *args,
-            **kwargs,
-        )
-        self.configure(
-            height=30, width=30, font=("", 16), text_color="black", anchor="center"
-        )
-
-
-class ConfirmStateChangePopup(ctk.CTkToplevel):
+class ConfirmStateChangePopup(LoggingTopLevel):
     def __init__(
-        self, parent, update_ref_level, state_filename, warning_red, hover_red
+        self,
+        parent,
+        update_ref_level,
+        state_filename,
+        warning_red,
+        hover_red,
     ):
         super().__init__(parent)
         self.title("Confirm State Update")
@@ -102,7 +98,7 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
 
     def fill_frame2(self, frame2):
         # Okay Button
-        ctk.CTkButton(
+        LoggingButton(
             frame2,
             text="Overwrite",
             command=lambda: self.confirmation_callback(),
@@ -112,10 +108,10 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
         ).grid(row=0, column=0, padx=5, pady=5)
 
         # Cancel Button
-        ctk.CTkButton(
+        LoggingButton(
             frame2,
             text="Cancel",
-            command=lambda: self.destroy(),
+            command=lambda: self.overwrite_canceled(),
             anchor="center",
             fg_color="#939ba2",
             hover_color="#585656",
@@ -123,9 +119,14 @@ class ConfirmStateChangePopup(ctk.CTkToplevel):
 
     def confirmation_callback(self):
         # create new thread
+        autosa_logger.info(f"State File {self.state_filename} overwritten.")
         self.destroy()  # close confirm window
         new_thread = threading.Thread(target=self.update_ref_level, daemon=True)
         new_thread.start()
+
+    def overwrite_canceled(self):
+        autosa_logger.info(f"State File {self.state_filename} overwrite canceled.")
+        self.destroy()
 
 
 class SetUpModeFrame(ctk.CTkFrame):
@@ -249,6 +250,7 @@ class SetUpModeFrame(ctk.CTkFrame):
         self.increase_ref_button = ArrowButton(
             ref_button_frame,
             text="\u25b2",
+            log_label="Increase Ref Level",
             state=self.discon_btn_st,
             command=lambda: self.increse_ref_level(),
         )
@@ -266,6 +268,7 @@ class SetUpModeFrame(ctk.CTkFrame):
         self.decrease_ref_button = ArrowButton(
             ref_button_frame,
             text="\u25bc",
+            log_label="Decrease Ref Level",
             state=self.discon_btn_st,
             command=lambda: self.decrese_ref_level(),
         )
@@ -274,7 +277,7 @@ class SetUpModeFrame(ctk.CTkFrame):
 
     # FRAME 4: UPDATE Button
     def fill_frame4(self, frame4):
-        self.update_button = ctk.CTkButton(
+        self.update_button = LoggingButton(
             frame4,
             text="Update State",
             font=("", 16),
@@ -298,6 +301,7 @@ class SetUpModeFrame(ctk.CTkFrame):
             self.inst, state_folder, self.band_selected
         )
         recall_state(self.inst, state_folder, self.state_filename)
+        autosa_logger.debug(f"Recalled State: {self.state_filename}")
 
         updated_ref_level = get_ref_level(self.inst)
         self.ref_level_double_var.set(updated_ref_level)
@@ -313,6 +317,8 @@ class SetUpModeFrame(ctk.CTkFrame):
         set_rounded_ref_level(self.inst, decresed_ref_rounded)
         self.update_ref_level_label(decresed_ref_rounded)
 
+        autosa_logger.info(f"Decreased ref level to {decresed_ref_rounded} dBm")
+
     def increse_ref_level(self):
         self.update_autosa_ref_level()
 
@@ -323,7 +329,10 @@ class SetUpModeFrame(ctk.CTkFrame):
         set_rounded_ref_level(self.inst, incresed_ref_rounded)
         self.update_ref_level_label(incresed_ref_rounded)
 
+        autosa_logger.info(f"Increased ref level to {incresed_ref_rounded} dBm")
+
     def confirm_window(self):
+        autosa_logger.debug(f"State File {self.state_filename} overwrite initiated.")
         self.wait_window(
             ConfirmStateChangePopup(
                 self,

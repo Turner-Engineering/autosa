@@ -1,12 +1,14 @@
 import customtkinter as ctk
-from ui.save_window_popups import CompletedWindow, PopupWindow
-from ui.large_button import LargeButton
-from utils.settings import read_settings_from_file
+
 from instrument.instrument import (
     get_run_filename,
     run_band,
     save_trace_and_screen,
 )
+from ui.save_window_popups import CompletedWindow, NoRunNoteWindow
+from ui.ui_logger import LargeButton
+from utils.logger import autosa_logger
+from utils.settings import read_settings_from_file
 
 
 class SingleModeFrame(ctk.CTkFrame):
@@ -27,13 +29,6 @@ class SingleModeFrame(ctk.CTkFrame):
         self.discon_btn_st = discon_btn_st
         self.frame_color = frame_color
         self.label_color = label_color
-
-        self.settings = read_settings_from_file()
-        self.state_folder = self.settings["-STATE FOLDER-"]
-        self.corr_folder = self.settings["-CORR FOLDER-"]
-        self.inst_output_folder = self.settings["-INST OUT FOLDER-"]
-        self.local_folder = self.settings["-LOCAL OUT FOLDER-"]
-        self.sweep_dur = self.settings["-SWEEP DUR-"]
 
         self.is_paused = True
         self.run_filename = None
@@ -127,8 +122,9 @@ class SingleModeFrame(ctk.CTkFrame):
     # Functions
     def check_and_run(self, band_name):
         if self.run_note_var.get().strip() == "":
+            autosa_logger.info("Single Band Mode: No Run Note was entered.")
             self.disable_buttons()
-            self.wait_window(PopupWindow(self))
+            self.wait_window(NoRunNoteWindow(self))
             self.enable_buttons()
         else:
             self.disable_buttons()
@@ -142,17 +138,20 @@ class SingleModeFrame(ctk.CTkFrame):
 
         # GET FILENAME
         run_note = self.run_note_var.get()
-        self.run_filename = get_run_filename(
-            self.inst, band_name, run_note, self.sweep_dur
-        )
+        settings = read_settings_from_file()
+        sweep_dur = settings["-SWEEP DUR-"]
+        self.run_filename = get_run_filename(self.inst, band_name, run_note, sweep_dur)
+
+        inst_output_folder = settings["-INST OUT FOLDER-"]
+        local_folder = settings["-LOCAL OUT FOLDER-"]
 
         # SAVE
         if self.run_filename is not None:
             save_trace_and_screen(
                 self.inst,
                 self.run_filename,
-                self.inst_output_folder,
-                self.local_folder,
+                inst_output_folder,
+                local_folder,
                 band_name,
             )
 

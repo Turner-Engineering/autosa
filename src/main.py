@@ -1,10 +1,15 @@
-import pyvisa
 import os
+
+import pyvisa
+
+from instrument.instrument import get_inst
 from ui.invalid_frame import PyVisaError
 from ui.main_window import MainApp
-from instrument.instrument import get_inst
+from utils.logger import autosa_logger
 from utils.settings import (
     DEFAULT_SETTINGS,
+    SETTINGS_FILENAME,
+    get_autosa_version,
     get_settings_path,
     read_settings_from_file,
     write_settings_to_file,
@@ -14,12 +19,17 @@ from utils.settings import (
 def assert_ni_visa_installed(pyvisa):
     try:
         pyvisa.ResourceManager()
+        autosa_logger.debug("NI-VISA successfully found. Launching Autosa...")
         return True
     except pyvisa.errors.VisaIOError as e:
         PyVisaError.handle_py_visa_error(e)
+        autosa_logger.exception("NI-VISA not found.")
         return False
     except Exception as e:
         PyVisaError.handle_py_visa_error(e)
+        autosa_logger.exception(
+            "An unexpected error occurred while checking NI-VISA installation."
+        )
         return False
 
 
@@ -31,7 +41,7 @@ def make_json_valid():
         if label in unchecked_settings:
             value = unchecked_settings[label]
             if isinstance(value, str):
-                value = value.strip()
+                value = value.strip().replace("/", "\\")
             elif isinstance(value, dict) and isinstance(default_val, dict):
                 # Clean nested dict keys and values
                 value = {
@@ -42,11 +52,26 @@ def make_json_valid():
                 for subkey, subval in default_val.items():
                     if subkey not in value:
                         value[subkey] = subval
+                        autosa_logger.warning(
+                            f'"{label}:{subkey}" missing from file {SETTINGS_FILENAME}. Created and set to default value "{subval}".'
+                        )
             valid_settings[label] = value
         else:
             valid_settings[label] = default_val
+            autosa_logger.warning(
+                f'"{label}" missing from file {SETTINGS_FILENAME}. Created and set to default value "{default_val}".'
+            )
 
     return valid_settings
+
+
+def log_start():
+    open_message = f"Autosa {get_autosa_version()} Started"
+    padding = 10
+    open_message = " " * padding + open_message + " " * padding
+    autosa_logger.info("=" * len(open_message))
+    autosa_logger.info(open_message)
+    autosa_logger.info("=" * len(open_message))
 
 
 def main():
@@ -58,9 +83,11 @@ def main():
     # Assert that settings JSON file exists correctly
     settings_path = get_settings_path()
     if os.path.exists(settings_path):
+        autosa_logger.info("Settings file found. Validating...")
         valid_settings = make_json_valid()
         write_settings_to_file(valid_settings)  # overwrite settings json
     else:
+        autosa_logger.info("No settings file found. Created a default settings file.")
         write_settings_to_file(DEFAULT_SETTINGS)  # make default settings
 
     inst, inst_found, inst_name = get_inst()
@@ -71,4 +98,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        log_start()
+        main()
+    except KeyboardInterrupt:
+        autosa_logger.info("Autosa stopped by keyboard interrupt")
+    except Exception as e:
+        autosa_logger.exception(f"An error occurred: {e}")
+    finally:
+        autosa_logger.info("Autosa stopped")
