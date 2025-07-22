@@ -97,7 +97,7 @@ class ManualSaveWindow(LoggingTopLevel):
         self.discon_btn_st = discon_btn_st
         self.run_filename = run_filename
         self.run_id = run_id
-        self.sweep_dur = int(sweep_dur)
+        self.sweep_dur = sweep_dur
 
         self.run_note_var = ctk.StringVar()
         self.band_var = ctk.StringVar()
