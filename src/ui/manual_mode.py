@@ -39,8 +39,6 @@ class ManualModeFrame(ctk.CTkFrame):
         self.label_color = label_color
 
         self.stopwatch = Stopwatch()
-        self.sweep_dur_var = ctk.StringVar()
-        self.sweep_dur_var = "0"  # Initializing with a default value
 
         self.state_folder = read_settings_from_file()["-STATE FOLDER-"]
         self.corr_folder = read_settings_from_file()["-CORR FOLDER-"]
@@ -265,10 +263,6 @@ class ManualModeFrame(ctk.CTkFrame):
         self.time_elapased.configure(text=self.stopwatch.get_time_str())
         self.after(100, self.update_stopwatch_time)
 
-        raw_time = self.stopwatch.get_time_str()
-        seconds = raw_time.split(":")[1]
-        self.sweep_dur_var = seconds.split(".")[0]
-
     def reset_stopwatch(self):
         run_reset(self.inst)
         self.stopwatch.reset()
@@ -276,6 +270,7 @@ class ManualModeFrame(ctk.CTkFrame):
     def save_trace_screen(self):
         autosa_logger.debug("Save measurement initiated.")
         run_id = get_run_id(self.inst, self.inst_output_folder)
+        sweep_dur = round(self.stopwatch.get_time())  # add this
         run_file = ManualSaveWindow(
             self,
             self.inst,
@@ -284,7 +279,7 @@ class ManualModeFrame(ctk.CTkFrame):
             self.label_color,
             self.run_filename,
             run_id,
-            self.sweep_dur_var,
+            sweep_dur,
         )
 
         self.wait_window(run_file)

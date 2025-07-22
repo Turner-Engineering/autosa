@@ -28,7 +28,6 @@ class ConfirmWindow(LoggingTopLevel):
         self.label_color = parent.label_color
         self.discon_btn_st = discon_btn_st
         self.run_multiple_bands = run_multiple_bands
-        self.sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
         self.create_widgets()
 
     def create_widgets(self):
@@ -80,13 +79,14 @@ class ConfirmWindow(LoggingTopLevel):
         run_id = "XYZ-AB"
         first_band = band_range[:2]
         cur_time = datetime.datetime.now().strftime("%H_%M_%S")
+        sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
 
         text = (
             "Please confirm that you would like to run bands\n"
             f"{band_range} ({run_count} runs total)\n"
-            f"for {self.sweep_dur} seconds each\n"
+            f"for {sweep_dur} seconds each\n"
             "and that the first filename should be:\n"
-            f"{run_id} {run_note} {self.sweep_dur}s {first_band}{band_ori} {cur_time}\n"
+            f"{run_id} {run_note} {sweep_dur}s {first_band}{band_ori} {cur_time}\n"
             "(the rest will be numbered sequentially)"
         )
         return text
