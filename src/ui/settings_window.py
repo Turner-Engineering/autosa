@@ -6,7 +6,7 @@ import customtkinter as ctk
 from instrument.folders import get_folder_info
 from ui.get_resource_path import resource_path
 from ui.ui_logger import LoggingButton, LoggingTopLevel
-from utils.log_config import autosa_logger
+from utils.logger import autosa_logger
 from utils.settings import (
     get_log_folder_path,
     get_settings_path,

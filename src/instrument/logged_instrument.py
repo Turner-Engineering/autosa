@@ -48,4 +48,4 @@ class LoggedInstrument:
             return attr
 
     def __str__(self):
-        return f"{self._inst}"
+        return str(self._inst)

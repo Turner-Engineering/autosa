@@ -5,7 +5,7 @@ import pyvisa
 from instrument.instrument import get_inst
 from ui.invalid_frame import PyVisaError
 from ui.main_window import MainApp
-from utils.log_config import autosa_logger
+from utils.logger import autosa_logger
 from utils.settings import (
     DEFAULT_SETTINGS,
     SETTINGS_FILENAME,

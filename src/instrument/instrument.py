@@ -7,7 +7,7 @@ import pyvisa.constants as pyvisa_constants
 from instrument.file_transfer import copy_file_to_local
 from instrument.folders import get_csv_folder, get_folder_files, get_sorted_folder
 from instrument.logged_instrument import LoggedInstrument
-from utils.log_config import autosa_logger
+from utils.logger import autosa_logger
 from utils.run_ids import get_todays_run_ids, run_index_to_id
 from utils.settings import read_settings_from_file
 
@@ -22,7 +22,7 @@ def get_run_id(inst, inst_out_folder):
     run_index = last_run_index + 1
     run_id = run_index_to_id(run_index)
 
-    autosa_logger.debug(f"Run ID: {run_id}")
+    autosa_logger.debug(f"Generated run ID: {run_id}")
     return run_id
 
 

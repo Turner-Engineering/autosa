@@ -7,7 +7,7 @@ from instrument.instrument import (
 )
 from ui.save_window_popups import CompletedWindow, NoRunNoteWindow
 from ui.ui_logger import LargeButton
-from utils.log_config import autosa_logger
+from utils.logger import autosa_logger
 from utils.settings import read_settings_from_file
 
 

@@ -13,7 +13,7 @@ from ui.set_up_mode import SetUpModeFrame
 from ui.settings_window import SettingsWindow
 from ui.single_band_mode import SingleModeFrame
 from ui.ui_logger import LoggingButton
-from utils.log_config import autosa_logger
+from utils.logger import autosa_logger
 from utils.settings import (
     get_autosa_version,
     is_settings_valid,

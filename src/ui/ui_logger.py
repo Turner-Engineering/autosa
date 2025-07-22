@@ -1,6 +1,6 @@
 import customtkinter as ctk
 
-from utils.log_config import autosa_logger
+from utils.logger import autosa_logger
 
 
 ### INTEGRATING LOGGING WITH CTK

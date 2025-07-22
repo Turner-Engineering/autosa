@@ -7,7 +7,7 @@ from instrument.instrument import get_run_filename, get_run_id, run_band
 from ui.get_resource_path import resource_path
 from ui.save_window_popups import CompletedWindow, NoRunNoteWindow
 from ui.ui_logger import LoggingButton, LoggingTopLevel
-from utils.log_config import autosa_logger
+from utils.logger import autosa_logger
 from utils.settings import read_settings_from_file
 
 

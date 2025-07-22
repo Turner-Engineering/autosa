@@ -12,7 +12,7 @@ from instrument.instrument import (
 )
 from ui.get_resource_path import resource_path
 from ui.ui_logger import ArrowButton, LargeButton, LoggingButton, LoggingTopLevel
-from utils.log_config import autosa_logger
+from utils.logger import autosa_logger
 from utils.settings import read_settings_from_file
 
 
