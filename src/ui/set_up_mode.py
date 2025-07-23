@@ -301,6 +301,7 @@ class SetUpModeFrame(ctk.CTkFrame):
             self.inst, state_folder, self.band_selected
         )
         recall_state(self.inst, state_folder, self.state_filename)
+        self.inst.write(":INIT:REST")
         autosa_logger.debug(f"Recalled State: {self.state_filename}")
 
         updated_ref_level = get_ref_level(self.inst)

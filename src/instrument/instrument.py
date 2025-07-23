@@ -2,7 +2,6 @@ import datetime
 import time
 
 import pyvisa
-import pyvisa.constants as pyvisa_constants
 
 from instrument.file_transfer import copy_file_to_local
 from instrument.folders import get_csv_folder, get_folder_files, get_sorted_folder
@@ -56,6 +55,7 @@ def get_inst():
         if resource_name != "":
             rm = pyvisa.ResourceManager()
             _inst = rm.open_resource(resource_name)
+            _inst.timeout = 5000
             inst = LoggedInstrument(_inst, autosa_logger)
     except pyvisa.errors.VisaIOError:
         inst = None
@@ -105,20 +105,20 @@ def validate_filename(inst, inst_out_folder, filename):
 
 # ONE LINERS
 def release_inst(inst):
-    inst.control_ren(pyvisa_constants.VI_GPIB_REN_DEASSERT_GTL)
+    inst.write("INST:GTL")  # INST:GTR locks
     autosa_logger.info("Instrument released.")
 
 
 def update_state(inst, state_folder, filename):
-    inst.write(f":MMEM:STOR:STAT '{state_folder}/{filename}'")
+    inst.write(f":MMEM:STOR:STAT '{state_folder}{filename}'")
 
 
 def recall_state(inst, state_folder, filename):
-    inst.write(f":MMEM:LOAD:STAT '{state_folder}/{filename}'")
+    inst.write(f":MMEM:LOAD:STAT '{state_folder}{filename}'")
 
 
 def recall_corr(inst, corr_folder, filename):
-    inst.write(f":MMEM:LOAD:CORR 1,'{corr_folder}/{filename}'")
+    inst.write(f":MMEM:LOAD:ANT '{filename}',{corr_folder}'")
 
 
 def set_coupling(inst, coupling):
@@ -140,11 +140,16 @@ def run_reset(inst):
 
 
 def set_marker_to_max(inst):
-    inst.write(":CALC:MARK1:MAX")
+    inst.write(":CALC:MARK1:FUNC:MAX")
 
 
 def save_trace(inst, csv_path):
-    inst.write(f':MMEM:STOR:TRAC:DATA ALL, "{csv_path}"')
+    inst.write(":FORM:DATA ASC")  # make it readable
+    inst.write(":CALC:MARK1:ACT")  # Activate marker
+    inst.write(":CALC:MARK1:FUNC:MAX")  # Move it to the peak of the trace
+
+    # Save the current trace to the given file path on FieldFox memory
+    inst.write(f':MMEM:STOR:FDAT "{csv_path}"')
 
 
 def set_ref_level(inst, ref_level):
@@ -190,15 +195,16 @@ def set_rounded_ref_level(inst, ref_level):
 
 
 def rename_screen(inst, new_name):
-    old_name = inst.query(":INST:SCR:SELECT?").replace("\n", "").replace('"', "")
+    inst.write("DISP:TITL 1")
+    old_name = inst.query(":DISP:TITL:DATA?")
     if old_name != new_name:
-        inst.write(f":INST:SCR:REN '{new_name}'")
+        inst.write(f":DISP:TITL:DATA '{new_name}'")
 
 
 def save_screen(inst, png_path):
-    inst.write(":DISP:FSCR:STAT ON")  # set to full screen
-    inst.write(":MMEM:STOR:SCR:THEM OUTL")  # set to light mode
-    inst.write(f':MMEM:STOR:SCR "{png_path}"')  # save screen
+    # inst.write(":DISP:FSCR:STAT ON")  # set to full screen
+    # inst.write(":MMEM:STOR:SCR:THEM OUTL")  # set to light mode
+    inst.write(f':MMEM:STOR:IMAG "{png_path}"')  # save screen
 
 
 def save_trace_and_screen(
@@ -212,8 +218,14 @@ def save_trace_and_screen(
         inst_out_folder (string): path to instrument output folder
         local_out_folder (string): path to local output folder
     """
-    csv_path = f"{inst_out_folder}/{filename}.csv"
-    png_path = f"{inst_out_folder}/{filename}.png"
+    print(inst_out_folder)
+    print(local_out_folder)
+
+    csv_path = f"{inst_out_folder}\\{filename}.csv"
+    png_path = f"{inst_out_folder}\\{filename}.png"
+
+    print(csv_path)
+    print(png_path)
 
     save_trace(inst, csv_path)
     save_screen(inst, png_path)
@@ -240,11 +252,16 @@ def record_and_adjust(inst, sweep_dur):
 
 
 def recall_cors(inst, corr_folder, corr_filename):
-    for i in range(16):
-        idx = i + 1
-        inst.write(f":SENS:CORR:CSET{idx} OFF")
+    dev_types = ["INT", "USB", "SD"]
 
-    inst.write(f":MMEM:LOAD:CORR 1, '{corr_folder}/{corr_filename}'")
+    device_type = None
+    for dev in dev_types:
+        if dev in corr_folder.upper():
+            device_type = dev
+            break
+
+    inst.write("AMPL:CORR:ANT 1")
+    inst.write(f":MMEM:LOAD:ANT '{corr_filename}',{device_type}")
 
 
 def create_run_filename(run_id, run_note, band_name, sweep_dur):
@@ -300,7 +317,7 @@ def prep_band(inst, band_key):
             )
 
         rename_screen(inst, band_key)
-        disable_ref_level_offset(inst)
+        # disable_ref_level_offset(inst)
         round_ref_level(inst)
         inst.write(":INIT:REST")
         release_inst(inst)

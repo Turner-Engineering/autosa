@@ -76,3 +76,19 @@ def get_csv_folder(out_folder):
     os.makedirs(csv_folder, exist_ok=True)
 
     return csv_folder
+
+
+def folder_exists(inst, folder_path):
+    try:
+        # Attempt to list the folder's contents
+        _ = inst.query(f'MMEM:CAT? "{folder_path}"')
+        return True
+    except Exception as e:
+        # print(f"Folder does not exist or error occurred: {e}")
+        try:
+            inst.write(f':MMEM:MDIR "{folder_path}"')
+            # print(f"Folder created: {folder_path}")
+            return True
+        except Exception as e2:
+            # print(f"Failed to create folder: {e2}")
+            return False

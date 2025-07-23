@@ -18,10 +18,10 @@ def get_autosa_version():
 SETTINGS_FILENAME = f"settings_{get_autosa_version()}.json"
 
 DEFAULT_SETTINGS = {
-    "-STATE FOLDER-": "D:/Users/Instrument/Desktop/State Files",
-    "-CORR FOLDER-": "D:/Users/Instrument/Desktop/Correction Files",
-    "-INST OUT FOLDER-": "D:/Users/Instrument/Desktop/Test Data",
-    "-LOCAL OUT FOLDER-": "",
+    "-STATE FOLDER-": "[USBDISK]:\\State File",
+    "-CORR FOLDER-": "[USBDISK]:\\Correction File",
+    "-INST OUT FOLDER-": "[USBDISK]:\\Test Data",
+    "-LOCAL OUT FOLDER-": "D:\\Users\\Desktop\\Test Data",
     "-SWEEP DUR-": "5",
     "-CORR CHOICES-": {
         "B0": "No Correction",

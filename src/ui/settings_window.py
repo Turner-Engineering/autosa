@@ -3,7 +3,7 @@ from tkinter import filedialog as fd
 
 import customtkinter as ctk
 
-from instrument.folders import get_folder_info
+from instrument.folders import folder_exists, get_folder_info
 from ui.get_resource_path import resource_path
 from ui.ui_logger import LoggingButton, LoggingTopLevel
 from utils.logger import autosa_logger
@@ -248,8 +248,7 @@ class SettingsWindow(LoggingTopLevel):
         self.transient(parent)
 
         # if folder exists:
-        settings = read_settings_from_file()
-        self.corr_choice = settings.get("-CORR CHOICES-", {})
+        self.corr_choice = read_settings_from_file().get("-CORR CHOICES-", {})
 
         self.settings_labels = {
             "-STATE FOLDER-": "State Files Folder",
@@ -262,7 +261,7 @@ class SettingsWindow(LoggingTopLevel):
         self.corr_dropdowns = []
         self.settings_vars = {
             key: ctk.StringVar(value=value)
-            for key, value in settings.items()
+            for key, value in read_settings_from_file().items()
             if key != "-CORR CHOICES-"
         }
 
@@ -390,6 +389,8 @@ class SettingsWindow(LoggingTopLevel):
             )
 
         settings["-CORR CHOICES-"] = self.corr_choice
+
+        # folder_exists(self.inst, self.settings_vars["-INST OUT FOLDER-"].get())
 
         write_settings_to_file(settings)
         self.update_valid()
