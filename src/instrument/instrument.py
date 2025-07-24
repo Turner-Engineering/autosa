@@ -11,6 +11,7 @@ from utils.run_ids import get_todays_run_ids, run_index_to_id
 from utils.settings import read_settings_from_file
 
 EMULATOR_RESOURCE_NAME = "TCPIP0::localhost::inst0::INSTR"
+# NOTE: FIELDFOX ID = USBInstrument at USB0::0x2A8D::0x5C18::MY61274042::0::INSTR
 
 
 def get_run_id(inst, inst_out_folder):
@@ -56,6 +57,7 @@ def get_inst():
             rm = pyvisa.ResourceManager()
             _inst = rm.open_resource(resource_name)
             _inst.timeout = 5000
+            # print(f"here: {_inst.write(':DISP:MOD:DATA?')}")  # "17" -N9917A
             inst = LoggedInstrument(_inst, autosa_logger)
     except pyvisa.errors.VisaIOError:
         inst = None
@@ -117,14 +119,6 @@ def recall_state(inst, state_folder, filename):
     inst.write(f":MMEM:LOAD:STAT '{state_folder}{filename}'")
 
 
-def recall_corr(inst, corr_folder, filename):
-    inst.write(f":MMEM:LOAD:ANT '{filename}',{corr_folder}'")
-
-
-def set_coupling(inst, coupling):
-    inst.write(f":INP:COUP {coupling}")
-
-
 def run_start(inst):
     autosa_logger.info("Measurement started.")
     inst.write(":INIT:CONT ON")
@@ -165,11 +159,11 @@ def get_ref_level(inst):
 
 
 def disable_ref_level_offset(inst):
-    inst.write(":DISP:WIND:TRAC:Y:RLEV:OFFS:STAT OFF")
+    inst.write(":DISP:WIND:TRAC:Y:RPOS 0")
 
 
 def get_trace_max(inst, trace_num=1):
-    data = inst.query(f":TRAC? TRACE{trace_num}").replace("\n", "")
+    data = inst.query(f":CALC:MARK{trace_num}:TRAC?").replace("\n", "")
     data = data.split(",")
     data = [float(d) for d in data]
     return max(data)
@@ -202,8 +196,6 @@ def rename_screen(inst, new_name):
 
 
 def save_screen(inst, png_path):
-    # inst.write(":DISP:FSCR:STAT ON")  # set to full screen
-    # inst.write(":MMEM:STOR:SCR:THEM OUTL")  # set to light mode
     inst.write(f':MMEM:STOR:IMAG "{png_path}"')  # save screen
 
 
@@ -218,14 +210,8 @@ def save_trace_and_screen(
         inst_out_folder (string): path to instrument output folder
         local_out_folder (string): path to local output folder
     """
-    print(inst_out_folder)
-    print(local_out_folder)
-
     csv_path = f"{inst_out_folder}\\{filename}.csv"
     png_path = f"{inst_out_folder}\\{filename}.png"
-
-    print(csv_path)
-    print(png_path)
 
     save_trace(inst, csv_path)
     save_screen(inst, png_path)
@@ -248,7 +234,7 @@ def record_and_adjust(inst, sweep_dur):
 
     # ADJUST
     set_marker_to_max(inst)
-    # adjust_ref_level(inst)
+    adjust_ref_level(inst)
 
 
 def recall_cors(inst, corr_folder, corr_filename):
@@ -317,7 +303,7 @@ def prep_band(inst, band_key):
             )
 
         rename_screen(inst, band_key)
-        # disable_ref_level_offset(inst)
+        disable_ref_level_offset(inst)
         round_ref_level(inst)
         inst.write(":INIT:REST")
         release_inst(inst)

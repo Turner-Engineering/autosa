@@ -91,10 +91,6 @@ def main():
         write_settings_to_file(DEFAULT_SETTINGS)  # make default settings
 
     inst, inst_found, inst_name = get_inst()
-    # print(f"inst: {inst}\ninst_found: {inst_found}\ninst_name: {inst_name}")
-    # state_folder = read_settings_from_file()["-STATE FOLDER-"]
-    # print(state_folder)
-    # print(inst.query(f'MMEM:CAT? "{state_folder}"'))
 
     app = MainApp(inst, inst_found, inst_name)
     app.resizable(False, False)

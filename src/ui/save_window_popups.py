@@ -221,7 +221,6 @@ class ManualSaveWindow(LoggingTopLevel):
     def trace_screen_filename(self, *args):
         run_note = self.run_note_var.get()
         band = self.band_var.get()
-        # filename = get_run_filename(self.run_id, run_note, band)
         filename = get_run_filename(self.inst, band, run_note, self.sweep_dur)
 
         self.trace_file_var.set(f"{filename}.csv")

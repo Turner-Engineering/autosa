@@ -390,7 +390,7 @@ class SettingsWindow(LoggingTopLevel):
 
         settings["-CORR CHOICES-"] = self.corr_choice
 
-        # folder_exists(self.inst, self.settings_vars["-INST OUT FOLDER-"].get())
+        folder_exists(self.inst, self.settings_vars["-INST OUT FOLDER-"].get())
 
         write_settings_to_file(settings)
         self.update_valid()

@@ -2,6 +2,8 @@ import csv
 import datetime
 import os
 
+# NOTE: cannot put autosa_logger in this file due to circular import
+
 
 def get_folder_info(inst, folder_path):
     folder_path = folder_path.replace("/", "\\").strip()
@@ -80,15 +82,16 @@ def get_csv_folder(out_folder):
 
 def folder_exists(inst, folder_path):
     try:
-        # Attempt to list the folder's contents
-        _ = inst.query(f'MMEM:CAT? "{folder_path}"')
-        return True
-    except Exception as e:
-        # print(f"Folder does not exist or error occurred: {e}")
-        try:
-            inst.write(f':MMEM:MDIR "{folder_path}"')
-            # print(f"Folder created: {folder_path}")
+        resp = inst.query(f'MMEM:CAT? "{folder_path}"').strip()
+
+        # check if folder exists & empty
+        if resp == '0,0,""':
+            inst.write(f':MMEM:MDIR "{folder_path}"')  # if empty, create
             return True
-        except Exception as e2:
-            # print(f"Failed to create folder: {e2}")
+    except Exception:
+        try:
+            # if it doesn't exist, try creating
+            inst.write(f':MMEM:MDIR "{folder_path}"')
+            return True
+        except Exception:
             return False
