@@ -14,6 +14,14 @@ EMULATOR_RESOURCE_NAME = "TCPIP0::localhost::inst0::INSTR"
 # NOTE: FIELDFOX ID = USBInstrument at USB0::0x2A8D::0x5C18::MY61274042::0::INSTR
 
 
+def get_model_num(inst):
+    # FieldFox -> Keysight Technologies,N9917A,MY61274042,A.13.31
+    inst_idn = inst.query("*IDN?")
+    model_num = inst_idn.strip().split(",")[1]
+
+    return model_num
+
+
 def get_run_id(inst, inst_out_folder):
     filenames = get_folder_files(inst, inst_out_folder)
     todays_run_ids = get_todays_run_ids(filenames)
@@ -57,7 +65,6 @@ def get_inst():
             rm = pyvisa.ResourceManager()
             _inst = rm.open_resource(resource_name)
             _inst.timeout = 5000
-            # print(f"here: {_inst.write(':DISP:MOD:DATA?')}")  # "17" -N9917A
             inst = LoggedInstrument(_inst, autosa_logger)
     except pyvisa.errors.VisaIOError:
         inst = None
