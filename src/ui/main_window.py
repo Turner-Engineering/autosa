@@ -3,7 +3,7 @@ import subprocess
 
 import customtkinter as ctk
 
-from instrument.instrument import release_inst
+from instrument.instrument import compare_datetime, release_inst
 from ui.get_resource_path import resource_path
 from ui.help_window import HelpWindow
 from ui.manual_mode import ManualModeFrame
@@ -36,6 +36,16 @@ class HeaderFrame(ctk.CTkFrame):
         self.label_color = parent.label_color
         self.configure(fg_color=self.frame_color, bg_color=self.frame_color)
         self.columnconfigure(0, weight=1)
+
+        self.dt_diff, self.dt_check = compare_datetime(self.inst)
+        self.dt_check_text = (
+            ""
+            if self.dt_check
+            else f"❌ Instrument and laptop datetime differ by {self.dt_diff}"
+        )
+        self.dt_check_color = "green" if self.dt_check else "red"
+        self.dt_match_var = ctk.StringVar()
+        self.dt_match_var.set(value=self.dt_check_text)
 
         self.valid_settings_label = ctk.CTkLabel(self)
         self.settings_error_var = ctk.StringVar()
@@ -100,6 +110,17 @@ class HeaderFrame(ctk.CTkFrame):
             font=("", 12),
             height=20,
         ).grid(row=1, column=0, sticky="w", padx=10)
+
+        ctk.CTkLabel(
+            self,
+            textvariable=self.dt_match_var,
+            text_color=self.dt_check_color,
+            justify="left",
+            anchor="w",
+            fg_color=self.label_color,
+            font=("", 12),
+            height=20,
+        ).grid(row=2, column=0, sticky="w", padx=10)
 
         self.valid_settings_label = ctk.CTkLabel(
             self,
