@@ -1,6 +1,10 @@
 import logging
+from logging.handlers import RotatingFileHandler
 
 from utils.settings import get_log_path
+
+SIZE = 1024 * 1024 * 2  # 2 Megabytes
+
 
 # create logger
 formatter = logging.Formatter(
@@ -8,11 +12,12 @@ formatter = logging.Formatter(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-debug_handler = logging.FileHandler(get_log_path("debug"))
+
+debug_handler = RotatingFileHandler(get_log_path("debug"), maxBytes=SIZE, backupCount=5)
 debug_handler.setLevel(logging.DEBUG)
 debug_handler.setFormatter(formatter)
 
-info_handler = logging.FileHandler(get_log_path("info"))
+info_handler = RotatingFileHandler(get_log_path("info"), maxBytes=SIZE, backupCount=5)
 info_handler.setLevel(logging.INFO)
 info_handler.setFormatter(formatter)
 
