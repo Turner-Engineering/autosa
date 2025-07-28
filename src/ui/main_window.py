@@ -37,11 +37,11 @@ class HeaderFrame(ctk.CTkFrame):
         self.configure(fg_color=self.frame_color, bg_color=self.frame_color)
         self.columnconfigure(0, weight=1)
 
-        self.dt_diff, self.dt_check = compare_datetime(self.inst)
+        self.dt_diff, self.dt_check = compare_datetime(self.inst, self.inst_name)
         self.dt_check_text = (
             ""
             if self.dt_check
-            else f"❌ Instrument and laptop datetime differ by {self.dt_diff}"
+            else f"⚠️ Instrument and laptop datetime differ by {self.dt_diff}"
         )
         self.dt_check_color = "green" if self.dt_check else "red"
         self.dt_match_var = ctk.StringVar()

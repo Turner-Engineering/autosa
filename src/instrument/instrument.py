@@ -170,20 +170,22 @@ def get_trace_max(inst, trace_num=1):
     return max(data)
 
 
-def compare_datetime(inst):
-    dt_fmt = "%Y-%m-%d %H:%M:%S"
+def compare_datetime(inst, inst_name):
+    # doesn't launch in Disconnected Mode without this check
+    if inst_name in ["Emulator", "Instrument"]:
+        dt_fmt = "%Y,%m,%d %H,%M,%S"
+        inst_date = inst.query("SYST:DATE?").strip()
+        inst_time = inst.query("SYST:TIME?").strip()
 
-    # get inst date and time
-    inst_date = inst.query("SYST:DATE?").replace("\n", "").replace(",", "-")
-    inst_time = inst.query("SYST:TIME?").replace("\n", "").replace(",", ":")
-    inst_datetime = datetime.datetime.strptime(f"{inst_date} {inst_time}", dt_fmt)
+        inst_datetime = datetime.datetime.strptime(f"{inst_date} {inst_time}", dt_fmt)
+        local_datetime = datetime.datetime.now().replace(second=0, microsecond=0)
+        inst_datetime = inst_datetime.replace(second=0, microsecond=0)
 
-    local_datetime = datetime.datetime.now().replace(second=0, microsecond=0)
-    inst_datetime = inst_datetime.replace(second=0, microsecond=0)
+        datetime_diff = abs(inst_datetime - local_datetime)
 
-    datetime_diff = abs(inst_datetime - local_datetime)
+        return datetime_diff, datetime_diff.seconds < 300
 
-    return datetime_diff, datetime_diff.seconds < 300
+    return 0, False
 
 
 def adjust_ref_level(inst):
