@@ -420,6 +420,7 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
     # path check/creation
     test_log_path = os.path.join(local_out_folder, "autosa_test_log.csv")
     file_exists = os.path.exists(test_log_path)
+    # TODO: use dictionary
 
     try:
         with open(test_log_path, mode="a", newline="") as file:
