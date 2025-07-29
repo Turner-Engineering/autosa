@@ -412,10 +412,10 @@ class MultiModeFrame(ctk.CTkFrame):
             band_key = self.band_keys[i]
             run_note = self.run_note_var.get()
 
-            self.run_filename = get_run_filename(
+            _, self.run_filename = get_run_filename(
                 self.inst, band_key, run_note, sweep_dur, band_ori
             )
-            run_band(self.inst, band_key, self.run_filename, band_ori)
+            run_band(self.inst, band_key, self.run_filename, band_ori, run_note)
 
             # Mark checkbox complete
             checkbox, check_var = self.band_checkbox[band_key]

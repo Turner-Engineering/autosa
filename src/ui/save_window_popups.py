@@ -75,6 +75,7 @@ class ManualSaveWindow(LoggingTopLevel):
         frame_color,
         label_color,
         run_filename,
+        run_note,
         run_id,
         sweep_dur,
     ):
@@ -96,6 +97,7 @@ class ManualSaveWindow(LoggingTopLevel):
         self.inst = inst
         self.discon_btn_st = discon_btn_st
         self.run_filename = run_filename
+        self.run_note = run_note
         self.run_id = run_id
         self.sweep_dur = sweep_dur
 
@@ -221,8 +223,7 @@ class ManualSaveWindow(LoggingTopLevel):
     def trace_screen_filename(self, *args):
         run_note = self.run_note_var.get()
         band = self.band_var.get()
-        # filename = get_run_filename(self.run_id, run_note, band)
-        filename = get_run_filename(self.inst, band, run_note, self.sweep_dur)
+        _, filename = get_run_filename(self.inst, band, run_note, self.sweep_dur)
 
         self.trace_file_var.set(f"{filename}.csv")
         self.screen_file_var.set(f"{filename}.png")
@@ -236,13 +237,17 @@ class ManualSaveWindow(LoggingTopLevel):
             self.lower()
             NoRunNoteWindow(self)
         else:
-            self.run_filename = get_run_filename(
+            _, self.run_filename = get_run_filename(
                 self.inst, band, run_note, self.sweep_dur
             )
+            self.run_note = self.run_note_var.get()
             self.destroy()
 
     def get_filename(self):
         return self.run_filename
+
+    def get_run_note(self):
+        return self.run_note_var.get()
 
     def get_band(self):
         return self.band_var.get().strip()

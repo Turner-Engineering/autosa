@@ -47,6 +47,7 @@ class ManualModeFrame(ctk.CTkFrame):
 
         self.is_paused = True
         self.run_filename = None
+        self.run_note = None
 
         self.button_list = []
         self.measure_button_imgs = []
@@ -278,12 +279,14 @@ class ManualModeFrame(ctk.CTkFrame):
             self.frame_color,
             self.label_color,
             self.run_filename,
+            self.run_note,
             run_id,
             sweep_dur,
         )
 
         self.wait_window(run_file)
         self.run_filename = run_file.get_filename()
+        run_note = run_file.get_run_note()
         band_key = run_file.get_band()
 
         if self.run_filename is not None:
@@ -293,6 +296,8 @@ class ManualModeFrame(ctk.CTkFrame):
                 self.inst_output_folder,
                 self.local_folder,
                 band_key,
+                run_note,
+                sweep_dur,
             )
 
         self.run_filename = None

@@ -1,4 +1,6 @@
+import csv
 import datetime
+import os
 import time
 
 import pyvisa
@@ -220,7 +222,13 @@ def save_screen(inst, png_path):
 
 
 def save_trace_and_screen(
-    inst, filename: str, inst_out_folder: str, local_out_folder: str, band: str
+    inst,
+    filename: str,
+    inst_out_folder: str,
+    local_out_folder: str,
+    band: str,
+    run_note: str,
+    sweep_dur: float,
 ):
     """Save the trace to a csv file and the screen to a png file on the instrument, then copy both to the local computer
 
@@ -230,6 +238,9 @@ def save_trace_and_screen(
         inst_out_folder (string): path to instrument output folder
         local_out_folder (string): path to local output folder
     """
+
+    write_to_test_log(inst, filename, run_note, band, sweep_dur)  # upon save
+
     csv_path = f"{inst_out_folder}/{filename}.csv"
     png_path = f"{inst_out_folder}/{filename}.png"
 
@@ -266,17 +277,17 @@ def recall_cors(inst, corr_folder, corr_filename):
 
 
 def create_run_filename(run_id, run_note, band_name, sweep_dur):
-    cur_time = datetime.datetime.now().strftime("%H_%M_%S")
-    filename = f"{run_id} {run_note} {sweep_dur}s {band_name} {cur_time}"
-    return filename
+    saved_time = datetime.datetime.now().strftime("%H_%M_%S")
+    filename = f"{run_id} {run_note} {sweep_dur}s {band_name} {saved_time}"
+    return saved_time, filename
 
 
 def get_run_filename(inst, band_key, run_note, sweep_dur, band_ori=""):
     inst_out_folder = read_settings_from_file()["-INST OUT FOLDER-"]
     run_id = get_run_id(inst, inst_out_folder)
     band_name = band_key + band_ori
-    filename = create_run_filename(run_id, run_note, band_name, sweep_dur)
-    return filename
+    saved_time, filename = create_run_filename(run_id, run_note, band_name, sweep_dur)
+    return saved_time, filename
 
 
 def write_txt_file(filename, text):
@@ -327,7 +338,7 @@ def prep_band(inst, band_key):
     return error_message
 
 
-def run_band(inst, band_key, run_filename, band_ori, save=True):
+def run_band(inst, band_key, run_filename, band_ori, run_note, save=True):
     inst_out_folder = read_settings_from_file()["-INST OUT FOLDER-"]
     local_out_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
     sweep_dur = float(read_settings_from_file()["-SWEEP DUR-"])
@@ -350,7 +361,103 @@ def run_band(inst, band_key, run_filename, band_ori, save=True):
     if save:
         band_name = band_key + band_ori
         save_trace_and_screen(
-            inst, run_filename, inst_out_folder, local_out_folder, band_name
+            inst,
+            run_filename,
+            inst_out_folder,
+            local_out_folder,
+            band_name,
+            run_note,
+            sweep_dur,
         )
 
     return error_message
+
+
+def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
+    # get band info
+    band_key = band[:2]
+    band_ori = (
+        "" if (len(band) == 2 or band[2].lower() not in ["h", "v"]) else band[2].lower()
+    )
+    band_orientation = (
+        "Horizontal" if band_ori == "h" else "Vertical" if band_ori == "v" else "None"
+    )
+    saved_time, _ = get_run_filename(inst, band_key, run_note, sweep_dur, band_ori)
+
+    settings = read_settings_from_file()
+    inst_out_folder = settings["-INST OUT FOLDER-"]
+    state_folder = settings["-STATE FOLDER-"]
+    local_out_folder = settings["-LOCAL OUT FOLDER-"]
+
+    corr_val = settings["-CORR CHOICES-"].get(band_key, "No Correction")
+    corr_filename = "UNKNOWN" if corr_val == "No Correction" else corr_val
+
+    state_filename = get_state_file(inst, state_folder, band_key)
+
+    run_id = get_run_id(inst, inst_out_folder)
+    date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    # inst, filename, band
+    # print("in function: write_to_test_log()")
+    # print(inst)
+    # print(run_id)
+    # print(run_note)
+    # print(sweep_dur)
+    # print(inst_out_folder)
+    # print(state_folder)
+    # print(corr_folder)
+    # print(local_out_folder)
+    # print(corr_filename)
+    # print(f"{run_filename}.csv/png")
+    # print(band)
+    # print(band_key)
+    # print(band_ori)
+    # print(band_orientation)
+    # print(state_filename)
+    # print(date)
+    # print(saved_time)
+
+    # path check/creation
+    test_log_path = os.path.join(local_out_folder, "autosa_test_log.csv")
+    file_exists = os.path.exists(test_log_path)
+
+    try:
+        with open(test_log_path, mode="a", newline="") as file:
+            writer = csv.writer(file)
+            if not file_exists:
+                writer.writerow(
+                    [
+                        "Run ID",
+                        "Run Note",
+                        "Sweep Dur",
+                        "Band",
+                        "Band Orientation",
+                        "Time",
+                        "Date",
+                        "Run Filename (csv/png)",
+                        "State Filename",
+                        "Correction Filename",
+                    ]
+                )
+            writer.writerow(
+                [
+                    run_id,
+                    run_note,
+                    sweep_dur,
+                    band_key,
+                    band_orientation,
+                    saved_time,
+                    date,
+                    run_filename,
+                    state_filename,
+                    corr_filename,
+                ]
+            )
+
+            print("Saved")
+    except Exception as e:
+        print(f"Failed to write log entry: {e}")
+
+    # with open("autosa_test_log.csv", "w") as file:
+    #     writer = csv.writer(file)
+    #     writer.writerows(data)
