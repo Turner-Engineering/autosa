@@ -169,6 +169,8 @@ class HeaderFrame(ctk.CTkFrame):
         SettingsWindow(
             self,
             self.inst,
+            self.label_color,
+            self.frame_color,
             self.update_valid,
             self.update_output_folder,
             self.inst_found,

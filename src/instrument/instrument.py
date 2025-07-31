@@ -5,13 +5,14 @@ import time
 
 import pyvisa
 import pyvisa.constants as pyvisa_constants
+from tzlocal import get_localzone
 
 from instrument.file_transfer import copy_file_to_local
 from instrument.folders import get_csv_folder, get_folder_files, get_sorted_folder
 from instrument.logged_instrument import LoggedInstrument
 from utils.logger import autosa_logger
 from utils.run_ids import get_todays_run_ids, run_index_to_id
-from utils.settings import read_settings_from_file
+from utils.settings import get_autosa_version, read_settings_from_file
 
 EMULATOR_RESOURCE_NAME = "TCPIP0::localhost::inst0::INSTR"
 
@@ -153,12 +154,50 @@ def set_ref_level(inst, ref_level):
     inst.write(f":DISP:WIND:TRAC:Y:RLEV {ref_level}")
 
 
+def convert_freq(freq):
+    freq_hz = float(freq.strip())
+
+    if freq_hz >= 1e9:
+        return f"{freq_hz / 1e9:.3f} GHz"
+    elif freq_hz >= 1e6:
+        return f"{freq_hz / 1e6:.3f} MHz"
+    elif freq_hz >= 1e3:
+        return f"{freq_hz / 1e3:.3f} kHz"
+    else:
+        return f"{freq_hz:.3f} Hz"
+
+
+def get_freq_start(inst):
+    return convert_freq(inst.query(":SENS:FREQ:STAR?"))
+
+
+def get_freq_stop(inst):
+    return convert_freq(inst.query(":SENS:FREQ:STOP?"))
+
+
+def get_rbw(inst):
+    return convert_freq(inst.query(":SENS:BAND:RES?"))
+
+
+def get_max_amp_freq(inst):
+    # find max first
+    return convert_freq(inst.query(":CALC:MARK1:X?"))
+
+
+def get_atten(inst):
+    return inst.query(":POW:ATT?").strip()
+
+
 def get_ref_level(inst):
     if inst is not None:
         ref_level = float(inst.query(":DISP:WIND:TRAC:Y:RLEV?").replace("\n", ""))
     else:
         ref_level = 0.0
     return ref_level
+
+
+def get_ref_offset(inst):
+    return float(inst.query(":DISP:WIND:TRAC:Y:RLEV:OFFS?"))
 
 
 def disable_ref_level_offset(inst):
@@ -373,92 +412,105 @@ def run_band(inst, band_key, run_filename, band_ori, run_note, save=True):
     return error_message
 
 
+# TODO: MOVE TO UTILS, cannot currently due to circular imports
 def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
+    laptop_name = os.environ.get("COMPUTERNAME")
+    local_tz = get_localzone()
+    version = get_autosa_version()
+
     # get band info
     band_key = band[:2]
     band_ori = (
         "" if (len(band) == 2 or band[2].lower() not in ["h", "v"]) else band[2].lower()
     )
-    band_orientation = (
+    antenna_orientation = (
         "Horizontal" if band_ori == "h" else "Vertical" if band_ori == "v" else "None"
     )
-    saved_time, _ = get_run_filename(inst, band_key, run_note, sweep_dur, band_ori)
 
+    # time info
+    saved_time, _ = get_run_filename(inst, band_key, run_note, sweep_dur, band_ori)
+    date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    # folders
     settings = read_settings_from_file()
     inst_out_folder = settings["-INST OUT FOLDER-"]
     state_folder = settings["-STATE FOLDER-"]
     local_out_folder = settings["-LOCAL OUT FOLDER-"]
+    corr_folder = settings["-CORR CHOICES-"]
 
-    corr_val = settings["-CORR CHOICES-"].get(band_key, "No Correction")
-    corr_filename = "UNKNOWN" if corr_val == "No Correction" else corr_val
-
+    # filenames
+    corr_filename = corr_folder.get(band_key, "No Correction")
     state_filename = get_state_file(inst, state_folder, band_key)
 
+    # other run info
     run_id = get_run_id(inst, inst_out_folder)
-    date = datetime.datetime.now().strftime("%Y-%m-%d")
+    ref_level = get_ref_level(inst)
+    ref_offset = get_ref_offset(inst)
+    freq_start = get_freq_start(inst)
+    freq_stop = get_freq_stop(inst)
+    rbw = get_rbw(inst)
+    max_amp = get_trace_max(inst)
+    max_amp_freq = get_max_amp_freq(inst)
+    atten = get_atten(inst)
+    # mode of measurement (manual, single band, multi band) - circular import
 
-    # inst, filename, band
-    # print("in function: write_to_test_log()")
-    # print(inst)
-    # print(run_id)
-    # print(run_note)
-    # print(sweep_dur)
-    # print(inst_out_folder)
-    # print(state_folder)
-    # print(corr_folder)
-    # print(local_out_folder)
-    # print(corr_filename)
-    # print(f"{run_filename}.csv/png")
-    # print(band)
-    # print(band_key)
-    # print(band_ori)
-    # print(band_orientation)
-    # print(state_filename)
-    # print(date)
-    # print(saved_time)
+    intro_info = {
+        "Autosa Version": version,
+        "Instrument ID": inst,
+        "Test Laptop Name": laptop_name,
+        "State Folder": state_folder,
+        "Correction Folder": corr_folder,
+        "Instrument Output Folder": inst_out_folder,
+        "Local Output Folder": local_out_folder,
+        "Timezone": local_tz,
+        # Test engineer (current user)
+        # Location
+        # Test/Project Name
+    }
 
-    # path check/creation
-    test_log_path = os.path.join(local_out_folder, "autosa_test_log.csv")
-    file_exists = os.path.exists(test_log_path)
-    # TODO: use dictionary
+    measurement_data = {
+        "Run ID": run_id,
+        "Run Note": run_note,
+        "Sweep Dur": sweep_dur,
+        "Band": band_key,
+        "Antenna Orientation": antenna_orientation,
+        "Time": saved_time,
+        "Date": date,
+        "Run Filename (csv/png)": run_filename,
+        "State Filename": state_filename,
+        "Correction Filename": corr_filename,
+        "Reference Level": ref_level,
+        "Reference Offset": ref_offset,
+        "Frequency Start": freq_start,
+        "Frequency Stop": freq_stop,
+        "Resolution Bandwidth": rbw,
+        "Max Amplitude": max_amp,
+        "Max Amplitude Frequency": max_amp_freq,
+        "Attenuation (dB)": atten,
+    }
 
     try:
+        # path check/creation
+        test_log_path = os.path.join(local_out_folder, "2nd_autosa_test_log.csv")
+        file_exists = os.path.exists(test_log_path)
+        is_empty = not file_exists or os.stat(test_log_path).st_size == 0
+
+        if is_empty:
+            with open(test_log_path, mode="w", newline="") as file:
+                writer = csv.writer(file)
+                # Write once-off info
+                for key, value in intro_info.items():
+                    writer.writerow([f"{key}: {value}"])
+                writer.writerow(["++++++++++++++++++++"])
+                writer.writerow(measurement_data.keys())
+
+        for key, value in measurement_data.items():
+            if value == "" or value == "No Correction" or value is None:
+                measurement_data[key] = "UNKNOWN"
+
         with open(test_log_path, mode="a", newline="") as file:
             writer = csv.writer(file)
-            if not file_exists:
-                writer.writerow(
-                    [
-                        "Run ID",
-                        "Run Note",
-                        "Sweep Dur",
-                        "Band",
-                        "Band Orientation",
-                        "Time",
-                        "Date",
-                        "Run Filename (csv/png)",
-                        "State Filename",
-                        "Correction Filename",
-                    ]
-                )
-            writer.writerow(
-                [
-                    run_id,
-                    run_note,
-                    sweep_dur,
-                    band_key,
-                    band_orientation,
-                    saved_time,
-                    date,
-                    run_filename,
-                    state_filename,
-                    corr_filename,
-                ]
-            )
+            writer.writerow(measurement_data.values())
 
-            print("Saved")
     except Exception as e:
         print(f"Failed to write log entry: {e}")
-
-    # with open("autosa_test_log.csv", "w") as file:
-    #     writer = csv.writer(file)
-    #     writer.writerows(data)
