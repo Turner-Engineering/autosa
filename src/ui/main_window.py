@@ -12,7 +12,7 @@ from ui.release_mode import ReleaseMode
 from ui.set_up_mode import SetUpModeFrame
 from ui.settings_window import SettingsWindow
 from ui.single_band_mode import SingleModeFrame
-from ui.ui_logger import LoggingButton
+from ui.ui_logger import LoggingButton, OutlineButton
 from utils.logger import autosa_logger
 from utils.settings import (
     get_autosa_version,
@@ -70,7 +70,7 @@ class HeaderFrame(ctk.CTkFrame):
             command=lambda: self.settings_window(),
         ).grid(row=0, column=1, sticky="ne", padx=10, pady=10, rowspan=3)
 
-        self.output_folder_button = LoggingButton(
+        self.output_folder_button = OutlineButton(
             self,
             text="Open Output Folder",
             height=10,
@@ -83,7 +83,7 @@ class HeaderFrame(ctk.CTkFrame):
 
         self.output_folder_button.grid(row=1, column=1, sticky="ne", padx=10, rowspan=3)
 
-        ctk.CTkButton(
+        OutlineButton(
             self,
             text="Help",
             height=10,

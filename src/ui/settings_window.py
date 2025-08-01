@@ -4,6 +4,7 @@ from tkinter import filedialog as fd
 import customtkinter as ctk
 
 from instrument.folders import get_folder_info
+from instrument.instrument import get_input
 from ui.get_resource_path import resource_path
 from ui.test_log_window import OpenTestLog
 from ui.ui_logger import LoggingButton, LoggingTopLevel
@@ -307,16 +308,12 @@ class SettingsWindow(LoggingTopLevel):
 
         test_log = LoggingButton(
             frame1,
-            text="Open/Create Test Log",
-            font=("", 8),
+            text="Start New Log",
+            font=("", 10),
             width=16,
             height=10,
             anchor="center",
-            fg_color="#979da2",
-            hover_color="#676b6e",
-            command=lambda: OpenTestLog(
-                self, self.inst, self.inst_found, self.frame_color, self.label_color
-            ),
+            command=self.open_test_log,
         )
         test_log.grid(row=1, column=0, padx=5, sticky="w")
 
@@ -428,3 +425,14 @@ class SettingsWindow(LoggingTopLevel):
             "Any settings changed in the Settings window was canceled and not saved."
         )
         self.destroy()
+
+    def open_test_log(self):
+        self.log_window = OpenTestLog(
+            self, self.inst, self.inst_found, self.frame_color, self.label_color
+        )
+        self.log_window.wait_window()  # Block until window closes
+
+        # Get the result
+        test_log_data = getattr(self.log_window, "return_data", None)
+        if test_log_data:
+            get_input(test_log_data)

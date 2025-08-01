@@ -13,8 +13,10 @@ from instrument.logged_instrument import LoggedInstrument
 from utils.logger import autosa_logger
 from utils.run_ids import get_todays_run_ids, run_index_to_id
 from utils.settings import get_autosa_version, read_settings_from_file
+from utils.test_log import get_latest_test_log
 
 EMULATOR_RESOURCE_NAME = "TCPIP0::localhost::inst0::INSTR"
+INPUT_LOG_INFO = {}
 
 
 def get_run_id(inst, inst_out_folder):
@@ -154,34 +156,21 @@ def set_ref_level(inst, ref_level):
     inst.write(f":DISP:WIND:TRAC:Y:RLEV {ref_level}")
 
 
-def convert_freq(freq):
-    freq_hz = float(freq.strip())
-
-    if freq_hz >= 1e9:
-        return f"{freq_hz / 1e9:.3f} GHz"
-    elif freq_hz >= 1e6:
-        return f"{freq_hz / 1e6:.3f} MHz"
-    elif freq_hz >= 1e3:
-        return f"{freq_hz / 1e3:.3f} kHz"
-    else:
-        return f"{freq_hz:.3f} Hz"
-
-
 def get_freq_start(inst):
-    return convert_freq(inst.query(":SENS:FREQ:STAR?"))
+    return inst.query(":SENS:FREQ:STAR?").strip()
 
 
 def get_freq_stop(inst):
-    return convert_freq(inst.query(":SENS:FREQ:STOP?"))
+    return inst.query(":SENS:FREQ:STOP?").strip()
 
 
 def get_rbw(inst):
-    return convert_freq(inst.query(":SENS:BAND:RES?"))
+    return inst.query(":SENS:BAND:RES?").strip()
 
 
-def get_max_amp_freq(inst):
-    # find max first
-    return convert_freq(inst.query(":CALC:MARK1:X?"))
+def get_max_amp_freq(inst, trace=1):
+    get_trace_max(inst, trace)
+    return inst.query(f":CALC:MARK{trace}:X?").strip()
 
 
 def get_atten(inst):
@@ -412,8 +401,25 @@ def run_band(inst, band_key, run_filename, band_ori, run_note, save=True):
     return error_message
 
 
-# TODO: MOVE TO UTILS, cannot currently due to circular imports
+def get_input(test_log_data):
+    global INPUT_LOG_INFO
+    INPUT_LOG_INFO = test_log_data
+    return INPUT_LOG_INFO
+
+
+# TODO - move out of instrument.py to utils
 def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
+    log_filename = get_latest_test_log()
+    print(log_filename)
+
+    # new test log was initiated - user input
+    global INPUT_LOG_INFO
+    input_fields = INPUT_LOG_INFO
+
+    # log_filename = input_fields.get("Log Filename") # new filename
+    test_engineer = input_fields.get("Test Engineer")
+    project_name = input_fields.get("Project Name")
+
     laptop_name = os.environ.get("COMPUTERNAME")
     local_tz = get_localzone()
     version = get_autosa_version()
@@ -436,7 +442,7 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
     inst_out_folder = settings["-INST OUT FOLDER-"]
     state_folder = settings["-STATE FOLDER-"]
     local_out_folder = settings["-LOCAL OUT FOLDER-"]
-    corr_folder = settings["-CORR CHOICES-"]
+    corr_folder = settings["-CORR FOLDER-"]
 
     # filenames
     corr_filename = corr_folder.get(band_key, "No Correction")
@@ -455,6 +461,9 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
     # mode of measurement (manual, single band, multi band) - circular import
 
     intro_info = {
+        "Project Name": project_name,
+        "Timezone": local_tz,
+        "Test Engineer": test_engineer,
         "Autosa Version": version,
         "Instrument ID": inst,
         "Test Laptop Name": laptop_name,
@@ -462,10 +471,6 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
         "Correction Folder": corr_folder,
         "Instrument Output Folder": inst_out_folder,
         "Local Output Folder": local_out_folder,
-        "Timezone": local_tz,
-        # Test engineer (current user)
-        # Location
-        # Test/Project Name
     }
 
     measurement_data = {
@@ -490,8 +495,7 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
     }
 
     try:
-        # path check/creation
-        test_log_path = os.path.join(local_out_folder, "2nd_autosa_test_log.csv")
+        test_log_path = os.path.join(local_out_folder, log_filename)
         file_exists = os.path.exists(test_log_path)
         is_empty = not file_exists or os.stat(test_log_path).st_size == 0
 
