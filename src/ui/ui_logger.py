@@ -41,6 +41,19 @@ class LoggingButton(ctk.CTkButton):
         self.configure(command=on_click)
 
 
+class LoggerRadioButton(ctk.CTkRadioButton):
+    def __init__(self, parent, *args, **kwargs):
+        self._user_command = kwargs.pop("command", None)
+        super().__init__(parent, *args, **kwargs)
+        self.configure(command=self.on_click)
+
+    def on_click(self):
+        button_text = self.cget("text")
+        autosa_logger.info(f'[RADIOBUTTON] User selected "{button_text}".')
+        if self._user_command:
+            self._user_command()
+
+
 ### VISUAL CUSTOMIZING TO LOGGING WITH CTK
 class ArrowButton(LoggingButton):
     def __init__(self, parent, *args, **kwargs):
