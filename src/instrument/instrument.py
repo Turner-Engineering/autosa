@@ -443,9 +443,10 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
     state_folder = settings["-STATE FOLDER-"]
     local_out_folder = settings["-LOCAL OUT FOLDER-"]
     corr_folder = settings["-CORR FOLDER-"]
+    corr_filenames = settings["-CORR CHOICES-"]
 
     # filenames
-    corr_filename = corr_folder.get(band_key, "No Correction")
+    corr_filename = corr_filenames.get(band_key, "No Correction")
     state_filename = get_state_file(inst, state_folder, band_key)
 
     # other run info

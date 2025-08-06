@@ -306,22 +306,11 @@ class SettingsWindow(LoggingTopLevel):
         settings_header_label = ctk.CTkLabel(frame1, text="Settings", font=("", 16))
         settings_header_label.grid(row=0, column=0, padx=5, sticky="w")
 
-        test_log = LoggingButton(
-            frame1,
-            text="Start New Log",
-            font=("", 10),
-            width=16,
-            height=10,
-            anchor="center",
-            command=self.open_test_log,
-        )
-        test_log.grid(row=1, column=0, padx=5, sticky="w")
-
         view_json_button = LoggingButton(
             frame1,
             text="Open Settings File",
             font=("", 8),
-            width=16,
+            width=90,
             height=10,
             anchor="center",
             fg_color="#979da2",
@@ -334,7 +323,7 @@ class SettingsWindow(LoggingTopLevel):
             frame1,
             text="View Logs",
             font=("", 8),
-            width=16,
+            width=90,
             height=10,
             anchor="center",
             fg_color="#979da2",
@@ -425,14 +414,3 @@ class SettingsWindow(LoggingTopLevel):
             "Any settings changed in the Settings window was canceled and not saved."
         )
         self.destroy()
-
-    def open_test_log(self):
-        self.log_window = OpenTestLog(
-            self, self.inst, self.inst_found, self.frame_color, self.label_color
-        )
-        self.log_window.wait_window()  # Block until window closes
-
-        # Get the result
-        test_log_data = getattr(self.log_window, "return_data", None)
-        if test_log_data:
-            get_input(test_log_data)

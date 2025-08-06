@@ -3,7 +3,7 @@ import subprocess
 
 import customtkinter as ctk
 
-from instrument.instrument import compare_datetime, release_inst
+from instrument.instrument import compare_datetime, get_input, release_inst
 from ui.get_resource_path import resource_path
 from ui.help_window import HelpWindow
 from ui.manual_mode import ManualModeFrame
@@ -12,6 +12,7 @@ from ui.release_mode import ReleaseMode
 from ui.set_up_mode import SetUpModeFrame
 from ui.settings_window import SettingsWindow
 from ui.single_band_mode import SingleModeFrame
+from ui.test_log_window import OpenTestLog
 from ui.ui_logger import LoggingButton, OutlineButton
 from utils.logger import autosa_logger
 from utils.settings import (
@@ -66,12 +67,23 @@ class HeaderFrame(ctk.CTkFrame):
 
         LoggingButton(
             self,
+            text="?",
+            height=24,
+            width=24,
+            # fg_color="#979da2",
+            # hover_color="#676b6e",
+            command=lambda: HelpWindow(self, self.frame_color, self.label_color),
+        ).grid(row=0, column=1, sticky="e", pady=10)
+
+        LoggingButton(
+            self,
             text="Settings",
             command=lambda: self.settings_window(),
-        ).grid(row=0, column=1, sticky="ne", padx=10, pady=10, rowspan=3)
+        ).grid(row=0, column=2, sticky="ne", padx=10, pady=10)
 
         self.output_folder_button = OutlineButton(
             self,
+            # text="📁 Open Output Folder",
             text="Open Output Folder",
             height=10,
             font=("", 10),
@@ -80,16 +92,20 @@ class HeaderFrame(ctk.CTkFrame):
             else "disabled",
             command=lambda: self.open_output_folder(),
         )
+        self.output_folder_button.grid(row=1, column=2, sticky="ne", padx=10)
 
-        self.output_folder_button.grid(row=1, column=1, sticky="ne", padx=10, rowspan=3)
-
-        OutlineButton(
+        self.test_log_button = OutlineButton(
             self,
-            text="Help",
-            height=10,
+            # text="➕ Start New Test Log",
+            text="Start New Test Log",
             font=("", 10),
-            command=lambda: HelpWindow(self, self.frame_color, self.label_color),
-        ).grid(row=2, column=1, sticky="ne", padx=10, rowspan=3)
+            height=10,
+            state="normal"
+            if os.path.exists(read_settings_from_file()["-LOCAL OUT FOLDER-"])
+            else "disabled",
+            command=lambda: self.test_log_window(),
+        )
+        self.test_log_button.grid(row=2, column=2, padx=10, sticky="ne")
 
         inst_found_var = ctk.StringVar(
             value=(
@@ -157,13 +173,26 @@ class HeaderFrame(ctk.CTkFrame):
         if os.path.exists(local_output_path):
             # on click, open both folders in explorer
             self.output_folder_button.configure(state="normal")
+            self.test_log_button.configure(state="normal")
         else:
             self.output_folder_button.configure(state="disabled")
+            self.test_log_button.configure(state="disabled")
 
     def open_output_folder(self):
         subprocess.run(
             ["explorer", "/open,", read_settings_from_file()["-LOCAL OUT FOLDER-"]]
         )
+
+    def test_log_window(self):
+        self.log_window = OpenTestLog(
+            self, self.inst, self.inst_found, self.frame_color, self.label_color
+        )
+        self.log_window.wait_window()  # Block until window closes
+
+        # Get the result
+        test_log_data = getattr(self.log_window, "return_data", None)
+        if test_log_data:
+            get_input(test_log_data)
 
     def settings_window(self):
         SettingsWindow(

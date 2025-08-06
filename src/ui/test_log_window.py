@@ -1,3 +1,4 @@
+import datetime
 import os
 
 import customtkinter as ctk
@@ -13,7 +14,7 @@ class OpenTestLog(LoggingTopLevel):
         super().__init__(parent)
         self.title("Test Log")
         window_width = 900
-        window_height = 400
+        window_height = 320
         self.geometry(f"{window_width}x{window_height}")
         self.resizable(False, False)
         self.logo = resource_path("images/autosa_logo.ico")
@@ -26,14 +27,17 @@ class OpenTestLog(LoggingTopLevel):
         self.inst_found = inst_found
         self.frame_color = frame_color
         self.label_color = label_color
+        self.cur_date = datetime.datetime.now().strftime("%Y_%m_%d")
 
-        self.log_info_labels = {
-            "Test Engineer": "Test Engineer",
-            "Project Name": "Project Name",
-            "Log Filename": "Test Log Filename",  # TODO: make it project_name_autosa_test_log_date
-        }
+        self.log_info_labels = [
+            "Test Engineer",
+            "Project Name",
+            "Log Filename",
+        ]
         self.entry_vars = {}
         self.return_data = {}
+        self.filename_var = ctk.StringVar()
+        self.filename_var.set(f"autosa_test_log_{self.cur_date}.csv")
 
         self.create_widgets()
 
@@ -81,27 +85,28 @@ class OpenTestLog(LoggingTopLevel):
             frame2, text="Create New Test Log: ", justify="left", font=("", 12, "bold")
         ).grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="w")
 
-        for row, (label, text) in enumerate(self.log_info_labels.items()):
+        for row, label in enumerate(self.log_info_labels):
             ctk.CTkLabel(frame2, text=label + ":").grid(
                 row=row + 1, column=0, padx=5, pady=5, sticky="w"
             )
 
-            var = ctk.StringVar()
-            var.trace_add("write", self.check_entry)
-            self.entry_vars[label] = var
+            if label == "Log Filename":
+                filename_label = ctk.CTkLabel(frame2, textvariable=self.filename_var)
+                filename_label.grid(row=row + 1, column=1, padx=5, pady=5, sticky="w")
+            else:
+                var = ctk.StringVar()
+                var.trace_add("write", self.create_filename)
+                self.entry_vars[label] = var
 
-            entry = ctk.CTkEntry(
-                frame2, textvariable=var, placeholder_text=text, width=490
-            )
-            entry.grid(row=row + 1, column=1, padx=5, pady=5, sticky="w")
+                entry = ctk.CTkEntry(frame2, textvariable=var, width=490)
+                entry.grid(row=row + 1, column=1, padx=5, pady=5, sticky="w")
 
-            self.entry_vars[label] = entry
+                self.entry_vars[label] = entry
 
     def fill_button_frame(self, frame3):
         self.save_btn = LoggingButton(
             frame3,
             text="Start New Log",
-            state="disabled",
             command=self.save_csv,
         )
         self.save_btn.grid(row=0, column=0, padx=5, pady=5, sticky="e")
@@ -115,13 +120,20 @@ class OpenTestLog(LoggingTopLevel):
         )
         cancel_btn.grid(row=0, column=1, padx=5, pady=5, sticky="e")
 
-    def check_entry(self, *args):
-        all_filled = all(var.get().strip() for var in self.entry_vars.values())
-        self.save_btn.configure(state="normal" if all_filled else "disabled")
+    def create_filename(self, *args):
+        project_name = self.entry_vars["Project Name"].get().strip()
+        project_name = project_name.replace(" ", "_")  # replace spaces with underscores
+        if not project_name:
+            project_name = f"autosa_test_log_{self.cur_date}.csv"
+            self.filename_var.set(project_name)
+        else:
+            project_name = f"autosa_test_log_{project_name}_{self.cur_date}.csv"
+            self.filename_var.set(project_name)
 
     def save_csv(self):
         # gather to return
         data = {label: var.get().strip() for label, var in self.entry_vars.items()}
+        data["Log Filename"] = self.filename_var.get().strip()
         new_filename = data["Log Filename"]
         local_out_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
 

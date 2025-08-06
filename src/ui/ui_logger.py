@@ -72,12 +72,10 @@ class OutlineButton(LoggingButton):
             **kwargs,
         )
         self.configure(
-            text_color="black",
+            # text_color="#0F3A5D",
+            text_color="#1C4363",
             border_width=1,
-            border_color="#1975d1",
+            border_color="#3B8ED0",
             fg_color="transparent",
             bg_color="transparent",
         )
-
-    #    "#1975d1",
-    #   "#1F6AA5"
