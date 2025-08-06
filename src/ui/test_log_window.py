@@ -14,13 +14,11 @@ class OpenTestLog(LoggingTopLevel):
         super().__init__(parent)
         self.title("Test Log")
         window_width = 900
-        window_height = 320
+        window_height = 340
         self.geometry(f"{window_width}x{window_height}")
         self.resizable(False, False)
         self.logo = resource_path("images/autosa_logo.ico")
         self.iconbitmap(self.logo)
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
         self.transient(parent)
 
         self.inst = inst
@@ -52,17 +50,17 @@ class OpenTestLog(LoggingTopLevel):
 
     def init_frame1(self):
         dropdown_frame = ctk.CTkFrame(self, fg_color=self.frame_color)
-        dropdown_frame.grid(row=0, column=0, padx=5, pady=5, sticky="new")
+        dropdown_frame.grid(row=0, column=0, padx=5, sticky="sew")
         return dropdown_frame
 
     def init_frame2(self):
         choice_frame = ctk.CTkFrame(self, fg_color=self.frame_color)
-        choice_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        choice_frame.grid(row=1, column=0, padx=5, sticky="nsew")
         return choice_frame
 
     def init_frame3(self):
         button_frame = ctk.CTkFrame(self, fg_color=self.frame_color)
-        button_frame.grid(row=3, column=0, padx=5, pady=5, sticky="sew")
+        button_frame.grid(row=3, column=0, padx=5, sticky="sew")
         button_frame.columnconfigure(0, weight=1)
         return button_frame
 
