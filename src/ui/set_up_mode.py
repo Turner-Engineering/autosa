@@ -6,6 +6,7 @@ from instrument.folders import get_folder_info
 from instrument.instrument import (
     get_ref_level,
     get_state_file,
+    prep_band,
     recall_state,
     set_rounded_ref_level,
     update_state,
@@ -291,16 +292,7 @@ class SetUpModeFrame(ctk.CTkFrame):
         self.update_button.configure(state=self.is_state_folder_valid())
 
     def setup_files(self, band_key):
-        self.band_selected = band_key
-        state_folder = read_settings_from_file()["-STATE FOLDER-"]
-
-        self.last_band_prepped.configure(text=self.band_selected)
-        self.update_button.configure(text=f"Update State {self.band_selected}")
-
-        self.state_filename = get_state_file(
-            self.inst, state_folder, self.band_selected
-        )
-        recall_state(self.inst, state_folder, self.state_filename)
+        prep_band(self.inst, band_key)
         autosa_logger.debug(f"Recalled State: {self.state_filename}")
 
         updated_ref_level = get_ref_level(self.inst)
