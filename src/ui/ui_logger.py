@@ -62,3 +62,21 @@ class LargeButton(LoggingButton):
             **kwargs,
         )
         self.configure(height=60, font=("", 18))
+
+
+class OutlineButton(LoggingButton):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(
+            parent,
+            *args,
+            **kwargs,
+        )
+        self.configure(
+            # text_color="#0F3A5D",
+            text_color="#1C4363",
+            border_width=1,
+            border_color="#3B8ED0",
+            hover_color="#73A7D1",
+            fg_color="transparent",
+            bg_color="transparent",
+        )

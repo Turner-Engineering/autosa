@@ -134,13 +134,18 @@ class SingleModeFrame(ctk.CTkFrame):
         # PREPARE, RECORD, ADJUST
         band_key = band_name[:2]
         band_ori = band_name[2] if len(band_name) == 3 else ""
-        error_message = run_band(self.inst, band_key, "", band_ori, save=False)
+        run_note = self.run_note_var.get()
+
+        error_message = run_band(
+            self.inst, band_key, "", band_ori, run_note, save=False
+        )
 
         # GET FILENAME
-        run_note = self.run_note_var.get()
         settings = read_settings_from_file()
         sweep_dur = settings["-SWEEP DUR-"]
-        self.run_filename = get_run_filename(self.inst, band_name, run_note, sweep_dur)
+        _, self.run_filename = get_run_filename(
+            self.inst, band_name, run_note, sweep_dur
+        )
 
         inst_output_folder = settings["-INST OUT FOLDER-"]
         local_folder = settings["-LOCAL OUT FOLDER-"]
@@ -153,6 +158,8 @@ class SingleModeFrame(ctk.CTkFrame):
                 inst_output_folder,
                 local_folder,
                 band_name,
+                run_note,
+                sweep_dur,
             )
 
         # AFTER RUN

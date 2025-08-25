@@ -4,7 +4,9 @@ from tkinter import filedialog as fd
 import customtkinter as ctk
 
 from instrument.folders import get_folder_info
+from instrument.instrument import get_input
 from ui.get_resource_path import resource_path
+from ui.test_log_window import OpenTestLog
 from ui.ui_logger import LoggingButton, LoggingTopLevel
 from utils.logger import autosa_logger
 from utils.settings import (
@@ -222,6 +224,8 @@ class SettingsWindow(LoggingTopLevel):
         self,
         parent,
         inst,
+        label_color,
+        frame_color,
         update_valid,
         update_output_folder,
         inst_found,
@@ -239,6 +243,8 @@ class SettingsWindow(LoggingTopLevel):
         self.rowconfigure([0, 1, 2], weight=0)
 
         self.inst = inst
+        self.label_color = label_color
+        self.frame_color = frame_color
         self.inst_found = inst_found
         self.update_valid = update_valid
         self.update_output_folder = update_output_folder
@@ -304,7 +310,7 @@ class SettingsWindow(LoggingTopLevel):
             frame1,
             text="Open Settings File",
             font=("", 8),
-            width=16,
+            width=90,
             height=10,
             anchor="center",
             fg_color="#979da2",
@@ -317,7 +323,7 @@ class SettingsWindow(LoggingTopLevel):
             frame1,
             text="View Logs",
             font=("", 8),
-            width=16,
+            width=90,
             height=10,
             anchor="center",
             fg_color="#979da2",
