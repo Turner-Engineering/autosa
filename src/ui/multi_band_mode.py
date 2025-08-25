@@ -87,7 +87,9 @@ class ConfirmWindow(LoggingTopLevel):
             f"for {sweep_dur} seconds each\n"
             "and that the first filename should be:\n"
             f"{run_id} {run_note} {sweep_dur}s {first_band}{band_ori} {cur_time}\n"
-            "(the rest will be numbered sequentially)"
+            "(the rest will be numbered sequentially).\n"
+            "The time will not be included in the checklist,\n"
+            "but will be in the actual saved filename."
         )
         return text
 
@@ -281,14 +283,11 @@ class MultiModeFrame(ctk.CTkFrame):
         band_ori_full = "" if self.ori_var.get() == "None" else self.ori_var.get()
         band_ori = band_ori_full[0].lower() if band_ori_full else ""
         self.run_id_counter = None
-        cur_time = datetime.datetime.now().strftime("%H_%M_%S")
         sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
 
         for i, band_key in enumerate(self.band_keys):
             run_id = self.get_next_run_id()
-            cur_filename = (
-                f"{run_id} {run_note} {sweep_dur}s {band_key}{band_ori} {cur_time}"
-            )
+            cur_filename = f"{run_id} {run_note} {sweep_dur}s {band_key}{band_ori}"
             self.band_filenames[band_key] = cur_filename
 
             check_var = ctk.BooleanVar(value=False)
