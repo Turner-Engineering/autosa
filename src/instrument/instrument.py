@@ -278,11 +278,11 @@ def save_trace_and_screen(
     sorted_csv_folder = get_csv_folder(local_out_folder)
     sorted_png_folder = get_sorted_folder(local_out_folder, band)
 
-    autosa_logger.info(f"Trace saved to {sorted_csv_folder}")
-    autosa_logger.info(f"Image saved to {sorted_png_folder}")
-
     copy_file_to_local(inst, csv_path, sorted_csv_folder)
     copy_file_to_local(inst, png_path, sorted_png_folder)
+
+    autosa_logger.info(f"Trace saved to {sorted_csv_folder}")
+    autosa_logger.info(f"Image saved to {sorted_png_folder}")
 
 
 def record_and_adjust(inst, sweep_dur):
