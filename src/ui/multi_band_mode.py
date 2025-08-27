@@ -1,4 +1,5 @@
 import datetime
+import re
 import threading
 
 import customtkinter as ctk
@@ -98,7 +99,9 @@ class ConfirmWindow(LoggingTopLevel):
             run_count = 5
         elif band_range == "B5 - B7 (bilogical)":
             run_count = 3
-        elif band_range == "B0 - B7 (calibration)":
+        elif band_range == "B0 - B7 (50 Ohm Term)":
+            run_count = 8
+        elif band_range == "B0 - B7 (Unterminated)":
             run_count = 8
         else:
             raise ValueError("Invalid band range")
@@ -142,7 +145,8 @@ class MultiModeFrame(ctk.CTkFrame):
         self.band_ranges = [
             "B0 - B4 (monopole)",
             "B5 - B7 (bilogical)",
-            "B0 - B7 (calibration)",
+            "B0 - B7 (50 Ohm Term)",
+            "B0 - B7 (Unterminated)",
         ]
 
         self.bands = ["B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7"]
@@ -348,7 +352,10 @@ class MultiModeFrame(ctk.CTkFrame):
             self.band_keys = self.bands[:5]
         elif band_range == "B5 - B7 (bilogical)":
             self.band_keys = self.bands[5:]
-        elif band_range == "B0 - B7 (calibration)":
+        elif (
+            band_range == "B0 - B7 (50 Ohm Term)"
+            or band_range == "B0 - B7 (Unterminated)"
+        ):
             self.band_keys = self.bands
         else:
             self.band_keys = []
@@ -394,6 +401,13 @@ class MultiModeFrame(ctk.CTkFrame):
         sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
         self.is_cancel = False
 
+        match = re.search(r"\((.*?)\)", self.band_range_var.get())
+        if match:
+            val = match.group(1).strip()
+            is_calibration = val if val in ["50 Ohm Term", "Unterminated"] else ""
+        else:
+            is_calibration = ""
+
         # Now grid it (show it), then fill it
         self.frame3.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
         self.fill_frame3(self.frame3)
@@ -412,7 +426,12 @@ class MultiModeFrame(ctk.CTkFrame):
             run_note = self.run_note_var.get()
 
             _, self.run_filename = get_run_filename(
-                self.inst, band_key, run_note, sweep_dur, band_ori
+                self.inst,
+                band_key,
+                run_note,
+                sweep_dur,
+                is_calibration,
+                band_ori,
             )
             run_band(self.inst, band_key, self.run_filename, band_ori, run_note)
 
