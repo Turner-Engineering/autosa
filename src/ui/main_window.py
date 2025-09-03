@@ -64,6 +64,8 @@ class HeaderFrame(ctk.CTkFrame):
             fg_color=self.label_color,
         ).grid(row=0, column=0, sticky="w", padx=10, pady=10)
 
+        ## TODO: change dynamically
+        # needs to relaunch if new test log created (and if relaunched, inputs dont save...)
         ctk.CTkLabel(
             self,
             text=get_test_log_project(),
