@@ -304,19 +304,17 @@ def recall_cors(inst, corr_folder, corr_filename):
     inst.write(f":MMEM:LOAD:CORR 1, '{corr_folder}/{corr_filename}'")
 
 
-def create_run_filename(run_id, run_note, band_name, sweep_dur, band_range):
+def create_run_filename(run_id, run_note, band_name, sweep_dur):
     saved_time = datetime.datetime.now().strftime("%H_%M_%S")
-    filename = f"{run_id} {run_note} {band_range} {sweep_dur}s {band_name} {saved_time}"
+    filename = f"{run_id} {run_note} {sweep_dur}s {band_name} {saved_time}"
     return saved_time, filename
 
 
-def get_run_filename(inst, band_key, run_note, sweep_dur, band_range="", band_ori=""):
+def get_run_filename(inst, band_key, run_note, sweep_dur, band_ori=""):
     inst_out_folder = read_settings_from_file()["-INST OUT FOLDER-"]
     run_id = get_run_id(inst, inst_out_folder)
     band_name = band_key + band_ori
-    saved_time, filename = create_run_filename(
-        run_id, run_note, band_name, sweep_dur, band_range
-    )
+    saved_time, filename = create_run_filename(run_id, run_note, band_name, sweep_dur)
     return saved_time, filename
 
 

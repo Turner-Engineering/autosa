@@ -1,5 +1,4 @@
 import datetime
-import re
 import threading
 
 import customtkinter as ctk
@@ -352,11 +351,12 @@ class MultiModeFrame(ctk.CTkFrame):
             self.band_keys = self.bands[:5]
         elif band_range == "B5 - B7 (bilogical)":
             self.band_keys = self.bands[5:]
-        elif (
-            band_range == "B0 - B7 (50 Ohm Term)"
-            or band_range == "B0 - B7 (Unterminated)"
-        ):
+        elif band_range == "B0 - B7 (50 Ohm Term)":
             self.band_keys = self.bands
+            self.run_note_var.set("50 Ohm Term")
+        elif band_range == "B0 - B7 (Unterminated)":
+            self.band_keys = self.bands
+            self.run_note_var.set("Unterminated")
         else:
             self.band_keys = []
 
@@ -401,13 +401,6 @@ class MultiModeFrame(ctk.CTkFrame):
         sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
         self.is_cancel = False
 
-        match = re.search(r"\((.*?)\)", self.band_range_var.get())
-        if match:
-            val = match.group(1).strip()
-            is_calibration = val if val in ["50 Ohm Term", "Unterminated"] else ""
-        else:
-            is_calibration = ""
-
         # Now grid it (show it), then fill it
         self.frame3.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
         self.fill_frame3(self.frame3)
@@ -430,7 +423,6 @@ class MultiModeFrame(ctk.CTkFrame):
                 band_key,
                 run_note,
                 sweep_dur,
-                is_calibration,
                 band_ori,
             )
             run_band(self.inst, band_key, self.run_filename, band_ori, run_note)
