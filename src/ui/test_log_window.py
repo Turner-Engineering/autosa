@@ -72,7 +72,7 @@ class OpenTestLog(LoggingTopLevel):
 
         cur_test_log = ctk.CTkLabel(
             frame1,
-            text=get_latest_test_log(),
+            text=get_latest_test_log()[1],
             justify="left",
             font=("", 11),
         )

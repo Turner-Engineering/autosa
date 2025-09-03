@@ -4,9 +4,7 @@ from tkinter import filedialog as fd
 import customtkinter as ctk
 
 from instrument.folders import get_folder_info
-from instrument.instrument import get_input
 from ui.get_resource_path import resource_path
-from ui.test_log_window import OpenTestLog
 from ui.ui_logger import LoggingButton, LoggingTopLevel
 from utils.logger import autosa_logger
 from utils.settings import (

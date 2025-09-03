@@ -437,7 +437,7 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
     if get_latest_test_log() == "No test logs found.":
         log_filename = f"autosa_test_log_{date}.csv"
     else:
-        log_filename = get_latest_test_log()
+        log_path, log_filename = get_latest_test_log()
 
     # folders
     settings = read_settings_from_file()
