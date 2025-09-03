@@ -20,6 +20,7 @@ from utils.settings import (
     is_settings_valid,
     read_settings_from_file,
 )
+from utils.test_log import get_latest_test_log
 
 ctk.set_appearance_mode("light")
 ctk.set_widget_scaling(1.5)
@@ -56,14 +57,19 @@ class HeaderFrame(ctk.CTkFrame):
         self.create_widgets()
 
     def create_widgets(self):
-        self.columnconfigure([0, 1], weight=1)
-
         ctk.CTkLabel(
             self,
             text="Autosa",
             font=("", 18),
             fg_color=self.label_color,
         ).grid(row=0, column=0, sticky="w", padx=10, pady=10)
+
+        ctk.CTkLabel(
+            self,
+            text=get_latest_test_log(),
+            font=("", 12),
+            fg_color=self.label_color,
+        ).grid(row=0, column=1, sticky="ew", padx=10, pady=10)
 
         LoggingButton(
             self,
@@ -73,13 +79,13 @@ class HeaderFrame(ctk.CTkFrame):
             # fg_color="#979da2",
             # hover_color="#676b6e",
             command=lambda: HelpWindow(self, self.frame_color, self.label_color),
-        ).grid(row=0, column=1, sticky="e", pady=10)
+        ).grid(row=0, column=2, sticky="e", pady=10)
 
         LoggingButton(
             self,
             text="Settings",
             command=lambda: self.settings_window(),
-        ).grid(row=0, column=2, sticky="ne", padx=10, pady=10)
+        ).grid(row=0, column=3, sticky="ne", padx=10, pady=10)
 
         self.output_folder_button = OutlineButton(
             self,
@@ -92,7 +98,7 @@ class HeaderFrame(ctk.CTkFrame):
             else "disabled",
             command=lambda: self.open_output_folder(),
         )
-        self.output_folder_button.grid(row=1, column=2, sticky="ne", padx=10)
+        self.output_folder_button.grid(row=1, column=3, sticky="ne", padx=10)
 
         self.test_log_button = OutlineButton(
             self,
@@ -105,7 +111,7 @@ class HeaderFrame(ctk.CTkFrame):
             else "disabled",
             command=lambda: self.test_log_window(),
         )
-        self.test_log_button.grid(row=2, column=2, padx=10, sticky="ne")
+        self.test_log_button.grid(row=2, column=3, padx=10, sticky="ne")
 
         inst_found_var = ctk.StringVar(
             value=(
@@ -308,8 +314,8 @@ class MainApp(ctk.CTk):
         self.inst_name = inst_name
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
-        # self.debug = True
-        self.debug = False
+        self.debug = True
+        # self.debug = False
         if self.debug:
             self.frame_color = "pink"
             self.label_color = "white"

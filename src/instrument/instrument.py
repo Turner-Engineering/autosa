@@ -409,9 +409,6 @@ def get_input(test_log_data):
 
 # TODO - move out of instrument.py to utils
 def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
-    log_filename = get_latest_test_log()
-    print(log_filename)
-
     # new test log was initiated - user input
     global INPUT_LOG_INFO
     input_fields = INPUT_LOG_INFO
@@ -436,6 +433,11 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
     # time info
     saved_time, _ = get_run_filename(inst, band_key, run_note, sweep_dur, band_ori)
     date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    if get_latest_test_log() == "No test logs found.":
+        log_filename = f"autosa_test_log_{date}.csv"
+    else:
+        log_filename = get_latest_test_log()
 
     # folders
     settings = read_settings_from_file()
