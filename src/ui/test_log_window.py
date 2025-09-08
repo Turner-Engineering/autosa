@@ -1,3 +1,4 @@
+import csv
 import datetime
 import os
 
@@ -10,7 +11,9 @@ from utils.test_log import get_latest_test_log
 
 
 class OpenTestLog(LoggingTopLevel):
-    def __init__(self, parent, inst, inst_found, frame_color, label_color):
+    def __init__(
+        self, parent, inst, inst_found, test_log_label, frame_color, label_color
+    ):
         super().__init__(parent)
         self.title("Test Log")
         window_width = 900
@@ -23,6 +26,7 @@ class OpenTestLog(LoggingTopLevel):
 
         self.inst = inst
         self.inst_found = inst_found
+        self.test_log_label = test_log_label
         self.frame_color = frame_color
         self.label_color = label_color
         self.cur_date = datetime.datetime.now().strftime("%Y_%m_%d")
@@ -149,9 +153,18 @@ class OpenTestLog(LoggingTopLevel):
             filename = f"{base}({i}){ext}"
             i += 1
 
-        open(filename, "w").close()  # create but don't write
+        # save test log filename and test engineer
+        with open(filename, "w", newline="") as file:
+            writer = csv.writer(file)
+            # Write once-off info
+            for key, value in data.items():
+                if key != "Log Filename":
+                    writer.writerow([f"{key}: {value}"])
 
         data["Log Filename"] = filename
         self.return_data = data
 
+        self.test_log_label.configure(
+            text=self.entry_vars["Project Name"].get().strip()
+        )
         self.destroy()

@@ -401,22 +401,8 @@ def run_band(inst, band_key, run_filename, band_ori, run_note, save=True):
     return error_message
 
 
-def get_input(test_log_data):
-    global INPUT_LOG_INFO
-    INPUT_LOG_INFO = test_log_data
-    return INPUT_LOG_INFO
-
-
-# TODO - move out of instrument.py to utils
+# TODO - move out of instrument.py to utils -- cannot currently due to circular import
 def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
-    # new test log was initiated - user input
-    global INPUT_LOG_INFO
-    input_fields = INPUT_LOG_INFO
-
-    # log_filename = input_fields.get("Log Filename") # new filename
-    test_engineer = input_fields.get("Test Engineer")
-    project_name = input_fields.get("Project Name")
-
     laptop_name = os.environ.get("COMPUTERNAME")
     local_tz = get_localzone()
     version = get_autosa_version()
@@ -433,11 +419,6 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
     # time info
     saved_time, _ = get_run_filename(inst, band_key, run_note, sweep_dur, band_ori)
     date = datetime.datetime.now().strftime("%Y-%m-%d")
-
-    if get_latest_test_log() == "No test logs found.":
-        log_filename = f"autosa_test_log_{date}.csv"
-    else:
-        log_path, log_filename = get_latest_test_log()
 
     # folders
     settings = read_settings_from_file()
@@ -464,9 +445,7 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
     # mode of measurement (manual, single band, multi band) - circular import
 
     intro_info = {
-        "Project Name": project_name,
         "Timezone": local_tz,
-        "Test Engineer": test_engineer,
         "Autosa Version": version,
         "Instrument ID": inst,
         "Test Laptop Name": laptop_name,
@@ -498,12 +477,17 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
     }
 
     try:
-        test_log_path = os.path.join(local_out_folder, log_filename)
-        file_exists = os.path.exists(test_log_path)
-        is_empty = not file_exists or os.stat(test_log_path).st_size == 0
+        test_log_path, log_filename = get_latest_test_log()
+        log_exists = os.path.exists(test_log_path)
 
-        if is_empty:
-            with open(test_log_path, mode="w", newline="") as file:
+        log_rows = 0
+
+        if log_exists:
+            with open(test_log_path, "r", newline="") as f:
+                log_rows = sum(1 for _ in csv.reader(f))
+
+        if log_rows <= 2:
+            with open(test_log_path, mode="a", newline="") as file:
                 writer = csv.writer(file)
                 # Write once-off info
                 for key, value in intro_info.items():
@@ -512,7 +496,8 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
                 writer.writerow(measurement_data.keys())
 
         for key, value in measurement_data.items():
-            if value == "" or value == "No Correction" or value is None:
+            # value.strip().lower()
+            if value in ["", "No Correction", "None"] or value is None:
                 measurement_data[key] = "UNKNOWN"
 
         with open(test_log_path, mode="a", newline="") as file:
