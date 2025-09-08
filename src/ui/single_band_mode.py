@@ -5,7 +5,7 @@ from instrument.instrument import (
     run_band,
     save_trace_and_screen,
 )
-from ui.save_window_popups import CompletedWindow, NoRunNoteWindow
+from ui.save_window_popups import NoRunNoteWindow, SBMCompletedWindow
 from ui.ui_logger import LargeButton
 from utils.logger import autosa_logger
 from utils.settings import read_settings_from_file
@@ -75,7 +75,7 @@ class SingleModeFrame(ctk.CTkFrame):
             frame,
             text="Run Note: ",
             fg_color=self.label_color,
-            width=80,
+            width=100,
             anchor="w",
         ).grid(row=0, column=0, padx=5, pady=5, sticky="e")
 
@@ -85,6 +85,23 @@ class SingleModeFrame(ctk.CTkFrame):
             width=300,
         )
         self.run_note_entry.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+
+        ctk.CTkLabel(
+            frame,
+            text="Selected Band: ",
+            fg_color=self.label_color,
+            width=100,
+            anchor="w",
+        ).grid(row=1, column=0, padx=5, pady=5, sticky="e")
+
+        self.last_band_prepped = ctk.CTkLabel(
+            frame,
+            text="[Selected Band]",
+            fg_color=self.label_color,
+            width=300,
+            anchor="w",
+        )
+        self.last_band_prepped.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
     # FRAME 2: Button Frame
     def fill_frame2(self, frame):
@@ -121,6 +138,7 @@ class SingleModeFrame(ctk.CTkFrame):
 
     # Functions
     def check_and_run(self, band_name):
+        self.last_band_prepped.configure(text=band_name)
         if self.run_note_var.get().strip() == "":
             autosa_logger.info("Single Band Mode: No Run Note was entered.")
             self.disable_buttons()
@@ -163,7 +181,7 @@ class SingleModeFrame(ctk.CTkFrame):
             )
 
         # AFTER RUN
-        CompletedWindow(self)
+        SBMCompletedWindow(self, band_name, self.run_filename)
         self.run_filename = None
         self.enable_buttons()
 

@@ -8,6 +8,37 @@ from ui.ui_logger import LoggingButton, LoggingTopLevel
 from utils.logger import autosa_logger
 
 
+class SBMCompletedWindow(LoggingTopLevel):
+    def __init__(self, parent, band_name, run_filename):
+        super().__init__(parent)
+        self.title("Completion Status")
+        window_width = 500
+        window_height = 200
+        self.geometry(f"{window_width}x{window_height}")
+        self.resizable(False, True)
+        self.logo = resource_path("images/autosa_logo.ico")
+        self.iconbitmap(self.logo)
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.transient(parent)
+
+        self.band_name = band_name
+        self.run_filename = run_filename
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.popup_window()
+
+    def popup_window(self):
+        ctk.CTkLabel(
+            self, text=f"{self.band_name} run complete!\nSaved as {self.run_filename}"
+        ).grid(row=0, column=0, padx=10, pady=10)
+        LoggingButton(self, text="Okay", command=lambda: self.destroy()).grid(
+            row=1, column=0, padx=10, pady=10
+        )
+
+
 class CompletedWindow(LoggingTopLevel):
     def __init__(self, parent):
         super().__init__(parent)
