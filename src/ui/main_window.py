@@ -3,7 +3,7 @@ import subprocess
 
 import customtkinter as ctk
 
-from instrument.instrument import compare_datetime, get_input, release_inst
+from instrument.instrument import compare_datetime, release_inst
 from ui.get_resource_path import resource_path
 from ui.help_window import HelpWindow
 from ui.manual_mode import ManualModeFrame
@@ -65,20 +65,25 @@ class HeaderFrame(ctk.CTkFrame):
         ).grid(row=0, column=0, sticky="w", padx=10, pady=10)
 
         ## TODO: change dynamically
-        # needs to relaunch if new test log created (and if relaunched, inputs dont save...)
-        ctk.CTkLabel(
+        self.test_log_label = ctk.CTkLabel(
             self,
             text=get_test_log_project(),
             font=("", 12),
             fg_color=self.label_color,
-        ).grid(row=0, column=1, sticky="ew", padx=10, pady=10)
+        )
+        self.test_log_label.grid(row=0, column=1, sticky="ew", padx=10, pady=10)
 
         log_path, log_filename = get_latest_test_log()
 
         if log_path is None or log_filename is None:
             autosa_logger.warning("No test logs found.")
             OpenTestLog(
-                self, self.inst, self.inst_found, self.frame_color, self.label_color
+                self,
+                self.inst,
+                self.inst_found,
+                self.test_log_label,
+                self.frame_color,
+                self.label_color,
             )
 
         LoggingButton(
@@ -166,6 +171,9 @@ class HeaderFrame(ctk.CTkFrame):
         )
         self.valid_settings_label.grid(row=2, column=0, sticky="w", padx=10)
 
+    def update_test_log_label(self):
+        self.test_log_label.configure(text=get_test_log_project())
+
     def is_valid_settings(self):
         is_valid = is_settings_valid(self.inst)
         return is_valid
@@ -201,14 +209,14 @@ class HeaderFrame(ctk.CTkFrame):
 
     def test_log_window(self):
         self.log_window = OpenTestLog(
-            self, self.inst, self.inst_found, self.frame_color, self.label_color
+            self,
+            self.inst,
+            self.inst_found,
+            self.test_log_label,
+            self.frame_color,
+            self.label_color,
         )
         self.log_window.wait_window()  # Block until window closes
-
-        # Get the result
-        test_log_data = getattr(self.log_window, "return_data", None)
-        if test_log_data:
-            get_input(test_log_data)
 
     def settings_window(self):
         SettingsWindow(
@@ -324,8 +332,8 @@ class MainApp(ctk.CTk):
         self.inst_name = inst_name
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
-        self.debug = True
-        # self.debug = False
+        # self.debug = True
+        self.debug = False
         if self.debug:
             self.frame_color = "pink"
             self.label_color = "white"

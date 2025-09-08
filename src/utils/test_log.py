@@ -35,6 +35,11 @@ def get_test_log_project():
 
             proj_info = row[0].strip()
             if proj_info.startswith("Project Name:"):
-                _, value = proj_info.split(":")
+                _, value = proj_info.split(":", 1)
                 value = value.strip()
-                return "No project name." if "None" or value == "" else value
+                if value.lower == "none" or value == "":
+                    return "No project name."
+                else:
+                    return value
+
+    return "No project name."  # edge case of no project name found
