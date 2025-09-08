@@ -32,7 +32,7 @@ class SBMCompletedWindow(LoggingTopLevel):
 
     def popup_window(self):
         ctk.CTkLabel(
-            self, text=f"{self.band_name} run complete!\nSaved as {self.run_filename}"
+            self, text=f'{self.band_name} run complete!\nSaved as "{self.run_filename}"'
         ).grid(row=0, column=0, padx=10, pady=10)
         LoggingButton(self, text="Okay", command=lambda: self.destroy()).grid(
             row=1, column=0, padx=10, pady=10

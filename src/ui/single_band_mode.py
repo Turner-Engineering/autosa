@@ -88,7 +88,7 @@ class SingleModeFrame(ctk.CTkFrame):
 
         ctk.CTkLabel(
             frame,
-            text="Selected Band: ",
+            text="Last Band Selected: ",
             fg_color=self.label_color,
             width=100,
             anchor="w",
@@ -96,7 +96,7 @@ class SingleModeFrame(ctk.CTkFrame):
 
         self.last_band_prepped = ctk.CTkLabel(
             frame,
-            text="[Selected Band]",
+            text="[Last Band Selected]",
             fg_color=self.label_color,
             width=300,
             anchor="w",
