@@ -6,9 +6,11 @@ import customtkinter as ctk
 from instrument.instrument import get_run_filename, get_run_id, run_band
 from ui.get_resource_path import resource_path
 from ui.save_window_popups import CompletedWindow, NoRunNoteWindow
+from ui.test_log_window import OpenTestLog
 from ui.ui_logger import LoggingButton, LoggingTopLevel
 from utils.logger import autosa_logger
 from utils.settings import read_settings_from_file
+from utils.test_log import get_latest_test_log
 
 
 class ConfirmWindow(LoggingTopLevel):
@@ -129,6 +131,7 @@ class MultiModeFrame(ctk.CTkFrame):
         inst_found,
         inst,
         discon_btn_st,
+        header_access,
         frame_color,
         label_color,
     ):
@@ -137,6 +140,7 @@ class MultiModeFrame(ctk.CTkFrame):
         self.inst_found = inst_found
         self.inst = inst
         self.discon_btn_st = discon_btn_st
+        self.header_access = header_access
         self.frame_color = frame_color
         self.label_color = label_color
         self.check_color = "#2d1a03"
@@ -382,6 +386,19 @@ class MultiModeFrame(ctk.CTkFrame):
             self.enable_buttons()
         else:
             self.disable_buttons()
+
+            _, cur_test_log = get_latest_test_log()
+            if cur_test_log is None:
+                self.log_window = OpenTestLog(
+                    self,
+                    self.inst,
+                    self.inst_found,
+                    self.header_access.test_log_label,
+                    self.frame_color,
+                    self.label_color,
+                )
+                self.log_window.wait_window()
+
             self.wait_window(
                 ConfirmWindow(
                     self,

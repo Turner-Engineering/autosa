@@ -64,27 +64,20 @@ class HeaderFrame(ctk.CTkFrame):
             fg_color=self.label_color,
         ).grid(row=0, column=0, sticky="w", padx=10, pady=10)
 
-        ## TODO: change dynamically
+        ctk.CTkLabel(
+            self,
+            text="Project Name: ",
+            font=("", 12),
+            fg_color=self.label_color,
+        ).grid(row=0, column=1, sticky="w", pady=10)
+
         self.test_log_label = ctk.CTkLabel(
             self,
             text=get_test_log_project(),
             font=("", 12),
             fg_color=self.label_color,
         )
-        self.test_log_label.grid(row=0, column=1, sticky="ew", padx=10, pady=10)
-
-        log_path, log_filename = get_latest_test_log()
-
-        if log_path is None or log_filename is None:
-            autosa_logger.warning("No test logs found.")
-            OpenTestLog(
-                self,
-                self.inst,
-                self.inst_found,
-                self.test_log_label,
-                self.frame_color,
-                self.label_color,
-            )
+        self.test_log_label.grid(row=0, column=2, sticky="ew", padx=(0, 10), pady=10)
 
         LoggingButton(
             self,
@@ -94,13 +87,13 @@ class HeaderFrame(ctk.CTkFrame):
             # fg_color="#979da2",
             # hover_color="#676b6e",
             command=lambda: HelpWindow(self, self.frame_color, self.label_color),
-        ).grid(row=0, column=2, sticky="e", pady=10)
+        ).grid(row=0, column=3, sticky="e", pady=10)
 
         LoggingButton(
             self,
             text="Settings",
             command=lambda: self.settings_window(),
-        ).grid(row=0, column=3, sticky="ne", padx=10, pady=10)
+        ).grid(row=0, column=4, sticky="ne", padx=10, pady=10)
 
         self.output_folder_button = OutlineButton(
             self,
@@ -113,7 +106,7 @@ class HeaderFrame(ctk.CTkFrame):
             else "disabled",
             command=lambda: self.open_output_folder(),
         )
-        self.output_folder_button.grid(row=1, column=3, sticky="ne", padx=10)
+        self.output_folder_button.grid(row=1, column=4, sticky="ne", padx=10)
 
         self.test_log_button = OutlineButton(
             self,
@@ -126,7 +119,7 @@ class HeaderFrame(ctk.CTkFrame):
             else "disabled",
             command=lambda: self.test_log_window(),
         )
-        self.test_log_button.grid(row=2, column=3, padx=10, sticky="ne")
+        self.test_log_button.grid(row=2, column=4, padx=10, sticky="ne")
 
         inst_found_var = ctk.StringVar(
             value=(
@@ -146,7 +139,7 @@ class HeaderFrame(ctk.CTkFrame):
             fg_color=self.label_color,
             font=("", 12),
             height=20,
-        ).grid(row=1, column=0, sticky="w", padx=10)
+        ).grid(row=1, column=0, sticky="w", padx=10, columnspan=4)
 
         ctk.CTkLabel(
             self,
@@ -157,7 +150,7 @@ class HeaderFrame(ctk.CTkFrame):
             fg_color=self.label_color,
             font=("", 12),
             height=20,
-        ).grid(row=2, column=0, sticky="w", padx=10)
+        ).grid(row=2, column=0, sticky="w", padx=10, columnspan=4)
 
         self.valid_settings_label = ctk.CTkLabel(
             self,
@@ -234,6 +227,7 @@ class HeaderFrame(ctk.CTkFrame):
 class MenuFrame(ctk.CTkFrame):
     def __init__(self, parent, inst_found, inst, discon_btn_st, is_disconnected):
         super().__init__(parent)
+        self.header_access = None
         self.columnconfigure(0, weight=1)  # format to center
         self.rowconfigure(0, weight=1)
         self.inst_found = inst_found
@@ -258,6 +252,7 @@ class MenuFrame(ctk.CTkFrame):
             self.inst_found,
             self.inst,
             self.discon_btn_st,
+            self.header_access,
             self.frame_color,
             self.label_color,
         )
@@ -269,6 +264,7 @@ class MenuFrame(ctk.CTkFrame):
             self.inst_found,
             self.inst,
             self.discon_btn_st,
+            self.header_access,
             self.frame_color,
             self.label_color,
         )
@@ -280,6 +276,7 @@ class MenuFrame(ctk.CTkFrame):
             self.inst_found,
             self.inst,
             self.discon_btn_st,
+            self.header_access,
             self.frame_color,
             self.label_color,
         )
@@ -349,7 +346,7 @@ class MainApp(ctk.CTk):
 
     def create_widgets(self):
         """sets up the window to have the header and the mode window"""
-        menu_frame = MenuFrame(
+        self.menu_frame = MenuFrame(
             self,
             self.inst_found,
             self.inst,
@@ -357,17 +354,22 @@ class MainApp(ctk.CTk):
             self.is_disconnected,
         )
 
-        top_frame = HeaderFrame(
+        self.top_frame = HeaderFrame(
             self,
             self.inst_found,
             self.inst,
             self.inst_name,
-            menu_frame.set_up_frame,
+            # self.menu_frame.set_up_frame,
+            None,
         )
+        self.top_frame.set_up_frame = self.menu_frame.set_up_frame
+        self.menu_frame.header_access = self.top_frame
+
+        self.menu_frame.create_widgets()
 
         # use a string for "both" to match the fill="x" above
-        top_frame.pack(fill="x")
-        menu_frame.pack(fill="both", expand=True)
+        self.top_frame.pack(fill="x")
+        self.menu_frame.pack(fill="both", expand=True)
 
     def on_close(self):
         autosa_logger.info("User closed Autosa.")

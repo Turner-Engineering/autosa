@@ -6,9 +6,11 @@ from instrument.instrument import (
     save_trace_and_screen,
 )
 from ui.save_window_popups import NoRunNoteWindow, SBMCompletedWindow
+from ui.test_log_window import OpenTestLog
 from ui.ui_logger import LargeButton
 from utils.logger import autosa_logger
 from utils.settings import read_settings_from_file
+from utils.test_log import get_latest_test_log
 
 
 class SingleModeFrame(ctk.CTkFrame):
@@ -18,6 +20,7 @@ class SingleModeFrame(ctk.CTkFrame):
         inst_found,
         inst,
         discon_btn_st,
+        header_access,
         frame_color,
         label_color,
     ):
@@ -27,6 +30,7 @@ class SingleModeFrame(ctk.CTkFrame):
         self.inst_found = inst_found
         self.inst = inst
         self.discon_btn_st = discon_btn_st
+        self.header_access = header_access
         self.frame_color = frame_color
         self.label_color = label_color
 
@@ -77,7 +81,7 @@ class SingleModeFrame(ctk.CTkFrame):
             fg_color=self.label_color,
             width=100,
             anchor="w",
-        ).grid(row=0, column=0, padx=5, pady=5, sticky="e")
+        ).grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         self.run_note_entry = ctk.CTkEntry(
             frame,
@@ -146,6 +150,19 @@ class SingleModeFrame(ctk.CTkFrame):
             self.enable_buttons()
         else:
             self.disable_buttons()
+
+            _, cur_test_log = get_latest_test_log()
+            if cur_test_log is None:
+                self.log_window = OpenTestLog(
+                    self,
+                    self.inst,
+                    self.inst_found,
+                    self.header_access.test_log_label,
+                    self.frame_color,
+                    self.label_color,
+                )
+                self.log_window.wait_window()
+
             self.after(100, lambda: self.run_single_band(band_name))
 
     def run_single_band(self, band_name):

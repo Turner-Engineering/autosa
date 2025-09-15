@@ -2,6 +2,7 @@ import csv
 import glob
 import os
 
+from utils.logger import autosa_logger
 from utils.settings import read_settings_from_file
 
 
@@ -25,6 +26,7 @@ def get_test_log_project():
     log_path, log_filename = get_latest_test_log()
 
     if log_path is None or log_filename is None:
+        autosa_logger.warning("No test logs found.")
         return "No test logs found."  # launch window to autocreate
 
     with open(log_path, "r") as file:

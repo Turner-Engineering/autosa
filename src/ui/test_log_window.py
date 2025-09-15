@@ -113,14 +113,14 @@ class OpenTestLog(LoggingTopLevel):
         )
         self.save_btn.grid(row=0, column=0, padx=5, pady=5, sticky="e")
 
-        cancel_btn = LoggingButton(
-            frame3,
-            text="Cancel",
-            command=lambda: self.destroy(),
-            fg_color="#939ba2",
-            hover_color="#646a6e",
-        )
-        cancel_btn.grid(row=0, column=1, padx=5, pady=5, sticky="e")
+        # cancel_btn = LoggingButton(
+        #     frame3,
+        #     text="Cancel",
+        #     command=lambda: self.destroy(),
+        #     fg_color="#939ba2",
+        #     hover_color="#646a6e",
+        # )
+        # cancel_btn.grid(row=0, column=1, padx=5, pady=5, sticky="e")
 
     def create_filename(self, *args):
         project_name = self.entry_vars["Project Name"].get().strip()
