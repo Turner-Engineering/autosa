@@ -10,7 +10,7 @@ from ui.test_log_window import OpenTestLog
 from ui.ui_logger import LoggingButton, LoggingTopLevel
 from utils.logger import autosa_logger
 from utils.settings import read_settings_from_file
-from utils.test_log import get_latest_test_log
+from utils.test_log import get_test_logs
 
 
 class ConfirmWindow(LoggingTopLevel):
@@ -132,6 +132,7 @@ class MultiModeFrame(ctk.CTkFrame):
         inst,
         discon_btn_st,
         header_access,
+        current_test_log,
         frame_color,
         label_color,
     ):
@@ -141,6 +142,7 @@ class MultiModeFrame(ctk.CTkFrame):
         self.inst = inst
         self.discon_btn_st = discon_btn_st
         self.header_access = header_access
+        self.current_test_log = current_test_log
         self.frame_color = frame_color
         self.label_color = label_color
         self.check_color = "#2d1a03"
@@ -387,8 +389,7 @@ class MultiModeFrame(ctk.CTkFrame):
         else:
             self.disable_buttons()
 
-            _, cur_test_log = get_latest_test_log()
-            if cur_test_log is None:
+            if not self.current_test_log.get("full_path"):
                 self.log_window = OpenTestLog(
                     self,
                     self.inst,
@@ -398,6 +399,19 @@ class MultiModeFrame(ctk.CTkFrame):
                     self.label_color,
                 )
                 self.log_window.wait_window()
+
+                if hasattr(self.log_window, "data"):
+                    self.current_test_log.clear()
+                    self.current_test_log.update(
+                        {
+                            "full_path": self.log_window.data.get("Log Filename"),
+                            "project_name": self.log_window.data.get(
+                                "Project Name", "No Project Name"
+                            ),
+                        }
+                    )
+                    # Update header label to reflect new log
+                    self.header_access.update_test_log_label()
 
             self.wait_window(
                 ConfirmWindow(
@@ -438,7 +452,14 @@ class MultiModeFrame(ctk.CTkFrame):
             _, self.run_filename = get_run_filename(
                 self.inst, band_key, run_note, sweep_dur, band_ori
             )
-            run_band(self.inst, band_key, self.run_filename, band_ori, run_note)
+            run_band(
+                self.inst,
+                band_key,
+                self.run_filename,
+                band_ori,
+                run_note,
+                self.current_test_log,
+            )
 
             # Mark checkbox complete
             checkbox, check_var = self.band_checkbox[band_key]

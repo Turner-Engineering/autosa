@@ -4,6 +4,7 @@ import subprocess
 import customtkinter as ctk
 
 from instrument.instrument import compare_datetime, release_inst
+from ui.choose_log_window import ChooseActiveLog
 from ui.get_resource_path import resource_path
 from ui.help_window import HelpWindow
 from ui.manual_mode import ManualModeFrame
@@ -20,18 +21,21 @@ from utils.settings import (
     is_settings_valid,
     read_settings_from_file,
 )
-from utils.test_log import get_latest_test_log, get_test_log_project
+from utils.test_log import get_project_name, get_test_logs
 
 ctk.set_appearance_mode("light")
 ctk.set_widget_scaling(1.5)
 
 
 class HeaderFrame(ctk.CTkFrame):
-    def __init__(self, parent, inst_found, inst, inst_name, set_up_frame):
+    def __init__(
+        self, parent, inst_found, inst, inst_name, current_test_log, set_up_frame
+    ):
         super().__init__(parent)
         self.inst_found = inst_found
         self.inst_name = inst_name
         self.inst = inst
+        self.current_test_log = current_test_log
         self.set_up_frame = set_up_frame
 
         self.frame_color = parent.frame_color
@@ -71,9 +75,15 @@ class HeaderFrame(ctk.CTkFrame):
             fg_color=self.label_color,
         ).grid(row=0, column=1, sticky="w", pady=10)
 
+        display_name = (
+            self.current_test_log.get("project_name", "No Test Logs Found")
+            if isinstance(self.current_test_log, dict)
+            else str(self.current_test_log)
+        )
+
         self.test_log_label = ctk.CTkLabel(
             self,
-            text=get_test_log_project(),
+            text=display_name,
             font=("", 12),
             fg_color=self.label_color,
         )
@@ -165,7 +175,8 @@ class HeaderFrame(ctk.CTkFrame):
         self.valid_settings_label.grid(row=2, column=0, sticky="w", padx=10)
 
     def update_test_log_label(self):
-        self.test_log_label.configure(text=get_test_log_project())
+        display_name = self.current_test_log.get("project_name", "No Test Logs Found")
+        self.test_log_label.configure(text=display_name)
 
     def is_valid_settings(self):
         is_valid = is_settings_valid(self.inst)
@@ -211,6 +222,19 @@ class HeaderFrame(ctk.CTkFrame):
         )
         self.log_window.wait_window()  # Block until window closes
 
+        if hasattr(self.log_window, "data"):
+            self.current_test_log.clear()
+            self.current_test_log.update(
+                {
+                    "full_path": self.log_window.data.get("Log Filename"),
+                    "project_name": self.log_window.data.get(
+                        "Project Name", "No Project Name"
+                    ),
+                }
+            )
+            # Update the header label to reflect the new log
+            self.update_test_log_label()
+
     def settings_window(self):
         SettingsWindow(
             self,
@@ -225,7 +249,9 @@ class HeaderFrame(ctk.CTkFrame):
 
 
 class MenuFrame(ctk.CTkFrame):
-    def __init__(self, parent, inst_found, inst, discon_btn_st, is_disconnected):
+    def __init__(
+        self, parent, inst_found, inst, discon_btn_st, is_disconnected, current_test_log
+    ):
         super().__init__(parent)
         self.header_access = None
         self.columnconfigure(0, weight=1)  # format to center
@@ -234,6 +260,7 @@ class MenuFrame(ctk.CTkFrame):
         self.inst = inst
         self.discon_btn_st = discon_btn_st
         self.is_disconnected = is_disconnected
+        self.current_test_log = current_test_log
         self.frame_color = parent.frame_color
         self.label_color = parent.label_color
 
@@ -253,6 +280,7 @@ class MenuFrame(ctk.CTkFrame):
             self.inst,
             self.discon_btn_st,
             self.header_access,
+            self.current_test_log,
             self.frame_color,
             self.label_color,
         )
@@ -265,6 +293,7 @@ class MenuFrame(ctk.CTkFrame):
             self.inst,
             self.discon_btn_st,
             self.header_access,
+            self.current_test_log,
             self.frame_color,
             self.label_color,
         )
@@ -277,6 +306,7 @@ class MenuFrame(ctk.CTkFrame):
             self.inst,
             self.discon_btn_st,
             self.header_access,
+            self.current_test_log,
             self.frame_color,
             self.label_color,
         )
@@ -342,6 +372,11 @@ class MainApp(ctk.CTk):
         self.is_disconnected = True if self.inst is None else False
         self.discon_btn_st = "disabled" if self.is_disconnected else "normal"
 
+        self.current_test_log = {
+            "full_path": None,
+            "project_name": "No Test Logs Found",
+        }  # dict to track test log, key: full path, value: project name
+
         self.create_widgets()
 
     def create_widgets(self):
@@ -352,6 +387,7 @@ class MainApp(ctk.CTk):
             self.inst,
             self.discon_btn_st,
             self.is_disconnected,
+            self.current_test_log,
         )
 
         self.top_frame = HeaderFrame(
@@ -359,7 +395,7 @@ class MainApp(ctk.CTk):
             self.inst_found,
             self.inst,
             self.inst_name,
-            # self.menu_frame.set_up_frame,
+            self.current_test_log,
             None,
         )
         self.top_frame.set_up_frame = self.menu_frame.set_up_frame
@@ -371,6 +407,85 @@ class MainApp(ctk.CTk):
         self.top_frame.pack(fill="x")
         self.menu_frame.pack(fill="both", expand=True)
 
+        self.select_active_files()
+
     def on_close(self):
         autosa_logger.info("User closed Autosa.")
         self.destroy()
+
+    def select_active_files(self):
+        """If multiple test logs exist, prompt user to select active log"""
+        csv_files = get_test_logs()
+
+        # if multiple test logs exist, prompt user to select active log
+        if csv_files is None or len(csv_files) == 0:
+            autosa_logger.info("No test logs exist. User will be prompted on save.")
+            return
+        # if one test log exists, use that log
+        elif len(csv_files) == 1:
+            selected_full_path = csv_files[0]
+            project_name = get_project_name(selected_full_path)
+
+            self.current_test_log.clear()
+            self.current_test_log.update(
+                {
+                    "full_path": selected_full_path,
+                    "project_name": project_name,
+                }
+            )
+
+            self.top_frame.update_test_log_label()
+            autosa_logger.info("One test log exists. Using that log.")
+
+        else:  # multiple test logs exist
+            autosa_logger.info("Multiple test logs exist. Prompted user to select log.")
+            choose_active_log = ChooseActiveLog(
+                self,
+                self.inst,
+                self.inst_found,
+                self.top_frame,
+                self.current_test_log,
+                self.frame_color,
+                self.label_color,
+            )
+            choose_active_log.wait_window()
+
+            # new log was created
+            if choose_active_log.log_type == "new_log":
+                log_path = OpenTestLog(
+                    self,
+                    self.inst,
+                    self.inst_found,
+                    self.top_frame.test_log_label,
+                    self.frame_color,
+                    self.label_color,
+                )
+
+                self.current_test_log.clear()
+                self.current_test_log.update(
+                    {
+                        "full_path": log_path.data["Log Filename"],
+                        "project_name": log_path.data.get(
+                            "Project Name", "No Project Name"
+                        ),
+                    }
+                )
+                self.top_frame.update_test_log_label()
+                autosa_logger.info("User opted to create a new test log.")
+            elif choose_active_log.log_type == "existing_log":
+                full_path = choose_active_log.current_test_log.get("full_path")
+                project_name = choose_active_log.current_test_log.get(
+                    "project_name", "No Project Name"
+                )
+                # set current test log to the selected log
+                self.current_test_log.clear()
+                self.current_test_log.update(
+                    {
+                        "full_path": full_path,
+                        "project_name": project_name,
+                    }
+                )
+                self.top_frame.update_test_log_label()
+                autosa_logger.info(
+                    f'User selected "{self.current_test_log["project_name"]}" as the active test log.'
+                )

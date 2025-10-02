@@ -18,7 +18,6 @@ from ui.ui_logger import LargeButton
 from utils.logger import autosa_logger
 from utils.settings import read_settings_from_file
 from utils.stopwatch import Stopwatch
-from utils.test_log import get_latest_test_log
 
 
 class ManualModeFrame(ctk.CTkFrame):
@@ -29,6 +28,7 @@ class ManualModeFrame(ctk.CTkFrame):
         inst,
         discon_btn_st,
         header_access,
+        current_test_log,
         frame_color,
         label_color,
     ):
@@ -39,6 +39,7 @@ class ManualModeFrame(ctk.CTkFrame):
         self.inst = inst
         self.discon_btn_st = discon_btn_st
         self.header_access = header_access
+        self.current_test_log = current_test_log
         self.frame_color = frame_color
         self.label_color = label_color
 
@@ -276,8 +277,9 @@ class ManualModeFrame(ctk.CTkFrame):
         autosa_logger.info("Save measurement initiated.")
         run_id = get_run_id(self.inst, self.inst_output_folder)
 
-        _, cur_test_log = get_latest_test_log()
-        if cur_test_log is None:
+        self.log_window = None
+
+        if not self.current_test_log.get("full_path"):
             self.log_window = OpenTestLog(
                 self,
                 self.inst,
@@ -287,6 +289,19 @@ class ManualModeFrame(ctk.CTkFrame):
                 self.label_color,
             )
             self.log_window.wait_window()
+
+        if self.log_window is not None and hasattr(self.log_window, "data"):
+            self.current_test_log.clear()
+            self.current_test_log.update(
+                {
+                    "full_path": self.log_window.data.get("Log Filename"),
+                    "project_name": self.log_window.data.get(
+                        "Project Name", "No Project Name"
+                    ),
+                }
+            )
+            # Update header label to reflect new log
+            self.header_access.update_test_log_label()
 
         sweep_dur = round(self.stopwatch.get_time())  # add this
         run_file = ManualSaveWindow(
@@ -315,6 +330,7 @@ class ManualModeFrame(ctk.CTkFrame):
                 band_key,
                 run_note,
                 sweep_dur,
+                self.current_test_log,
             )
 
         self.run_filename = None

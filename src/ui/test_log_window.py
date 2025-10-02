@@ -7,7 +7,6 @@ import customtkinter as ctk
 from ui.get_resource_path import resource_path
 from ui.ui_logger import LoggingButton, LoggingTopLevel
 from utils.settings import read_settings_from_file
-from utils.test_log import get_latest_test_log
 
 
 class OpenTestLog(LoggingTopLevel):
@@ -15,7 +14,7 @@ class OpenTestLog(LoggingTopLevel):
         self, parent, inst, inst_found, test_log_label, frame_color, label_color
     ):
         super().__init__(parent)
-        self.title("Test Log")
+        self.title("Autosa Test Log")
         window_width = 900
         window_height = 340
         self.geometry(f"{window_width}x{window_height}")
@@ -76,7 +75,7 @@ class OpenTestLog(LoggingTopLevel):
 
         cur_test_log = ctk.CTkLabel(
             frame1,
-            text=get_latest_test_log()[1],
+            text=self.test_log_label.cget("text"),
             justify="left",
             font=("", 11),
         )
@@ -88,7 +87,10 @@ class OpenTestLog(LoggingTopLevel):
         ).grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="w")
 
         for row, label in enumerate(self.log_info_labels):
-            ctk.CTkLabel(frame2, text=label + ":").grid(
+            opt_label = (
+                " (optional)" if label in ("Test Engineer", "Project Name") else ""
+            )
+            ctk.CTkLabel(frame2, text=label + opt_label + ":").grid(
                 row=row + 1, column=0, padx=5, pady=5, sticky="w"
             )
 
@@ -100,7 +102,7 @@ class OpenTestLog(LoggingTopLevel):
                 var.trace_add("write", self.create_filename)
                 self.entry_vars[label] = var
 
-                entry = ctk.CTkEntry(frame2, textvariable=var, width=490)
+                entry = ctk.CTkEntry(frame2, textvariable=var, width=435)
                 entry.grid(row=row + 1, column=1, padx=5, pady=5, sticky="w")
 
                 self.entry_vars[label] = entry
@@ -112,15 +114,6 @@ class OpenTestLog(LoggingTopLevel):
             command=self.save_csv,
         )
         self.save_btn.grid(row=0, column=0, padx=5, pady=5, sticky="e")
-
-        # cancel_btn = LoggingButton(
-        #     frame3,
-        #     text="Cancel",
-        #     command=lambda: self.destroy(),
-        #     fg_color="#939ba2",
-        #     hover_color="#646a6e",
-        # )
-        # cancel_btn.grid(row=0, column=1, padx=5, pady=5, sticky="e")
 
     def create_filename(self, *args):
         project_name = self.entry_vars["Project Name"].get().strip()
@@ -134,9 +127,9 @@ class OpenTestLog(LoggingTopLevel):
 
     def save_csv(self):
         # gather to return
-        data = {label: var.get().strip() for label, var in self.entry_vars.items()}
-        data["Log Filename"] = self.filename_var.get().strip()
-        new_filename = data["Log Filename"]
+        self.data = {label: var.get().strip() for label, var in self.entry_vars.items()}
+        self.data["Log Filename"] = self.filename_var.get().strip()
+        new_filename = self.data["Log Filename"]
         local_out_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
 
         # makesure filename ends with csv
@@ -157,14 +150,16 @@ class OpenTestLog(LoggingTopLevel):
         with open(filename, "w", newline="") as file:
             writer = csv.writer(file)
             # Write once-off info
-            for key, value in data.items():
+            for key, value in self.data.items():
                 if key != "Log Filename":
                     writer.writerow([f"{key}: {value}"])
 
-        data["Log Filename"] = filename
-        self.return_data = data
+        self.data["Log Filename"] = filename
+        self.return_data = self.data
 
-        self.test_log_label.configure(
-            text=self.entry_vars["Project Name"].get().strip()
+        project_name = (
+            self.entry_vars["Project Name"].get().strip() or "No Project Name"
         )
+        self.test_log_label.configure(text=project_name)
+
         self.destroy()

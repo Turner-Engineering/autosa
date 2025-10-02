@@ -13,7 +13,6 @@ from instrument.logged_instrument import LoggedInstrument
 from utils.logger import autosa_logger
 from utils.run_ids import get_todays_run_ids, run_index_to_id
 from utils.settings import get_autosa_version, read_settings_from_file
-from utils.test_log import get_latest_test_log
 
 EMULATOR_RESOURCE_NAME = "TCPIP0::localhost::inst0::INSTR"
 INPUT_LOG_INFO = {}
@@ -257,6 +256,7 @@ def save_trace_and_screen(
     band: str,
     run_note: str,
     sweep_dur: float,
+    current_test_log: dict,
 ):
     """Save the trace to a csv file and the screen to a png file on the instrument, then copy both to the local computer
 
@@ -266,8 +266,8 @@ def save_trace_and_screen(
         inst_out_folder (string): path to instrument output folder
         local_out_folder (string): path to local output folder
     """
-
-    write_to_test_log(inst, filename, run_note, band, sweep_dur)  # upon save
+    # upon save
+    write_to_test_log(inst, filename, run_note, band, sweep_dur, current_test_log)
 
     csv_path = f"{inst_out_folder}/{filename}.csv"
     png_path = f"{inst_out_folder}/{filename}.png"
@@ -366,7 +366,9 @@ def prep_band(inst, band_key):
     return error_message
 
 
-def run_band(inst, band_key, run_filename, band_ori, run_note, save=True):
+def run_band(
+    inst, band_key, run_filename, band_ori, run_note, current_test_log, save=True
+):
     inst_out_folder = read_settings_from_file()["-INST OUT FOLDER-"]
     local_out_folder = read_settings_from_file()["-LOCAL OUT FOLDER-"]
     sweep_dur = float(read_settings_from_file()["-SWEEP DUR-"])
@@ -396,13 +398,14 @@ def run_band(inst, band_key, run_filename, band_ori, run_note, save=True):
             band_name,
             run_note,
             sweep_dur,
+            current_test_log,
         )
 
     return error_message
 
 
 # TODO - move out of instrument.py to utils -- cannot currently due to circular import
-def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
+def write_to_test_log(inst, run_filename, run_note, band, sweep_dur, current_test_log):
     laptop_name = os.environ.get("COMPUTERNAME")
     local_tz = get_localzone()
     version = get_autosa_version()
@@ -477,7 +480,11 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
     }
 
     try:
-        test_log_path, log_filename = get_latest_test_log()
+        # test_log_path = current_test_log.get("full_path")
+        test_log_path = current_test_log.get("full_path")
+        if not test_log_path:
+            autosa_logger.warning("No active test log path set. Skipping log write.")
+            return
         log_exists = os.path.exists(test_log_path)
 
         log_rows = 0
@@ -505,4 +512,4 @@ def write_to_test_log(inst, run_filename, run_note, band, sweep_dur):
             writer.writerow(measurement_data.values())
 
     except Exception as e:
-        print(f"Failed to write log entry: {e}")
+        autosa_logger.warning(f"Failed to write log entry: {e}")
