@@ -460,6 +460,7 @@ class MainApp(ctk.CTk):
                     self.frame_color,
                     self.label_color,
                 )
+                self.wait_window(log_path)
 
                 self.current_test_log.clear()
                 self.current_test_log.update(
