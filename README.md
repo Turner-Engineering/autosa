@@ -12,25 +12,31 @@ Windows is the recommended operating system for AutosaVersion 2022 Q3. It has no
 
 This takes about 10 to 20 minutes, 1 reboot, and requires a decent internet connection.
 
-1. Download and Install [NI-VISA](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html) for Windows (last tested version was 2023 Q3). This allows Autosa to communicate with the instrument. Please read the instructions below for extra guidance.
+1. Download and Install [NI-VISA](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html) for Windows (last tested version is 2025 Q4). This allows Autosa to communicate with the instrument. Please read the instructions below for further guidance.
    1. The link above will take you to the This will download the NI Package Manager from which you will install NI-VISA.
    2. You will be asked to disable windows fast startup - do this, it only affects boot from shutdown and not by much.
    3. Deselect ALL when it asks about additional packages, Autosa does not need them.
-2. Download the executable file [`Autosa.exe`](https://github.com/ThisTemba/autosa/releases/latest) from this repository
-   1. This link takes you to the "releases" page of this repository. From here, click "Autosa.exe" under "Assets" to download the executable file.
+2. [Download the latest version](https://github.com/ThisTemba/autosa/releases/latest) of Autosa from this repository
+   1. This link takes you to the "releases" page of this repository. From there, click "Autosa_vx.x.x.exe" under "Assets" to download the latest executable file.
    2. Autosa is not a "recognized" windows app, so you may get a warning about that, ignore the warning and run the executable. You may have to click "More Info" and then "Run Anyway" to get it to run.
 3. Double click the executable file to run the program
    1. If the instrument is not connected, the program will start and say the instrument was not detected. See below for usage instructions
 
 ### Instrument Setup
 
-1. Make sure the instrument is plugged in to power and turned on
-2. Make sure the instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable. See image below.
-3. Make sure the signal analyzer program is running on the device (called "LaunchXSA" on the desktop)
+1. Make sure the instrument is plugged in to power and turned on.
+2. Make sure the instrument is connected to this computer via USB-B (back of instrument) to USB-A (computer) cable. Alternatively, an ethernet cable can be used with an ethernet to USB-A/C adapter. See the images below.
+3. Make sure the signal analyzer program is running on the device (called "LaunchXSA" on the instrument desktop)
 
-<img src="https://github.com/ThisTemba/autosa/assets/36087610/0b688734-af36-4af1-bae5-a3874f0893b7" width="300px" />
+<img src="https://github.com/ThisTemba/autosa/assets/36087610/0b688734-af36-4af1-bae5-a3874f0893b7" width="300px" alt="USB-B to USB-A cable" />
 
-Required USB-B to USB-A cable
+USB-B to USB-A Cable
+
+
+<img width="3358" height="1890" alt="Ethernet to USB cable" src="https://github.com/user-attachments/assets/b6b97222-8d3f-405d-a989-7b30ac0942fd" />
+
+Ethernet to USB-A/C Cable
+
 
 ### Usage
 
@@ -70,10 +76,10 @@ The following packages are required for development:
 - [pyinstaller](https://pyinstaller.org/en/stable/) - compiling python scripts `.exe` file
 - [pyvisa](https://pyvisa.readthedocs.io/en/latest/) - communicating with the instrument over USB
 
-Tkinter is included in Python, so install "pyinstaller" and "pyvisa" with pip:
+Run the following command to install all these packages with pip:
 
 ```bash
-pip install pyinstaller pyvisa
+pip install customtkinter pyinstaller pyvisa
 ```
 
 ### Building
@@ -89,6 +95,10 @@ Autosa was written to work with the N9010B signal analyzer. The [User's and Prog
 ### Terminology
 
 `band_ori` = "v", "h"
+
+`band_name` = B0, B1, B2, B3, B4, B5h, B5v, B6h, B6v, B7h, B7v
+
+`band_key` = B0, B1, B2, B3, B4, B5, B6, B7
 
 ### Screenshot Copy Example Code
 
