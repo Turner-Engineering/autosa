@@ -3,7 +3,7 @@ import subprocess
 
 import customtkinter as ctk
 
-from instrument.instrument import get_input, compare_datetime, release_inst
+from instrument.instrument import release_inst
 from ui.choose_log_window import ChooseActiveLog
 from ui.get_resource_path import resource_path
 from ui.help_window import HelpWindow
@@ -21,8 +21,8 @@ from utils.settings import (
     get_autosa_version,
     read_settings_from_file,
 )
-from utils.warnings import WarningManager
 from utils.test_log import get_project_name, get_test_logs
+from utils.warnings import WarningManager
 
 ctk.set_appearance_mode("light")
 ctk.set_widget_scaling(1.5)
@@ -206,7 +206,7 @@ class HeaderFrame(ctk.CTkFrame):
         """Open the warnings popup window"""
         all_warnings = self.warning_manager.get_all_warnings()
         WarningsWindow(self, all_warnings, self.frame_color, self.label_color)
-        
+
     def update_test_log_label(self):
         display_name = self.current_test_log.get("project_name", "No Test Logs Found")
         self.test_log_label.configure(text=display_name)
