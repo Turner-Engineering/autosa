@@ -117,9 +117,9 @@ class HelpWindow(ctk.CTkToplevel):
                 "title": 'How do I fix "No Instrument Detected"?',
                 "content": (
                     "1. Ensure that either the instrument is powered on, that it is connected via USB, and that the signal analyzer program is running.\n"
-                    "2. If using the emulator, ensure that that emulation software is running."
-                    "3. Try relaunching Autosa."
-                    "4. If the problem persists go to Settings > View Logs, then open the debug log. Scroll to the end and look for 'Resource Names:' to see if any of the detected resource names contain 'USB'."
+                    "2. If using the emulator, ensure that that emulation software is running.\n"
+                    "3. Try relaunching Autosa.\n"
+                    "4. If the problem persists go to Settings > View Logs, then open the debug log. Scroll to the end and look for 'Resource Names:' to see if any of the detected resource names contain 'USB'.\n"
                     "5. Perhaps update NI VISA through NI Package Manager"
                 ),
             },
