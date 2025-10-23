@@ -318,9 +318,10 @@ def record_and_adjust(inst, sweep_dur):
 
 
 def recall_cors(inst, corr_folder, corr_filename):
-    for i in range(16):
-        idx = i + 1
-        inst.write(f":SENS:CORR:CSET{idx} OFF")
+    # TODO: for some reason this messes with the ref level
+    # for i in range(16):
+    #     idx = i + 1
+    # inst.write(f":SENS:CORR:CSET{idx} OFF")
 
     inst.write(f":MMEM:LOAD:CORR 1, '{corr_folder}/{corr_filename}'")
 
