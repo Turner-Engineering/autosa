@@ -57,12 +57,8 @@ def get_folder_files(inst, folder_path):
 def get_sorted_folder(out_folder, band):
     out_folder = out_folder.replace("/", "\\")
 
-    # Create date-based subfolder (e.g., '622', '1201')
-    day_folder = datetime.datetime.now().strftime("%m%d").lstrip("0")
-    dated_folder = os.path.join(out_folder, day_folder)
-
     # Add band-specific folder
-    band_folder = os.path.join(dated_folder, band)
+    band_folder = os.path.join(out_folder, band)
     os.makedirs(band_folder, exist_ok=True)
 
     return band_folder
