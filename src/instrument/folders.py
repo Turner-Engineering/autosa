@@ -58,7 +58,8 @@ def get_sorted_folder(out_folder, band):
     out_folder = out_folder.replace("/", "\\")
 
     # Add band-specific folder
-    band_folder = os.path.join(out_folder, band)
+    folder_name = band.upper().replace("H", "").replace("V", "")
+    band_folder = os.path.join(out_folder, folder_name)
     os.makedirs(band_folder, exist_ok=True)
 
     return band_folder
