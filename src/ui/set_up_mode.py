@@ -7,7 +7,6 @@ from instrument.instrument import (
     get_ref_level,
     get_state_file,
     prep_band,
-    recall_state,
     set_rounded_ref_level,
     update_state,
 )

@@ -6,6 +6,7 @@ from instrument.instrument import (
     save_trace_and_screen,
 )
 from ui.save_window_popups import NoRunNoteWindow, SBMCompletedWindow
+from ui.test_log_window import OpenTestLog
 from ui.ui_logger import LargeButton
 from utils.logger import autosa_logger
 from utils.settings import read_settings_from_file
@@ -18,6 +19,8 @@ class SingleModeFrame(ctk.CTkFrame):
         inst_found,
         inst,
         discon_btn_st,
+        header_access,
+        current_test_log,
         frame_color,
         label_color,
     ):
@@ -27,6 +30,8 @@ class SingleModeFrame(ctk.CTkFrame):
         self.inst_found = inst_found
         self.inst = inst
         self.discon_btn_st = discon_btn_st
+        self.header_access = header_access
+        self.current_test_log = current_test_log
         self.frame_color = frame_color
         self.label_color = label_color
 
@@ -77,7 +82,7 @@ class SingleModeFrame(ctk.CTkFrame):
             fg_color=self.label_color,
             width=100,
             anchor="w",
-        ).grid(row=0, column=0, padx=5, pady=5, sticky="e")
+        ).grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         self.run_note_entry = ctk.CTkEntry(
             frame,
@@ -146,6 +151,31 @@ class SingleModeFrame(ctk.CTkFrame):
             self.enable_buttons()
         else:
             self.disable_buttons()
+
+            if not self.current_test_log.get("full_path"):
+                self.log_window = OpenTestLog(
+                    self,
+                    self.inst,
+                    self.inst_found,
+                    self.header_access.test_log_label,
+                    self.frame_color,
+                    self.label_color,
+                )
+                self.log_window.wait_window()
+
+                if hasattr(self.log_window, "data"):
+                    self.current_test_log.clear()
+                    self.current_test_log.update(
+                        {
+                            "full_path": self.log_window.data.get("Log Filename"),
+                            "project_name": self.log_window.data.get(
+                                "Project Name", "No Project Name"
+                            ),
+                        }
+                    )
+                    # Update header label to reflect new log
+                    self.header_access.update_test_log_label()
+
             self.after(100, lambda: self.run_single_band(band_name))
 
     def run_single_band(self, band_name):
@@ -155,7 +185,13 @@ class SingleModeFrame(ctk.CTkFrame):
         run_note = self.run_note_var.get()
 
         error_message = run_band(
-            self.inst, band_key, "", band_ori, run_note, save=False
+            self.inst,
+            band_key,
+            "",
+            band_ori,
+            run_note,
+            self.current_test_log,
+            save=False,
         )
 
         # GET FILENAME
@@ -178,6 +214,7 @@ class SingleModeFrame(ctk.CTkFrame):
                 band_name,
                 run_note,
                 sweep_dur,
+                self.current_test_log,
             )
 
         # AFTER RUN
