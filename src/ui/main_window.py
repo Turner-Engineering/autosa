@@ -62,13 +62,6 @@ class HeaderFrame(ctk.CTkFrame):
             fg_color=self.label_color,
         ).grid(row=0, column=0, sticky="w", padx=10, pady=10)
 
-        ctk.CTkLabel(
-            self,
-            text="Project Name: ",
-            font=("", 12),
-            fg_color=self.label_color,
-        ).grid(row=0, column=1, sticky="w", pady=10)
-
         display_name = (
             self.current_test_log.get("project_name", "No Test Logs Found")
             if isinstance(self.current_test_log, dict)
@@ -77,11 +70,11 @@ class HeaderFrame(ctk.CTkFrame):
 
         self.test_log_label = ctk.CTkLabel(
             self,
-            text=display_name,
+            text=f"Project Name: {display_name}",
             font=("", 12),
             fg_color=self.label_color,
         )
-        self.test_log_label.grid(row=0, column=2, sticky="ew", padx=(0, 10), pady=10)
+        self.test_log_label.grid(row=0, column=1, sticky="ew", padx=(0, 10), pady=10)
 
         LoggingButton(
             self,
@@ -178,7 +171,7 @@ class HeaderFrame(ctk.CTkFrame):
             border_color="red",
             hover_color="#ffcccc",
         )
-        self.show_all_warnings_button.grid(row=0, column=1, sticky="w", padx=(5, 100))
+        self.show_all_warnings_button.grid(row=0, column=1, sticky="w", padx=(5, 0))
 
         # Update warning display
         self.update_warning_display()
@@ -209,7 +202,7 @@ class HeaderFrame(ctk.CTkFrame):
 
     def update_test_log_label(self):
         display_name = self.current_test_log.get("project_name", "No Test Logs Found")
-        self.test_log_label.configure(text=display_name)
+        self.test_log_label.configure(text=f"Project Name: {display_name}")
 
     def update_valid(self):
         """Update settings validation and refresh warning display"""

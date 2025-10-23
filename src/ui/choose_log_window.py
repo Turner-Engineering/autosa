@@ -1,10 +1,12 @@
 import os
+import subprocess
 
 import customtkinter as ctk
 
 from ui.get_resource_path import resource_path
-from ui.ui_logger import LoggingButton, LoggingTopLevel
+from ui.ui_logger import LoggingButton, LoggingTopLevel, OutlineButton
 from utils.logger import autosa_logger
+from utils.settings import read_settings_from_file
 from utils.test_log import get_project_name, get_test_logs
 
 
@@ -106,12 +108,16 @@ class ChooseActiveLog(LoggingTopLevel):
         self.active_log_menu.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
     def fill_frame3(self, frame3):
-        LoggingButton(
-            frame3, text="Use Selected Log", command=self.use_selected_log
+        OutlineButton(
+            frame3, text="Open Output Folder", command=self.open_output_folder
         ).grid(row=0, column=0, padx=5, pady=5, sticky="e")
 
+        LoggingButton(
+            frame3, text="Use Selected Log", command=self.use_selected_log
+        ).grid(row=0, column=1, padx=5, pady=5, sticky="e")
+
         LoggingButton(frame3, text="Start A New Log", command=self.new_test_log).grid(
-            row=0, column=1, padx=5, pady=5, sticky="e"
+            row=0, column=2, padx=5, pady=5, sticky="e"
         )
 
     def use_selected_log(self):
@@ -137,6 +143,18 @@ class ChooseActiveLog(LoggingTopLevel):
         )
 
         self.destroy()
+
+    def open_output_folder(self):
+        """Open the local output folder in Windows Explorer"""
+        try:
+            local_output_path = read_settings_from_file()["-LOCAL OUT FOLDER-"]
+            if local_output_path and os.path.exists(local_output_path):
+                subprocess.run(["explorer", "/open,", local_output_path])
+                autosa_logger.info(f"Opened output folder: {local_output_path}")
+            else:
+                autosa_logger.warning("Output folder path is not set or does not exist")
+        except Exception as e:
+            autosa_logger.error(f"Failed to open output folder: {e}")
 
     def new_test_log(self):
         self.log_type = "new_log"
