@@ -3,7 +3,7 @@ import subprocess
 
 import customtkinter as ctk
 
-from instrument.instrument import compare_datetime, get_input, release_inst
+from instrument.instrument import get_input, release_inst
 from ui.get_resource_path import resource_path
 from ui.help_window import HelpWindow
 from ui.manual_mode import ManualModeFrame
@@ -14,18 +14,13 @@ from ui.settings_window import SettingsWindow
 from ui.single_band_mode import SingleModeFrame
 from ui.test_log_window import OpenTestLog
 from ui.ui_logger import LoggingButton, OutlineButton
-from ui.warnings_window import (
-    MISMATCHED_CLOCK_WARNING,
-    SETTINGS_WARNING,
-    WarningManager,
-    WarningsWindow,
-)
+from ui.warnings_window import WarningsWindow
 from utils.logger import autosa_logger
 from utils.settings import (
     get_autosa_version,
-    is_settings_valid,
     read_settings_from_file,
 )
+from utils.warnings import WarningManager
 
 ctk.set_appearance_mode("light")
 ctk.set_widget_scaling(1.5)
@@ -48,8 +43,9 @@ class HeaderFrame(ctk.CTkFrame):
         self.warning_manager = WarningManager()
 
         # Check for warnings
-        self.check_datetime_warning()
-        self.check_settings_warning()
+        self.warning_manager.check_datetime_warning(self.inst, self.inst_name)
+        self.warning_manager.check_settings_warning(self.inst)
+        self.warning_manager.check_correction_warning()
 
         self.create_widgets()
 
@@ -163,19 +159,6 @@ class HeaderFrame(ctk.CTkFrame):
         # Update warning display
         self.update_warning_display()
 
-    def check_datetime_warning(self):
-        time_diff, times_match = compare_datetime(self.inst, self.inst_name)
-        if not times_match:
-            self.warning_manager.add_warning(MISMATCHED_CLOCK_WARNING)
-        else:
-            self.warning_manager.remove_warning(MISMATCHED_CLOCK_WARNING)
-
-    def check_settings_warning(self):
-        if not is_settings_valid(self.inst):
-            self.warning_manager.add_warning(SETTINGS_WARNING)
-        else:
-            self.warning_manager.remove_warning(SETTINGS_WARNING)
-
     def update_warning_display(self):
         """Update the warning display based on current warnings"""
         if not self.warning_manager.has_warnings():
@@ -202,7 +185,9 @@ class HeaderFrame(ctk.CTkFrame):
 
     def update_valid(self):
         """Update settings validation and refresh warning display"""
-        self.check_settings_warning()
+        self.warning_manager.check_datetime_warning(self.inst, self.inst_name)
+        self.warning_manager.check_settings_warning(self.inst)
+        self.warning_manager.check_correction_warning()
         self.update_warning_display()
 
     def update_output_folder(self):

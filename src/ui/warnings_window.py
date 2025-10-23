@@ -1,34 +1,10 @@
-from enum import Enum
 from typing import List
 
 import customtkinter as ctk
 
 from ui.get_resource_path import resource_path
 from ui.ui_logger import LoggingButton
-from utils.logger import autosa_logger
-
-
-class WarningSeverity(Enum):
-    """Warning severity levels in order of priority (highest to lowest)"""
-
-    LOW = "Low"
-    MEDIUM = "Medium"
-    HIGH = "High"
-
-
-class Warning:
-    """Represents a single warning with message, severity, and recommended action"""
-
-    def __init__(
-        self, message: str, severity: WarningSeverity, recommended_action: str = ""
-    ):
-        self.message = message
-        self.severity = severity
-        self.recommended_action = recommended_action
-
-    def get_severity_text(self) -> str:
-        """Returns the severity level as text"""
-        return self.severity.value
+from utils.warnings import Warning
 
 
 class WarningsWindow(ctk.CTkToplevel):
@@ -133,61 +109,3 @@ class WarningsWindow(ctk.CTkToplevel):
         # Close button
         close_button = LoggingButton(self, text="Close", command=self.destroy)
         close_button.pack(pady=10)
-
-
-class WarningManager:
-    """Manages multiple warnings and determines which to display"""
-
-    def __init__(self):
-        self.warnings: List[Warning] = []
-
-    def add_warning(self, warning: Warning):
-        """Add a warning to the manager"""
-        # Remove any existing warning with the same message to avoid duplicates
-        self.warnings = [w for w in self.warnings if w.message != warning.message]
-        self.warnings.append(warning)
-        autosa_logger.debug(f"Added Autosa warning: {warning.message}")
-
-    def remove_warning(self, warning: Warning):
-        """Remove a warning by message"""
-        self.warnings = [w for w in self.warnings if w.message != warning.message]
-        autosa_logger.debug(f"Removed Autosa warning: {warning.message}")
-
-    def get_primary_warning(self) -> Warning:
-        """Get the highest priority warning (highest severity)"""
-        if not self.warnings:
-            return None
-        severity_order = {"High": 3, "Medium": 2, "Low": 1}
-        return max(self.warnings, key=lambda w: severity_order[w.severity.value])
-
-    def get_all_warnings(self) -> List[Warning]:
-        """Get all warnings sorted by severity"""
-        severity_order = {"High": 3, "Medium": 2, "Low": 1}
-        return sorted(
-            self.warnings, key=lambda w: severity_order[w.severity.value], reverse=True
-        )
-
-    def has_warnings(self) -> bool:
-        """Check if there are any warnings"""
-        return len(self.warnings) > 0
-
-    def has_multiple_warnings(self) -> bool:
-        """Check if there are multiple warnings"""
-        return len(self.warnings) > 1
-
-    def count(self) -> int:
-        """Get the number of warnings"""
-        return len(self.warnings)
-
-
-SETTINGS_WARNING = Warning(
-    message="Settings Invalid. Please change settings.",
-    severity=WarningSeverity.HIGH,
-    recommended_action="Open Settings and ensure all entries are valid (invalid entries will be highlighted in red). Save the settings when done.",
-)
-
-MISMATCHED_CLOCK_WARNING = Warning(
-    message="Instrument and test laptop device clocks do not match.",
-    severity=WarningSeverity.MEDIUM,
-    recommended_action="Ensure that the instrument and test laptop device clocks are both set to the same correct time. They must be within 5 minutes of each other.",
-)
