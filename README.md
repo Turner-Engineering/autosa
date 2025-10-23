@@ -198,16 +198,16 @@ finally:
 
 ```
 
-## Real World Tests
-
-### October 2023
+## Usage Record
 
 - used Autosa in the field for the first time on October 18th 2023 for railcar tests.
 - used Autosa in January 2024 for the NYCT Crane Car Test in New York City.
 - used Autosa in January 2024 for the Toshiba Electric Locomotive Commissioning Tests in Taiwan.
 - used Autosa in April 2024 for P2250 Railcar Tests in Pueblo, Colorado.
 - used Autosa in June 2024 for PCEP survey
+- used Autosa in February 2025 for MBTA GLTPS Survey
 - used Autosa in June 2025 for PCEP survey 2
+- used Autosa in October 2025 v0.3.0 and 0.4.3 (pre-release) for CTA RLE MLDB basline survey
 
 ## Notes
 
@@ -218,3 +218,7 @@ finally:
 ### June 5 2024
 
 - Good thing that the file namer is based on the folders in the signal analyzer and not the folders on the test laptop. The test laptop can change within a single test, but only one SA will be used.
+
+### October 23 2025
+
+- Had some issues with the new version of Autosa, and with USB connections. Most of the 0.4.x bugs were fixed, USB still an issue. Had similar issue with fieldfox.
