@@ -151,8 +151,8 @@ class SetUpModeFrame(ctk.CTkFrame):
         self.button_list = []
         self.ref_level_double_var = ctk.DoubleVar()
         self.ref_level_double_var.set(get_ref_level(self.inst))
-        self.band_selected = ctk.StringVar()
-        self.state_filename = ctk.StringVar()
+        self.band_selected_var = ctk.StringVar()
+        self.state_filename_var = ctk.StringVar()
         self.warning_red = "#8F0202"
         self.hover_red = "#350303"
 
@@ -292,8 +292,13 @@ class SetUpModeFrame(ctk.CTkFrame):
         self.update_button.configure(state=self.is_state_folder_valid())
 
     def setup_files(self, band_key):
-        prep_band(self.inst, band_key)
-        autosa_logger.debug(f"Recalled State: {self.state_filename}")
+        self.band_selected_var.set(band_key)
+        self.last_band_prepped.configure(text=band_key)
+        self.state_filename_var = get_state_file(
+            self.inst, read_settings_from_file()["-STATE FOLDER-"], band_key
+        )
+        prep_band(self.inst, self.band_selected_var.get())
+        autosa_logger.debug(f"Recalled State: {self.state_filename_var}")
 
         updated_ref_level = get_ref_level(self.inst)
         self.ref_level_double_var.set(updated_ref_level)
@@ -324,12 +329,14 @@ class SetUpModeFrame(ctk.CTkFrame):
         autosa_logger.info(f"Increased ref level to {incresed_ref_rounded} dBm")
 
     def confirm_window(self):
-        autosa_logger.debug(f"State File {self.state_filename} overwrite initiated.")
+        autosa_logger.debug(
+            f"State File {self.state_filename_var} overwrite initiated."
+        )
         self.wait_window(
             ConfirmStateChangePopup(
                 self,
                 self.update_ref_level,
-                self.state_filename,
+                self.state_filename_var,
                 self.warning_red,
                 self.hover_red,
             )
@@ -337,10 +344,10 @@ class SetUpModeFrame(ctk.CTkFrame):
 
     def update_ref_level(self):
         state_folder = read_settings_from_file()["-STATE FOLDER-"]
-        self.state_filename = get_state_file(
-            self.inst, state_folder, self.band_selected
+        self.state_filename_var = get_state_file(
+            self.inst, state_folder, self.band_selected_var.get()
         )
-        update_state(self.inst, state_folder, self.state_filename)
+        update_state(self.inst, state_folder, self.state_filename_var)
 
     def update_ref_level_label(self, updated_ref_level):
         self.cur_ref_level_label.configure(text=f"{updated_ref_level:.2f} dBm")
