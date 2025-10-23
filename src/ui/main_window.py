@@ -14,6 +14,12 @@ from ui.settings_window import SettingsWindow
 from ui.single_band_mode import SingleModeFrame
 from ui.test_log_window import OpenTestLog
 from ui.ui_logger import LoggingButton, OutlineButton
+from ui.warnings_window import (
+    MISMATCHED_CLOCK_WARNING,
+    SETTINGS_WARNING,
+    WarningManager,
+    WarningsWindow,
+)
 from utils.logger import autosa_logger
 from utils.settings import (
     get_autosa_version,
@@ -38,20 +44,12 @@ class HeaderFrame(ctk.CTkFrame):
         self.configure(fg_color=self.frame_color, bg_color=self.frame_color)
         self.columnconfigure(0, weight=1)
 
-        self.dt_diff, self.dt_check = compare_datetime(self.inst, self.inst_name)
-        self.dt_check_text = (
-            ""
-            if self.dt_check
-            else f"⚠️ Instrument and laptop datetime differ by {self.dt_diff}"
-        )
-        self.dt_check_color = "green" if self.dt_check else "red"
-        self.dt_match_var = ctk.StringVar()
-        self.dt_match_var.set(value=self.dt_check_text)
+        # Initialize warning manager
+        self.warning_manager = WarningManager()
 
-        self.valid_settings_label = ctk.CTkLabel(self)
-        self.settings_error_var = ctk.StringVar()
-        self.settings_error_color = None
-        self.update_valid()
+        # Check for warnings
+        self.check_datetime_warning()
+        self.check_settings_warning()
 
         self.create_widgets()
 
@@ -127,44 +125,85 @@ class HeaderFrame(ctk.CTkFrame):
             height=20,
         ).grid(row=1, column=0, sticky="w", padx=10)
 
-        ctk.CTkLabel(
-            self,
-            textvariable=self.dt_match_var,
-            text_color=self.dt_check_color,
-            justify="left",
-            anchor="w",
-            fg_color=self.label_color,
-            font=("", 12),
-            height=20,
-        ).grid(row=2, column=0, sticky="w", padx=10)
+        # Create warning display frame
+        self.warning_frame = ctk.CTkFrame(self, fg_color=self.frame_color)
+        self.warning_frame.grid(row=2, column=0, sticky="ew", padx=10, pady=5)
+        self.warning_frame.columnconfigure(0, weight=1)
 
-        self.valid_settings_label = ctk.CTkLabel(
-            self,
-            textvariable=self.settings_error_var,
-            text_color=self.settings_error_color,
+        # Warning display label
+        self.warning_var = ctk.StringVar()
+        self.warning_label = ctk.CTkLabel(
+            self.warning_frame,
+            textvariable=self.warning_var,
             justify="left",
             anchor="w",
             fg_color=self.label_color,
+            text_color="red",
             font=("", 12),
             height=20,
         )
-        self.valid_settings_label.grid(row=2, column=0, sticky="w", padx=10)
+        self.warning_label.grid(row=0, column=0, sticky="w", padx=0)
 
-    def is_valid_settings(self):
-        is_valid = is_settings_valid(self.inst)
-        return is_valid
+        # View details button (always shown)
+        self.show_all_warnings_button = OutlineButton(
+            self.warning_frame,
+            text="See All Warnings",
+            height=20,
+            font=("", 10),
+            command=self.open_warnings_window,
+        )
+        # Override colors to make it red
+        self.show_all_warnings_button.configure(
+            text_color="red",
+            border_color="red",
+            hover_color="#ffcccc",
+        )
+        self.show_all_warnings_button.grid(row=0, column=1, sticky="w", padx=(5, 100))
+
+        # Update warning display
+        self.update_warning_display()
+
+    def check_datetime_warning(self):
+        time_diff, times_match = compare_datetime(self.inst, self.inst_name)
+        if not times_match:
+            self.warning_manager.add_warning(MISMATCHED_CLOCK_WARNING)
+        else:
+            self.warning_manager.remove_warning(MISMATCHED_CLOCK_WARNING)
+
+    def check_settings_warning(self):
+        if not is_settings_valid(self.inst):
+            self.warning_manager.add_warning(SETTINGS_WARNING)
+        else:
+            self.warning_manager.remove_warning(SETTINGS_WARNING)
+
+    def update_warning_display(self):
+        """Update the warning display based on current warnings"""
+        if not self.warning_manager.has_warnings():
+            self.warning_var.set("")
+            self.show_all_warnings_button.grid_remove()
+            return
+
+        primary_warning = self.warning_manager.get_primary_warning()
+        if primary_warning:
+            warning_text = f"⚠️ {primary_warning.message}"
+
+            # Add count of additional warnings in parentheses if there are multiple
+            if self.warning_manager.has_multiple_warnings():
+                extra_count = self.warning_manager.count() - 1
+                warning_text += f" ({extra_count} more)"
+
+            self.warning_var.set(warning_text)
+            self.show_all_warnings_button.grid()
+
+    def open_warnings_window(self):
+        """Open the warnings popup window"""
+        all_warnings = self.warning_manager.get_all_warnings()
+        WarningsWindow(self, all_warnings, self.frame_color, self.label_color)
 
     def update_valid(self):
-        is_valid = self.is_valid_settings()
-        self.settings_error_var.set(
-            value=(
-                ""
-                if is_valid
-                else "❌ Settings Invalid. Please change settings.                "
-            )
-        )
-        self.settings_error_color = "green" if is_valid else "red"
-        self.valid_settings_label.configure(text_color=self.settings_error_color)
+        """Update settings validation and refresh warning display"""
+        self.check_settings_warning()
+        self.update_warning_display()
 
     def update_output_folder(self):
         # get file paths of output folders
@@ -299,7 +338,7 @@ class MainApp(ctk.CTk):
         super().__init__()
         self.title(f"Autosa {get_autosa_version()}")
         window_width = 1170
-        window_height = 760
+        window_height = 780
         self.geometry(f"{window_width}x{window_height}")
         self.logo = resource_path("images/autosa_logo.ico")
         self.iconbitmap(self.logo)
