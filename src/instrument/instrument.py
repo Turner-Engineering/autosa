@@ -35,25 +35,46 @@ def usb_inst_detected(resource_names):
     return len(usb_resource_names) > 0
 
 
-def get_resource_name(resource_manager):
-    resource_names = resource_manager.list_resources()
-    autosa_logger.debug(f"Resource Names: {resource_names}")
-
-    if not usb_inst_detected(resource_names):
-        if EMULATOR_RESOURCE_NAME in resource_names:
-            return EMULATOR_RESOURCE_NAME
-        else:
-            return ""
-
+def get_usb_resource_name(resource_names):
+    # Example: "..."
     resource_names = [r for r in resource_names if "USB" in r]
     resource_names = [r for r in resource_names if "::INSTR" in r]
-    resource_name = "" if len(resource_names) == 0 else resource_names[0]
-    return resource_name
+    autosa_logger.debug(f"USB resources found: {resource_names}")
+    if len(resource_names) > 1:
+        autosa_logger.warning(f"Multiple USB resources found: {resource_names}")
+    return "" if len(resource_names) == 0 else resource_names[0]
+
+
+def get_ethernet_resource_name(resource_names):
+    # Example: "TCPIP0::K-N9010B-71352.local::inst0::INSTR"
+    resource_names = [r for r in resource_names if r.startswith("TCPIP0::")]
+    resource_names = [r for r in resource_names if r.endswith("inst0::INSTR")]
+    resource_names = [r for r in resource_names if "localhost" not in r]
+    autosa_logger.debug(f"Ethernet resources found: {resource_names}")
+    if len(resource_names) > 1:
+        autosa_logger.warning(f"Multiple Ethernet resources found: {resource_names}")
+    return "" if len(resource_names) == 0 else resource_names[0]
+
+
+def get_emulator_resource_name(resource_names):
+    # Example: "TCPIP0::localhost::inst0::INSTR"
+    return EMULATOR_RESOURCE_NAME if EMULATOR_RESOURCE_NAME in resource_names else ""
+
+
+def get_resource_name():
+    resource_manager = pyvisa.ResourceManager()
+    resource_names = resource_manager.list_resources()
+
+    # priority order: USB, Ethernet, Emulator
+    usb_resource_name = get_usb_resource_name(resource_names)
+    ethernet_resource_name = get_ethernet_resource_name(resource_names)
+    emulator_resource_name = get_emulator_resource_name(resource_names)
+
+    return usb_resource_name or ethernet_resource_name or emulator_resource_name
 
 
 def get_inst():
-    resource_manager = pyvisa.ResourceManager()
-    resource_name = get_resource_name(resource_manager)
+    resource_name = get_resource_name()
     inst = None
 
     try:
@@ -297,9 +318,10 @@ def record_and_adjust(inst, sweep_dur):
 
 
 def recall_cors(inst, corr_folder, corr_filename):
-    for i in range(16):
-        idx = i + 1
-        inst.write(f":SENS:CORR:CSET{idx} OFF")
+    # TODO: for some reason this messes with the ref level
+    # for i in range(16):
+    #     idx = i + 1
+    # inst.write(f":SENS:CORR:CSET{idx} OFF")
 
     inst.write(f":MMEM:LOAD:CORR 1, '{corr_folder}/{corr_filename}'")
 

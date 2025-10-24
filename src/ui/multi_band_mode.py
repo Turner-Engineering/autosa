@@ -78,7 +78,10 @@ class ConfirmWindow(LoggingTopLevel):
             "" if self.parent.ori_var.get() == "None" else self.parent.ori_var.get()
         )
         band_ori = band_ori_full[0].lower() if band_ori_full else ""
-        run_id = "XYZ-AB"
+        run_id = get_run_id(
+            self.parent.inst, read_settings_from_file()["-INST OUT FOLDER-"]
+        )
+
         first_band = band_range[:2]
         cur_time = datetime.datetime.now().strftime("%H_%M_%S")
         sweep_dur = read_settings_from_file()["-SWEEP DUR-"]
@@ -87,11 +90,8 @@ class ConfirmWindow(LoggingTopLevel):
             "Please confirm that you would like to run bands\n"
             f"{band_range} ({run_count} runs total)\n"
             f"for {sweep_dur} seconds each\n"
-            "and that the first filename should be:\n"
+            "The first run will be:\n"
             f"{run_id} {run_note} {sweep_dur}s {first_band}{band_ori} {cur_time}\n"
-            "(the rest will be numbered sequentially).\n"
-            "The time will not be included in the checklist,\n"
-            "but will be in the actual saved filename."
         )
         return text
 

@@ -21,7 +21,11 @@ class LoggedInstrument:
         try:
             # this is the original query method
             response = self._inst.query(*args, **kwargs)
-            self._logger.debug(f"<<< INST RESPN <<<: {repr(response)}")
+            # truncate response to 2000 characters
+            logged_response = (
+                response[:2000] + "..." if len(response) > 2000 else response
+            )
+            self._logger.debug(f"<<< INST RESPN <<<: {repr(logged_response)}")
             return response
         except Exception as e:
             self._logger.error(f"[INST ERROR]: {e}")
