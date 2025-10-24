@@ -122,7 +122,7 @@ class HeaderFrame(ctk.CTkFrame):
             value=(
                 f"✅ {self.inst_name} Detected - " + str(self.inst)
                 if self.inst_found
-                else "❌ No Instrument Detected - Ensure the instrument is on and connected via USB-B to USB-A."
+                else "❌ No Instrument Detected - Ensure the instrument is on and connected via USB or ethernet."
             )
         )
         inst_found_color = "green" if self.inst_found else "red"
