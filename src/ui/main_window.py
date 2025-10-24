@@ -94,7 +94,6 @@ class HeaderFrame(ctk.CTkFrame):
 
         self.output_folder_button = OutlineButton(
             self,
-            # text="📁 Open Output Folder",
             text="Open Output Folder",
             height=10,
             font=("", 10),
@@ -107,7 +106,6 @@ class HeaderFrame(ctk.CTkFrame):
 
         self.test_log_button = OutlineButton(
             self,
-            # text="➕ Start New Test Log",
             text="Start New Test Log",
             font=("", 10),
             height=10,
@@ -140,8 +138,9 @@ class HeaderFrame(ctk.CTkFrame):
 
         # Create warning display frame
         self.warning_frame = ctk.CTkFrame(self, fg_color=self.frame_color)
-        self.warning_frame.grid(row=2, column=0, sticky="ew", padx=10, pady=5)
-        self.warning_frame.columnconfigure(0, weight=1)
+        self.warning_frame.grid(
+            row=2, column=0, sticky="ew", padx=10, pady=5, columnspan=3
+        )
 
         # Warning display label
         self.warning_var = ctk.StringVar()
@@ -161,7 +160,7 @@ class HeaderFrame(ctk.CTkFrame):
         self.show_all_warnings_button = OutlineButton(
             self.warning_frame,
             text="See All Warnings",
-            height=20,
+            height=10,
             font=("", 10),
             command=self.open_warnings_window,
         )

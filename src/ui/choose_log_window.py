@@ -108,16 +108,16 @@ class ChooseActiveLog(LoggingTopLevel):
         self.active_log_menu.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
     def fill_frame3(self, frame3):
-        OutlineButton(
-            frame3, text="Open Output Folder", command=self.open_output_folder
-        ).grid(row=0, column=0, padx=5, pady=5, sticky="e")
-
         LoggingButton(
             frame3, text="Use Selected Log", command=self.use_selected_log
         ).grid(row=0, column=1, padx=5, pady=5, sticky="e")
 
-        LoggingButton(frame3, text="Start A New Log", command=self.new_test_log).grid(
-            row=0, column=2, padx=5, pady=5, sticky="e"
+        OutlineButton(
+            frame3, text="Open Output Folder", command=self.open_output_folder
+        ).grid(row=1, column=0, padx=5, pady=5, sticky="e")
+
+        OutlineButton(frame3, text="Start A New Log", command=self.new_test_log).grid(
+            row=1, column=1, padx=5, pady=5, sticky="e"
         )
 
     def use_selected_log(self):

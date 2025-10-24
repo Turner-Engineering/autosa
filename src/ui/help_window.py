@@ -117,7 +117,7 @@ class HelpWindow(ctk.CTkToplevel):
                 "title": 'How do I fix "No Instrument Detected"?',
                 "content": (
                     "1. Ensure that either the instrument is powered on and that the signal analyzer program is running.\n"
-                    "2. Ensure that the instument is physically connected to the computer USB cable or ethernet cable.\n"
+                    "2. Ensure that the instument is physically connected to the test laptop via USB cable or ethernet cable.\n"
                     "3. Relaunch Autosa.\n"
                     "4. If the problem persists go to \"Settings > View Logs\", then open the debug log. Scroll to the end and look for 'Resource Names:' to see if any of the detected resources match the instrument. This will start with USB for USB connections and with TCPIP followed by the instrument name for ethernet connections.\n"
                     "5. Try updating NI VISA through NI Package Manager."
