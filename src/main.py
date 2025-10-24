@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 import pyvisa
 
@@ -66,7 +67,7 @@ def make_json_valid():
 
 
 def log_start():
-    open_message = f"Autosa {get_autosa_version()} Started"
+    open_message = f"Autosa {get_autosa_version()} Started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
     padding = 10
     open_message = " " * padding + open_message + " " * padding
     autosa_logger.info("=" * len(open_message))
