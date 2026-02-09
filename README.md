@@ -208,6 +208,7 @@ finally:
 - used Autosa in February 2025 for MBTA GLTPS Survey
 - used Autosa in June 2025 for PCEP survey 2
 - used Autosa in October 2025 v0.3.0 and 0.4.3 (pre-release) for CTA RLE MLDB basline survey
+- used Autosa in February 2026 v0.4.4 for NICTD Post-Energization Survey
 
 ## Notes
 
