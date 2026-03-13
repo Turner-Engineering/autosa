@@ -4,23 +4,21 @@ Autosa is Tenco software used to automate data acquisition using a signal analyz
 
 ## Setup
 
-Windows is the recommended operating system for AutosaVersion 2022 Q3. It has not been tested on other operating systems.
+**Autosa has only been tested on Windows 10 and Windows 11 devices as of March 2026**
 
 ### Autosa Installation
 
-**Autosa has only been tested on Windows 10 and Windows 11 devices**
-
 This takes about 10 to 20 minutes, 1 reboot, and requires a decent internet connection.
 
-1. Download and Install [NI-VISA](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html) for Windows (last tested version is 2025 Q4). This allows Autosa to communicate with the instrument. Please read the instructions below for further guidance.
-   1. The link above will take you to the This will download the NI Package Manager from which you will install NI-VISA.
+1. Download and Install [NI-VISA](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html) for Windows (last tested version is 2025 Q4). This allows Autosa to communicate with the instrument.
+   1. This will download the NI Package Manager from which you will install NI-VISA.
    2. You will be asked to disable windows fast startup - do this, it only affects boot from shutdown and not by much.
    3. Deselect ALL when it asks about additional packages, Autosa does not need them.
-2. [Download the latest version](https://github.com/ThisTemba/autosa/releases/latest) of Autosa from this repository
+2. [Download the latest version](https://github.com/Turner-Engineering/autosa/releases/latest) of Autosa from this repository
    1. This link takes you to the "releases" page of this repository. From there, click "Autosa_vx.x.x.exe" under "Assets" to download the latest executable file.
    2. Autosa is not a "recognized" windows app, so you may get a warning about that, ignore the warning and run the executable. You may have to click "More Info" and then "Run Anyway" to get it to run.
 3. Double click the executable file to run the program
-   1. If the instrument is not connected, the program will start and say the instrument was not detected. See below for usage instructions
+   1. If the instrument is not connected, the program will start in Disconnected Mode.
 
 ### Instrument Setup
 
@@ -37,60 +35,89 @@ USB-B to USB-A Cable
 
 Ethernet to USB-A/C Cable
 
+### Connection Priority
+
+Autosa auto-detects the instrument connection in this priority order:
+1. **USB** - searches for USB resources
+2. **Ethernet** - searches for TCPIP resources (excluding localhost)
+3. **Emulator** - connects to `TCPIP0::localhost::inst0::INSTR`
+
+If no connection is found, Autosa starts in **Disconnected Mode** which allows you to configure settings and view logs without an active instrument connection.
 
 ### Usage
 
-To be written. Roughly:
+There are five modes, accessible via tabs:
 
-There are three modes:
-
-1. Manual Mode is for when you want to start and stop the instrument manually
-2. Single-band Mode is for when you want to run a band at a time automatically
-3. Multi-band Mode is for when you want to run multiple bands in a row automatically
-
-Autosa simplifies the process of loading the state file, loading the correction file, and saving the trace and screenshot with the correct name. The Manual Mode will require the user to do this process. The Single-Band Mode does this process for the selected band. The Multi-Band Mode does the process for an entire range of band.
+1. **Manual Mode** - start, stop, and save measurements manually. Good for railcar EMC tests where timing varies and tests are repeated depending on results.
+2. **Single-Band Mode** - automatically loads state file, correction file, runs measurement, and saves trace + screenshot for a selected band. Good for running one band at a time.
+3. **Multi-Band Mode** - runs multiple bands in sequence automatically, up to 5 consecutive runs with no intervention. Good for surveys when everything is set up and the procedure is repeated at each site.
+4. **Set Up Mode** - update state files, adjust reference levels and offsets.
+5. **Release Mode** - releases instrument control back to the front panel.
 
 - It is best to set the local output folder to a cloud-synced folder like Dropbox or OneDrive so that the data is backed up automatically.
 
-## Emulator Mode
+### Settings & Logs
 
-To run Autosa in Emulator mode:
-
-- Toggle `emulator_mode` to `true` in the `get_inst` function in [`instrument.py`](https://github.com/Turner-Engineering/autosa/blob/657f55e7287631352ad06e940d7c862862807254/src/instrument/instrument.py#L34C12-L34C79). This sets the `resource_name` to `TCPIP0::localhost::inst0::INSTR`
-
-This will be simplified in future versions of autosa (written while v0.4.0 was in pre-release)
+- From within the app, open **Settings** (gear icon) and use the **"Open Settings File"** and **"View Logs"** buttons in the top right corner to view and manage settings and logs.
+- Alternatively, paste `%LOCALAPPDATA%\Autosa` in the Windows Explorer address bar.
+- All settings can be configured from within the app, but the settings file is a JSON file and can be edited directly if needed. 
+- The logs are used for debugging and are not necessary for normal use. They can be shared with the developers if you encounter any issues.
 
 ## Development
 
 ### Guiding Principles
 
-This software is written to be as "plug-and-play" as possible. The more set up steps are required to use the software, the less likely it is to be used. This is why it comes packaged as an `.exe` file that just needs to be downloaded and double clicked. In this vein, all user interfaces should be as self-explanatory as possible.
+This software is written to be as "plug-and-play" as possible. The more setup steps are required to use the software, the less likely it is to be used. This is why it comes packaged as an `.exe` file that just needs to be downloaded and double clicked. In this vein, all user interfaces should be as self-explanatory as possible.
 
 Different levels of automation are available for differing comfort levels and use-cases. The most automated mode performs up to 5 runs in a row with no intervention. This is good for surveys, when everything is set up correctly and the procedure is merely repeated at each site. The least automated mode functions almost as an extension of the instrument's physical interface, allowing the user to start, stop, and save data manually. This is good for railcar EMC tests where timing varies and tests are repeated depending on the results.
 
-### Packages
+### Getting Started
 
-The following packages are required for development:
-
-- [CustomTkinter](https://customtkinter.tomschimansky.com/) - creating user interface
-- [pyinstaller](https://pyinstaller.org/en/stable/) - compiling python scripts `.exe` file
-- [pyvisa](https://pyvisa.readthedocs.io/en/latest/) - communicating with the instrument over USB
-
-Run the following command to install all these packages with pip:
+Autosa is developed with Python 3.10.4 (other versions have not been tested). To run locally:
 
 ```bash
-pip install customtkinter pyinstaller pyvisa
+pip install -r requirements.txt
+python src/main.py
 ```
+
+If no instrument is connected, Autosa starts in **Disconnected Mode** — this is useful for UI development since all screens and settings are fully accessible. To test instrument communication without hardware, run a VISA emulator on localhost and Autosa will auto-detect it.
+
+### Project Structure
+
+- `src/main.py` — entry point: checks for NI-VISA, loads settings, detects instrument, launches UI
+- `src/instrument/` — instrument communication (SCPI commands, file transfer, logging wrapper)
+- `src/ui/` — all UI screens (one file per mode, plus settings, help, and popup windows)
+- `src/utils/` — settings management, logging, warnings, stopwatch, run ID generation
+- `src/build.py` — PyInstaller build script
+- `src/autosa_version.txt` — single source of truth for version number
+- `demo/` — demo state and correction files
+
+### Packages
+
+Core packages:
+
+- [CustomTkinter](https://customtkinter.tomschimansky.com/) - user interface
+- [PyInstaller](https://pyinstaller.org/en/stable/) - compiling to `.exe`
+- [PyVISA](https://pyvisa.readthedocs.io/en/latest/) - instrument communication
+- [Pillow](https://pillow.readthedocs.io/) - loading button icons
+- [json_repair](https://github.com/mangiucugna/json_repair) - settings file validation
+- [tzlocal](https://github.com/regebro/tzlocal) - timezone detection
 
 ### Building
 
 This project uses [PyInstaller](https://pyinstaller.org/en/stable/) to convert the python scripts and packages into a single, distributable `.exe` file.
 
-The build is done by executing the `build.py` file. The output executable (`.exe`) file will be located in `root/install/dist`. The `/install/build` folder are the temporary files used by PyInstaller to create the executable. I don't know what the `.spec` file is, but it doesn't seem to be required to run the executable.
+```bash
+python src/build.py
+```
+
+The output executable will be at `install/dist/Autosa_v{version}.exe`. The `install/build` folder contains temporary PyInstaller files. The `.spec` file is auto-generated by PyInstaller and is not required to run the executable.
+
+The version is read from `src/autosa_version.txt`.
 
 ### N9010B Reference Docs
 
-Autosa was written to work with the N9010B signal analyzer. The [User's and Programmer's Reference](https://www.keysight.com/us/en/assets/9018-04666/user-manuals/9018-04666.pdf) was used to develop the SCPI commands.
+Autosa was written to work with the N9010B signal analyzer. The [User's and Programmer's Reference](https://www.keysight.com/us/en/assets/9018-04666/user-manuals/9018-04666.pdf) was used to develop the SCPI commands. See [`screenshot_copy_example.md`](screenshot_copy_example.md) for a standalone PyVISA screenshot copy example.
 
 ### Terminology
 
@@ -100,103 +127,7 @@ Autosa was written to work with the N9010B signal analyzer. The [User's and Prog
 
 `band_key` = B0, B1, B2, B3, B4, B5, B6, B7
 
-### Screenshot Copy Example Code
-
-```python
-# Instrument Control using PyVISA
-# Get Screenshot from PXA
-# import python modules
-import visa
-
-# Define Functions for Binary Data Mangement
-
-
-
-def binblock_raw(data_in):
-    # This function interprets the header for a definite binary block
-    # and returns the raw binary data for both definite and indefinite binary blocks
-
-    startpos=data_in.find("#")
-    if startpos < 0:
-        raise IOError("No start of block found")
-    lenlen = int(data_in[startpos+1:startpos+2]) # get the data length length
-
-    # If it's a definite length binary block
-    if lenlen > 0:
-        # Get the length from the header
-        offset = startpos+2+lenlen
-        datalen = int(data_in[startpos+2:startpos+2+lenlen])
-    else:
-        # If it's an indefinite length binary block get the length from the transfer itself
-        offset = startpos+2
-        datalen = len(data_in)-offset-1
-
-    # Extract the data out into a list.
-    return data_in[offset:offset+datalen]
-
-
-try:
-
-    #Open Connection
-    rm = visa.ResourceManager('C:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\agvisa\\agbin\\visa32.dll')
-    myinst = rm.open_resource("TCPIP0::156.140.157.6::inst0::INSTR")
-
-    #Set Timeout - 10 seconds
-    myinst.timeout =  10000
-
-    #*RST / *IDN?
-    myinst.write("*CLS")
-    myinst.write("*IDN?")
-    #print myinst.read()
-
-    myinst.write("*OPC?")
-    print ("Reset Complete: " + myinst.read())
-
-    #Store the screen image to file
-    myinst.write(":MMEM:STOR:SCR 'D:\\PICTURE.PNG'")
-    myinst.write("*OPC?")
-    complete = myinst.read()
-
-    #Read the contents of the screen image
-    myinst.write(":MMEM:DATA? 'D:\\PICTURE.PNG'")
-
-    my_image = myinst.read_raw()
-    #Interpret Header and Return Raw DATA
-    my_image = binblock_raw(my_image)
-    #Save Screen Image to File
-    target = open('C:\\Users\\Public\\python_screenshot2.jpg','wb')
-    target.write(my_image)
-    target.close()
-
-    ## Query for Instrument Errors
-    while True:
-        myinst.write(":SYSTem:ERRor?")
-        Result = myinst.read()
-        ErrorList = Result.split(',')
-        Error = ErrorList[0]
-        print ("Error #: " + ErrorList[0])
-        print ("Error Description: " + ErrorList[1])
-        if int(Error) == 0:
-            break
-
-    #Close Connection
-    myinst.close()
-    print ('close instrument connection')
-
-except IOError as err:
-    print ('Unable to open file: ' + str(err.strerror) + str(err.message))
-
-except OSError as err:
-    print ('Library error: ' + str(err.strerror) + str(err.message))
-
-except Exception as err:
-    print ('Exception: ' + str(err.message))
-
-finally:
-    #perform clean up operations
-    print ('complete')
-
-```
+`run_id` = MMDD-## format (month/day-sequential number)
 
 ## Usage Record
 
